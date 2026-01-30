@@ -1,1 +1,1 @@
-export const BASE_URL = 'http://10.21.1.43:3005/api/v1';
+export const BASE_URL = 'http://10.20.3.18:3005/api/v1';
