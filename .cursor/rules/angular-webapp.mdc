@@ -1,0 +1,26 @@
+---
+description: Angular web app standards and patterns for this project
+alwaysApply: true
+---
+
+# Angular Web App Rules
+
+- **Standalone components**: Use standalone components; avoid NgModules for new features. Import what you need in the component `imports` array.
+- **Signals**: Prefer signals (`signal()`, `computed()`, `effect()`) for reactive state over RxJS in components when the state is local to the component.
+- **RxJS**: Unsubscribe or use `takeUntilDestroyed()` (with `DestroyRef` injected) for long-lived subscriptions to avoid leaks.
+
+```typescript
+// ✅ GOOD – takeUntilDestroyed (inject DestroyRef in constructor or field)
+private destroyRef = inject(DestroyRef);
+constructor(private dataService: DataService) {
+  this.dataService.getData()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(data => this.items.set(data));
+}
+```
+
+- **Templates**: Keep logic in the class; use `@if`, `@for`, `@switch` (control flow) instead of `*ngIf`/`*ngFor` where possible.
+- **Routing**: Define routes in `app.routes.ts`; use lazy loading for feature modules/routes (`loadComponent` or `loadChildren`).
+- **Services**: Put shared logic in injectable services; use `inject()` in components and services.
+- **Change detection**: Prefer `OnPush` for components when you use signals or immutable inputs to reduce checks.
+- **File naming**: `*.component.ts`, `*.service.ts`, `*.pipe.ts`; co-locate template and styles with the component (same folder).
