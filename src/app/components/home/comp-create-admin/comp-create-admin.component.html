@@ -1,0 +1,68 @@
+@if (company) {
+<div class="modal-overlay">
+  <div class="modal-container">
+    <div
+      class="flex justify-between items-center p-6 border-b sticky top-0 bg-white"
+    >
+      <h2 class="text-xl font-semibold">Invite Company Admin</h2>
+      <button
+        (click)="onClose()"
+        class="modal-close-button"
+      >
+        <svg
+          class="modal-close-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <form [formGroup]="adminForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Email *</label
+          >
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            [class.border-red-500]="email?.invalid && email?.touched"
+            placeholder="Enter email address"
+          />
+          @if (email?.invalid && email?.touched) {
+          <p class="text-red-500 text-xs mt-1">
+            @if (email?.errors?.['required']) { Email is required } @else { @if
+            (email?.errors?.['email']) { Please enter a valid email address } }
+          </p>
+          }
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button
+            type="button"
+            (click)="onClose()"
+            class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="adminForm.invalid || isSubmitting"
+            class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            @if (isSubmitting) { Inviting... } @else { Invite }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,3367 @@
+<div class="h-screen bg-gray-50 flex overflow-hidden">
+  <!-- PrimeNG Drawer - Figma Design -->
+  <p-drawer
+    [(visible)]="sidebarOpen"
+    position="left"
+    [modal]="false"
+    [showCloseIcon]="false"
+    [dismissible]="false"
+    (onHide)="onDrawerHide($event)"
+    [styleClass]="
+      sidebarCollapsed() ? 'drawer-figma drawer-collapsed' : 'drawer-figma'
+    "
+  >
+    <ng-template pTemplate="header">
+      <div class="drawer-header">
+        <div
+          class="flex items-center justify-between w-full"
+          [ngClass]="{ 'drawer-header-collapsed': sidebarCollapsed() }"
+        >
+          @if (sidebarCollapsed()) {
+          <!-- When collapsed: Menu button on top, logo below -->
+          <div class="flex flex-col items-center w-full gap-3">
+            <button
+              (click)="toggleSidebar()"
+              class="toggle-drawer-btn-collapsed"
+              type="button"
+              aria-label="Toggle drawer"
+            >
+              <img
+                src="/menu-button.png"
+                alt="TERRALOGIC"
+                class="menu-button"
+              />
+            </button>
+            <img
+              src="/small-logo.png"
+              alt="TERRALOGIC"
+              class="small-logo-image"
+            />
+          </div>
+          } @else {
+          <!-- When expanded: Logo and menu button side by side -->
+          <div class="flex items-center">
+            <img
+              src="/terralogic-logo.png"
+              alt="TERRALOGIC"
+              class="logo-image"
+            />
+          </div>
+          <button
+            (click)="toggleSidebar()"
+            class="toggle-drawer-btn"
+            type="button"
+            aria-label="Toggle drawer"
+          >
+            <img src="/menu-button.png" alt="TERRALOGIC" class="menu-button" />
+          </button>
+          }
+        </div>
+        <!-- Separator -->
+        @if (!sidebarCollapsed()) {
+        <div class="drawer-separator" style="margin-top: 24px"></div>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <nav class="drawer-nav">
+        <!-- Dashboard -->
+        <button
+          (click)="setView('dashboard')"
+          [ngClass]="{
+            'drawer-nav-item-active': view() === 'dashboard',
+            'drawer-nav-item': view() !== 'dashboard'
+          }"
+        >
+          <img src="/dashboard-Icon.svg" alt="Dashboard" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span class="flex-1">Dashboard</span>
+          @if (view() === 'dashboard') {
+          <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
+          } }
+        </button>
+
+        @if (role() === 'system') {
+        <!-- Companies -->
+        <button
+          (click)="setView('companies')"
+          [ngClass]="{
+            'drawer-nav-item-active': view() === 'companies',
+            'drawer-nav-item': view() !== 'companies'
+          }"
+        >
+          <img src="/company-icon.svg" alt="TERRALOGIC" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span class="flex-1">Companies</span>
+          @if (view() === 'companies') {
+          <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
+          } }
+        </button>
+
+        <!-- Company Admins -->
+        <button
+          (click)="setView('admins')"
+          [ngClass]="{
+            'drawer-nav-item-active': view() === 'admins',
+            'drawer-nav-item': view() !== 'admins'
+          }"
+        >
+          <img
+            src="/company-admin-icon.svg"
+            alt="TERRALOGIC"
+            class="logo-image"
+          />
+          @if (!sidebarCollapsed()) {
+          <span class="flex-1">Company Admins</span>
+          @if (view() === 'admins') {
+          <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
+          } }
+        </button>
+        } @else {
+        <!-- Meeting Rooms -->
+        <button
+          (click)="setView('rooms')"
+          [ngClass]="{
+            'drawer-nav-item-active': view() === 'rooms',
+            'drawer-nav-item': view() !== 'rooms'
+          }"
+        >
+          <img
+            src="/meeting-room-icon.svg"
+            alt="TERRALOGIC"
+            class="logo-image"
+          />
+          @if (!sidebarCollapsed()) {
+          <span class="flex-1">Meeting Rooms</span>
+          @if (view() === 'rooms') {
+          <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
+          } }
+        </button>
+
+        <!-- Employees -->
+        <button
+          (click)="setView('employees')"
+          [ngClass]="{
+            'drawer-nav-item-active': view() === 'employees',
+            'drawer-nav-item': view() !== 'employees'
+          }"
+        >
+          <img src="/employee-icon.svg" alt="TERRALOGIC" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span class="flex-1">Employees</span>
+          @if (view() === 'employees') {
+          <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
+          } }
+        </button>
+
+        <!-- Report -->
+        <button
+          (click)="setView('report')"
+          [ngClass]="{
+            'drawer-nav-item-active': view() === 'report',
+            'drawer-nav-item': view() !== 'report'
+          }"
+        >
+          <img src="/report-icon.svg" alt="TERRALOGIC" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span class="flex-1">Report</span>
+          @if (view() === 'report') {
+          <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
+          } }
+        </button>
+        }
+      </nav>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="drawer-footer">
+        <!-- Setting -->
+        <button class="drawer-footer-item">
+          <img src="/settings-icon.png" alt="TERRALOGIC" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span>Settings</span>
+          }
+        </button>
+
+        <!-- Log out -->
+        <button (click)="onLogout()" class="drawer-footer-item">
+          <img src="/logout-icon.png" alt="TERRALOGIC" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span>Log out</span>
+          }
+        </button>
+
+        <!-- User Profile -->
+        <div class="drawer-footer-item">
+          <!-- <div class="w-5 h-10 flex-shrink-0">
+            <div class="user-icon"></div>
+          </div> -->
+          <img src="/user-icon.png" alt="TERRALOGIC" class="logo-image" />
+          @if (!sidebarCollapsed()) {
+          <span class="text-sm">
+            @if (currentUser().firstName || currentUser().lastName) {
+            {{ currentUser().firstName }} {{ currentUser().lastName }}
+            } @else { User }
+          </span>
+          }
+        </div>
+      </div>
+    </ng-template>
+  </p-drawer>
+
+  <!-- Main Content -->
+  <div
+    class="flex-1 overflow-auto h-full flex-shrink-0 transition-all duration-300 ease-in-out"
+    [style.margin-left]="
+      sidebarOpen() ? (sidebarCollapsed() ? '80px' : '333px') : '0'
+    "
+    [style.padding-left]="sidebarOpen() ? '0' : '0'"
+  >
+    <!-- Toggle button for drawer (only visible when drawer is closed) -->
+    @if (!sidebarOpen()) {
+    <button
+      (click)="toggleSidebar()"
+      class="fixed top-4 left-4 z-30 p-2 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300 border border-gray-200"
+      type="button"
+      aria-label="Open sidebar"
+      title="Open sidebar (Ctrl+B or Cmd+B)"
+    >
+      <img src="/menu-button.png" alt="Menu" class="w-6 h-6" />
+    </button>
+    }
+    <div class="p-8 min-h-full">
+      @if (role() === 'system' && view() === 'dashboard') {
+      <div class="system-dashboard-container">
+        <!-- Header Section -->
+        <div class="system-dashboard-header">
+          <h1 class="system-dashboard-title">Running the System</h1>
+          <div class="system-period-select-container" #periodDropdown>
+            <button
+              (click)="showPeriodDropdown.set(!showPeriodDropdown())"
+              class="system-period-select-button"
+            >
+              <span class="system-period-select-text">{{
+                selectedPeriod()
+              }}</span>
+              <svg
+                class="system-period-select-icon"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
+              </svg>
+            </button>
+            @if (showPeriodDropdown()) {
+            <div class="system-period-dropdown-menu">
+              <button
+                (click)="
+                  selectedPeriod.set('This week'); showPeriodDropdown.set(false)
+                "
+                [ngClass]="{
+                  'system-period-option-selected':
+                    selectedPeriod() === 'This week'
+                }"
+                class="system-period-dropdown-option"
+              >
+                This week
+              </button>
+              <button
+                (click)="
+                  selectedPeriod.set('This month');
+                  showPeriodDropdown.set(false)
+                "
+                [ngClass]="{
+                  'system-period-option-selected':
+                    selectedPeriod() === 'This month'
+                }"
+                class="system-period-dropdown-option"
+              >
+                This month
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- KPI Cards Grid -->
+        <div class="system-kpi-cards-grid">
+          @for (kpi of [ companyStatistics.total, companyStatistics.active,
+          companyStatistics.inactive, companyStatistics.pending ]; track
+          kpi.label) {
+          <div
+            (click)="selectedKpiCard.set(kpi.label)"
+            [ngClass]="{
+              'system-kpi-card-purple': kpi.isPurple,
+              'system-kpi-card-white': !kpi.isPurple,
+              'system-kpi-card-selected': selectedKpiCard() === kpi.label
+            }"
+            class="system-kpi-card"
+          >
+            <!-- House Icon - Top Right -->
+            <div class="system-kpi-icon-container">
+              <svg
+                class="system-kpi-icon"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                />
+              </svg>
+            </div>
+
+            <!-- Card Content -->
+            <div class="system-kpi-content">
+              <!-- Title -->
+              <div
+                [ngClass]="
+                  kpi.isPurple
+                    ? 'system-kpi-title-purple'
+                    : 'system-kpi-title-white'
+                "
+              >
+                {{ kpi.label }}
+              </div>
+
+              <!-- Main Value and Badge -->
+              <div class="system-kpi-value-row">
+                <div
+                  [ngClass]="
+                    kpi.isPurple
+                      ? 'system-kpi-value-purple'
+                      : 'system-kpi-value-white'
+                  "
+                >
+                  {{ kpi.value }}
+                </div>
+                @if (kpi.changeType === 'positive' && kpi.isPurple) {
+                <div class="system-kpi-badge">
+                  <svg
+                    class="system-kpi-badge-icon"
+                    width="12"
+                    height="12"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 10l7-7m0 0l7 7m-7-7v18"
+                    ></path>
+                  </svg>
+                  <span class="system-kpi-badge-text">{{ kpi.change }}</span>
+                </div>
+                }
+              </div>
+
+              <!-- Secondary Text -->
+              <div
+                [ngClass]="
+                  kpi.isPurple
+                    ? 'system-kpi-subtext-purple'
+                    : 'system-kpi-subtext-white'
+                "
+              >
+                {{ kpi.subText || kpi.change }}
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      } @if (role() === 'system' && view() === 'companies') {
+      <div
+        class="companies-page-container"
+        [ngClass]="{ 'companies-page-overlay': showDetail() }"
+      >
+        <div class="companies-page-header">
+          <h1 class="companies-page-title">Who's Using the Platform</h1>
+          <div class="companies-page-header-actions">
+            <button
+              class="filter-btn"
+              [ngClass]="{
+                'filter-btn-active': companyFilterStatus() !== null
+              }"
+              (click)="toggleFilter($event)"
+              (mousedown)="$event.preventDefault()"
+            >
+              <span class="filter-text">Filter</span>
+              <div class="filter-icon-wrapper">
+                <svg
+                  class="filter-icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  />
+                </svg>
+              </div>
+            </button>
+            <p-popover #filterPopover>
+              <div class="flex flex-col p-1">
+                <button
+                  type="button"
+                  class="filter-option-btn w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-all duration-150 ease-in-out"
+                  [ngClass]="{
+                    'filter-option-active': companyFilterStatus() === 'active'
+                  }"
+                  (click)="onFilterStatusChange('active')"
+                  (mousedown)="$event.preventDefault()"
+                >
+                  Active
+                </button>
+                <button
+                  type="button"
+                  class="filter-option-btn w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-all duration-150 ease-in-out"
+                  [ngClass]="{
+                    'filter-option-active': companyFilterStatus() === 'inactive'
+                  }"
+                  (click)="onFilterStatusChange('inactive')"
+                  (mousedown)="$event.preventDefault()"
+                >
+                  Inactive
+                </button>
+                <button
+                  type="button"
+                  class="filter-option-btn w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-all duration-150 ease-in-out"
+                  [ngClass]="{
+                    'filter-option-active': companyFilterStatus() === null
+                  }"
+                  (click)="onFilterStatusChange(null)"
+                  (mousedown)="$event.preventDefault()"
+                >
+                  All
+                </button>
+              </div>
+            </p-popover>
+            <button
+              (click)="setModal('createCompany')"
+              class="create-company-btn"
+            >
+              <span class="create-company-text">Create Company</span>
+              <div class="create-company-icon-wrapper">
+                <svg
+                  class="create-company-icon"
+                  fill="none"
+                  stroke="#000000"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl companies-search-container flex gap-3">
+          <div class="flex-1 relative">
+            <svg
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-[18px] h-[18px]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search companies..."
+              [value]="search()"
+              (input)="onSearchChange($any($event.target).value)"
+              class="w-full pl-10 pr-4 py-2 companies-search-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+        </div>
+
+        <div class="companies-table-container">
+          <table class="companies-table">
+            <thead>
+              <tr>
+                <th class="companies-table-header companies-number-header">
+                  <span>#</span>
+                </th>
+                <th
+                  class="companies-table-header companies-table-header-sortable companies-company-header"
+                >
+                  <div class="companies-header-sort-container">
+                    <span>COMPANY</span>
+                    <svg
+                      class="companies-sort-icon"
+                      width="8"
+                      height="6"
+                      viewBox="0 0 8 6"
+                      fill="none"
+                    >
+                      <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                    </svg>
+                  </div>
+                </th>
+                <th
+                  class="companies-table-header companies-table-header-sortable companies-industry-header"
+                  (click)="toggleIndustrySort()"
+                >
+                  <div class="companies-header-sort-container">
+                    <span>INDUSTRY</span>
+                    <div class="companies-sort-icon-wrapper">
+                      @if (companyIndustrySortDirection() === 'asc') {
+                      <svg
+                        class="companies-sort-icon companies-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (companyIndustrySortDirection() === 'desc') {
+                      <svg
+                        class="companies-sort-icon companies-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="companies-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="companies-table-header companies-admin-header">
+                  <span>ADMIN</span>
+                </th>
+                <th
+                  class="companies-table-header companies-table-header-sortable"
+                  (click)="toggleCompanyStatusSort()"
+                >
+                  <div class="companies-header-sort-container">
+                    <span>STATUS</span>
+                    <div class="companies-sort-icon-wrapper">
+                      @if (companyStatusSortDirection() === 'asc') {
+                      <svg
+                        class="companies-sort-icon companies-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (companyStatusSortDirection() === 'desc') {
+                      <svg
+                        class="companies-sort-icon companies-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="companies-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="companies-table-header">
+                  <span>ACTION</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (company of filteredCompanies; track company.id ||
+              company.name; let i = $index) {
+              <tr
+                class="companies-table-row"
+                [ngClass]="{ 'companies-table-row-alt': i % 2 === 1 }"
+              >
+                <td class="companies-table-cell companies-number-cell">
+                  <span class="companies-number-text">{{
+                    first() + i + 1
+                  }}</span>
+                </td>
+                <td class="companies-table-cell companies-company-cell">
+                  <span class="companies-company-name">{{ company.name }}</span>
+                </td>
+                <td class="companies-table-cell companies-industry-cell">
+                  <span class="companies-industry-text">{{
+                    company.industry
+                  }}</span>
+                </td>
+                <td class="companies-table-cell companies-admin-cell">
+                  <span class="companies-admin-text">{{
+                    company.admins ?? 0
+                  }}</span>
+                </td>
+                <td class="companies-table-cell companies-status-cell">
+                  @if (company.status === 'active') {
+                  <div class="companies-status-badge companies-status-active">
+                    <svg
+                      class="companies-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#13C05D"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L5 7L7.5 4.5"
+                        stroke="#13C05D"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="companies-status-text">Active</span>
+                  </div>
+                  } @else if (company.status === 'pending') {
+                  <div class="companies-status-badge companies-status-pending">
+                    <svg
+                      class="companies-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#F59E0B"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M5.5 3.5V5.5L7 7"
+                        stroke="#F59E0B"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="companies-status-text">Pending</span>
+                  </div>
+                  } @else {
+                  <div class="companies-status-badge companies-status-inactive">
+                    <svg
+                      class="companies-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#EB5146"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L7.5 5.5"
+                        stroke="#EB5146"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    <span class="companies-status-text">Inactive</span>
+                  </div>
+                  }
+                </td>
+                <td class="companies-table-cell companies-action-cell">
+                  <div class="companies-action-buttons">
+                    <button
+                      type="button"
+                      class="companies-action-button companies-edit-button"
+                      (click)="
+                        onEditCompanyClick(company); $event.stopPropagation()
+                      "
+                      (mousedown)="$event.preventDefault()"
+                    >
+                      <svg
+                        class="companies-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="companies-action-button companies-delete-button"
+                      (click)="
+                        onDeleteCompanyClick(company); $event.stopPropagation()
+                      "
+                      (mousedown)="$event.preventDefault()"
+                    >
+                      <svg
+                        class="companies-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M10 11V17M14 11V17"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="companies-three-dots-btn"
+                      (click)="
+                        toggle($event, company); $event.stopPropagation()
+                      "
+                      (mousedown)="$event.preventDefault()"
+                    >
+                      <svg
+                        class="companies-three-dots-icon"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <p-popover #op>
+                    <div class="flex flex-col">
+                      <div>
+                        <button
+                          type="button"
+                          class="details-btn w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-all duration-150 ease-in-out"
+                          (click)="
+                            onShowCreateAdmin(); $event.stopPropagation()
+                          "
+                          (mousedown)="$event.preventDefault()"
+                        >
+                          Invite Company Admin
+                        </button>
+                      </div>
+                      <div style="display: none">
+                        <button
+                          type="button"
+                          class="details-btn w-full text-left px-3 py-2 rounded-md font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-all duration-150 ease-in-out"
+                          (click)="
+                            onShowDeleteAdmin(); $event.stopPropagation()
+                          "
+                          (mousedown)="$event.preventDefault()"
+                        >
+                          Delete Admin
+                        </button>
+                      </div>
+                    </div>
+                  </p-popover>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bg-white paginator-wrapper">
+          <p-paginator
+            [first]="first()"
+            [rows]="rows()"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="rowsPerPageOptions"
+            (onPageChange)="onPageChange($event)"
+          ></p-paginator>
+        </div>
+      </div>
+      } @if (role() === 'system' && view() === 'admins') {
+      <div class="admins-page-container">
+        <div class="admins-page-header">
+          <h1 class="admins-page-title">Company Admins</h1>
+        </div>
+
+        <div class="admins-table-container">
+          @if (loadingAdmins) {
+          <div class="admins-loading">
+            <p>Loading admins...</p>
+          </div>
+          } @else if (allAdmins.length === 0) {
+          <div class="admins-empty">
+            <p>No company admins found.</p>
+          </div>
+          } @else {
+          <table class="admins-table">
+            <thead>
+              <tr>
+                <th class="admins-table-header admins-number-header">
+                  <span>#</span>
+                </th>
+                <th
+                  class="admins-table-header admins-table-header-sortable admins-name-header"
+                  (click)="toggleAdminNameSort()"
+                >
+                  <div class="admins-header-sort-container">
+                    <span>NAME</span>
+                    <div class="admins-sort-icon-wrapper">
+                      @if (adminNameSortDirection() === 'asc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (adminNameSortDirection() === 'desc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="admins-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th
+                  class="admins-table-header admins-table-header-sortable admins-email-header"
+                  (click)="toggleAdminEmailSort()"
+                >
+                  <div class="admins-header-sort-container">
+                    <span>EMAIL</span>
+                    <div class="admins-sort-icon-wrapper">
+                      @if (adminEmailSortDirection() === 'asc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (adminEmailSortDirection() === 'desc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="admins-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th
+                  class="admins-table-header admins-table-header-sortable admins-company-header"
+                  (click)="toggleAdminCompanySort()"
+                >
+                  <div class="admins-header-sort-container">
+                    <span>COMPANY</span>
+                    <div class="admins-sort-icon-wrapper">
+                      @if (adminCompanySortDirection() === 'asc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (adminCompanySortDirection() === 'desc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="admins-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th
+                  class="admins-table-header admins-table-header-sortable admins-status-header"
+                  (click)="toggleAdminStatusSort()"
+                >
+                  <div class="admins-header-sort-container">
+                    <span>STATUS</span>
+                    <div class="admins-sort-icon-wrapper">
+                      @if (adminStatusSortDirection() === 'asc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (adminStatusSortDirection() === 'desc') {
+                      <svg
+                        class="admins-sort-icon admins-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="admins-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="admins-table-header admins-actions-header">
+                  <span>ACTIONS</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (admin of paginatedAdmins; track admin.id; let i = $index) {
+              <tr class="admins-table-row">
+                <td class="admins-table-cell admins-number-cell">
+                  {{ firstAdmin() + i + 1 }}
+                </td>
+                <td class="admins-table-cell admins-name-cell">
+                  {{ admin.firstName }} {{ admin.lastName }}
+                </td>
+                <td class="admins-table-cell admins-email-cell">
+                  {{ admin.email }}
+                </td>
+                <td class="admins-table-cell admins-company-cell">
+                  {{ admin.companyName || "N/A" }}
+                </td>
+                <td class="admins-table-cell admins-status-cell">
+                  @if (admin.status === 'active') {
+                  <div class="admins-status-badge admins-status-active">
+                    <svg
+                      class="admins-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#13C05D"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L5 7L7.5 4.5"
+                        stroke="#13C05D"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="admins-status-text">Active</span>
+                  </div>
+                  } @else if (admin.status === 'pending') {
+                  <div class="admins-status-badge admins-status-pending">
+                    <svg
+                      class="admins-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#F59E0B"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M5.5 3.5V5.5L7 7"
+                        stroke="#F59E0B"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="admins-status-text">Pending</span>
+                  </div>
+                  } @else {
+                  <div class="admins-status-badge admins-status-inactive">
+                    <svg
+                      class="admins-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#CDD5DF"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 3.5L7.5 7.5M7.5 3.5L3.5 7.5"
+                        stroke="#CDD5DF"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="admins-status-text">Inactive</span>
+                  </div>
+                  }
+                </td>
+                <td class="admins-table-cell admins-actions-cell">
+                  <div class="admins-actions-buttons">
+                    <button
+                      type="button"
+                      class="admins-action-button admins-edit-button"
+                      (click)="onShowUpdateAdmin(admin)"
+                      (mousedown)="$event.preventDefault()"
+                    >
+                      <svg
+                        class="admins-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="admins-action-button admins-delete-button"
+                      (click)="onDeleteAdminClick(admin)"
+                      (mousedown)="$event.preventDefault()"
+                    >
+                      <svg
+                        class="admins-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M10 11V17M14 11V17"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          <p-paginator
+            [first]="firstAdmin()"
+            [rows]="rowsAdmin()"
+            [totalRecords]="totalAdminsRecords"
+            [rowsPerPageOptions]="rowsPerPageOptions"
+            (onPageChange)="onAdminPageChange($event)"
+          ></p-paginator>
+          }
+        </div>
+      </div>
+      } @if (role() === 'company' && view() === 'dashboard') {
+      <div class="company-dashboard-container">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+          <div class="header-content-left">
+            <h1 class="welcome-title">
+              Welcome back, {{ currentUser().firstName || "John" }}!
+            </h1>
+            <p class="company-subtitle">Company Admin</p>
+          </div>
+          <div class="period-select-container" #companyPeriodDropdown>
+            <button
+              (click)="
+                showCompanyPeriodDropdown.set(!showCompanyPeriodDropdown())
+              "
+              class="period-select-button"
+            >
+              <span class="period-select-text">{{
+                selectedCompanyPeriod()
+              }}</span>
+              <div class="period-select-icon">
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+            </button>
+            @if (showCompanyPeriodDropdown()) {
+            <div class="period-dropdown-menu">
+              <button
+                (click)="
+                  selectedCompanyPeriod.set('This week');
+                  showCompanyPeriodDropdown.set(false)
+                "
+                [ngClass]="{
+                  'period-option-selected':
+                    selectedCompanyPeriod() === 'This week'
+                }"
+                class="period-dropdown-option"
+              >
+                This week
+              </button>
+              <button
+                (click)="
+                  selectedCompanyPeriod.set('This month');
+                  showCompanyPeriodDropdown.set(false)
+                "
+                [ngClass]="{
+                  'period-option-selected':
+                    selectedCompanyPeriod() === 'This month'
+                }"
+                class="period-dropdown-option"
+              >
+                This month
+              </button>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- KPI Cards Section -->
+        <div class="kpi-cards-row">
+          @for (kpi of [ { label: 'Meeting Room', value: '12', change: '2.0',
+          changeType: 'increase', lastMonth: '1234' }, { label: 'Active ' +
+          'Employees', value: '12', change: '2.0', changeType: 'decrease',
+          lastMonth: '1234' }, { label: 'Active Meetings', value: '12', change:
+          '2.0', changeType: 'increase', lastMonth: '1234' } ]; track kpi.label)
+          {
+          <div class="company-kpi-card">
+            <div class="kpi-card-content">
+              <p class="kpi-label">{{ kpi.label }}</p>
+              <div class="kpi-value-row">
+                <p class="kpi-value">{{ kpi.value }}</p>
+                <div
+                  class="kpi-change-badge"
+                  [ngClass]="
+                    kpi.changeType === 'increase'
+                      ? 'change-increase'
+                      : 'change-decrease'
+                  "
+                >
+                  <svg
+                    class="change-icon"
+                    [ngClass]="
+                      kpi.changeType === 'increase' ? 'icon-up' : 'icon-down'
+                    "
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    @if (kpi.changeType === 'increase') {
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 15l7-7 7 7"
+                    ></path>
+                    } @else {
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    ></path>
+                    }
+                  </svg>
+                  <span class="change-text">{{ kpi.change }} %</span>
+                </div>
+              </div>
+              <div class="kpi-last-month">
+                <span>Last month:</span>
+                <span>{{ kpi.lastMonth }}</span>
+              </div>
+            </div>
+            <div class="kpi-icon-wrapper">
+              <svg
+                class="kpi-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M9.02 2.83992L3.63 7.03992C2.73 7.73992 2 9.22992 2 10.3599V17.7699C2 20.0899 3.89 21.9899 6.21 21.9899H17.79C20.11 21.9899 22 20.0899 22 17.7799V10.4999C22 9.28992 21.19 7.73992 20.2 7.04992L14.02 2.71992C12.62 1.73992 10.37 1.78992 9.02 2.83992Z"
+                  stroke="#764FDB"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12 17.99V14.99"
+                  stroke="#764FDB"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Room Utilization Section -->
+        <div class="room-utilization-card">
+          <div class="utilization-header">
+            <p class="utilization-title">Room Utilization</p>
+            <div class="utilization-tabs">
+              <button
+                class="utilization-tab"
+                [ngClass]="{
+                  'tab-active': selectedUtilizationPeriod() === 'Today'
+                }"
+                (click)="selectedUtilizationPeriod.set('Today')"
+              >
+                Today
+              </button>
+              <button
+                class="utilization-tab"
+                [ngClass]="{
+                  'tab-active': selectedUtilizationPeriod() === 'Week'
+                }"
+                (click)="selectedUtilizationPeriod.set('Week')"
+              >
+                Week
+              </button>
+              <button
+                class="utilization-tab"
+                [ngClass]="{
+                  'tab-active': selectedUtilizationPeriod() === 'Month'
+                }"
+                (click)="selectedUtilizationPeriod.set('Month')"
+              >
+                Month
+              </button>
+            </div>
+          </div>
+
+          <div class="utilization-chart-container">
+            <div class="chart-bars">
+              @for (room of [ { name: 'Conference Room A', usage: 39 }, { name:
+              'Conference Room A', usage: 50 }, { name: 'Conference Room A',
+              usage: 90 }, { name: 'Conference Room A', usage: 62 }, { name:
+              'Conference Room A', usage: 25 } ]; track $index) {
+              <div class="chart-row">
+                <div class="room-name-label">{{ room.name }}</div>
+                <div class="chart-bar-wrapper">
+                  <div class="chart-bar" [style.width.%]="room.usage">
+                    <span class="bar-value">{{ room.usage }}</span>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            <div class="chart-axis">
+              <div class="axis-labels">
+                <span>00</span>
+                <span>10</span>
+                <span>20</span>
+                <span>30</span>
+                <span>40</span>
+                <span>50</span>
+                <span>60</span>
+                <span>70</span>
+                <span>80</span>
+                <span>90</span>
+                <span>100</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      } @if (role() === 'company' && view() === 'rooms') {
+      <div
+        class="rooms-container"
+        [ngClass]="{
+          'rooms-container-overlay':
+            modal() === 'addRoom' ||
+            modal() === 'editRoom' ||
+            modal() === 'deleteRoom'
+        }"
+      >
+        <!-- Header Section -->
+        <div class="rooms-header">
+          <div class="rooms-header-left">
+            <h1 class="rooms-title">Where Meetings Begin</h1>
+          </div>
+          <div class="rooms-header-right">
+            <!-- View Toggle Switch -->
+            <div class="view-toggle-switch">
+              <div
+                class="switch-card-view"
+                [ngClass]="{ 'switch-active': roomViewMode() === 'card' }"
+                (click)="roomViewMode.set('card')"
+              >
+                @if (roomViewMode() === 'card') {
+                <!-- Active: Green check + grid icon -->
+                <div class="switch-icons-group">
+                  <svg
+                    class="switch-icon check-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#13C05D" />
+                    <path
+                      d="M8 12L11 15L16 9"
+                      stroke="white"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <svg
+                    class="switch-icon grid-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <rect x="4" y="4" width="4" height="4" fill="#364152" />
+                    <rect x="10" y="4" width="4" height="4" fill="#364152" />
+                    <rect x="16" y="4" width="4" height="4" fill="#364152" />
+                    <rect x="4" y="10" width="4" height="4" fill="#364152" />
+                    <rect x="10" y="10" width="4" height="4" fill="#364152" />
+                    <rect x="16" y="10" width="4" height="4" fill="#364152" />
+                    <rect x="4" y="16" width="4" height="4" fill="#364152" />
+                    <rect x="10" y="16" width="4" height="4" fill="#364152" />
+                    <rect x="16" y="16" width="4" height="4" fill="#364152" />
+                  </svg>
+                </div>
+                } @else {
+                <!-- Inactive: Gray grid icon only -->
+                <div class="switch-icon-container">
+                  <svg
+                    class="switch-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <rect x="4" y="4" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="10" y="4" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="16" y="4" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="4" y="10" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="10" y="10" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="16" y="10" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="4" y="16" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="10" y="16" width="4" height="4" fill="#9AA3B2" />
+                    <rect x="16" y="16" width="4" height="4" fill="#9AA3B2" />
+                  </svg>
+                </div>
+                }
+              </div>
+              <div
+                class="switch-list-view"
+                [ngClass]="{ 'switch-active': roomViewMode() === 'list' }"
+                (click)="roomViewMode.set('list')"
+              >
+                @if (roomViewMode() === 'list') {
+                <!-- Active: Green check + gray tile icons -->
+                <div class="switch-icons-group">
+                  <svg
+                    class="switch-icon check-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#13C05D" />
+                    <path
+                      d="M8 12L11 15L16 9"
+                      stroke="white"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <svg
+                    class="switch-icon tile-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <rect x="4" y="4" width="16" height="6" fill="#364152" />
+                    <rect x="4" y="12" width="16" height="6" fill="#364152" />
+                  </svg>
+                </div>
+                } @else {
+                <!-- Inactive: Gray tile icon only -->
+                <div class="switch-icon-container">
+                  <svg
+                    class="switch-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <rect x="4" y="4" width="16" height="6" fill="#9AA3B2" />
+                    <rect x="4" y="12" width="16" height="6" fill="#9AA3B2" />
+                  </svg>
+                </div>
+                }
+              </div>
+            </div>
+            <!-- Add Room Button -->
+            <button (click)="setModal('addRoom')" class="add-room-button">
+              <span class="add-room-text">Add Room</span>
+              <div class="add-room-icon-wrapper">
+                <svg
+                  class="add-room-icon"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M12 5V19M5 12H19"
+                    stroke="#764FDB"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Rooms Grid (Card View) -->
+        @if (roomViewMode() === 'card') {
+        <div class="rooms-grid">
+          @for (room of sortedRooms; track room.id) {
+          <div class="room-card">
+            <!-- Image Section -->
+            <div
+              class="room-image-container"
+              (mousemove)="onRoomImageMouseMove($event, room.id)"
+              (mouseleave)="onRoomImageMouseLeave($event)"
+            >
+              @if (room.images && room.images.length > 0) {
+              <img
+                [src]="room.images[0]"
+                [alt]="room.name"
+                class="room-image"
+              />
+              } @else {
+              <div class="room-image-placeholder">
+                <svg
+                  class="room-placeholder-icon"
+                  width="96"
+                  height="96"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              }
+              <!-- Status Badge -->
+              <div class="room-status-badge">
+                @if (room.status === 'active') {
+                <div class="status-badge-active">
+                  <svg
+                    class="status-icon"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 11 11"
+                    fill="none"
+                  >
+                    <circle
+                      cx="5.5"
+                      cy="5.5"
+                      r="5"
+                      stroke="#13C05D"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M3.5 5.5L5 7L7.5 4.5"
+                      stroke="#13C05D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span class="status-text">Active</span>
+                </div>
+                } @else {
+                <div class="status-badge-inactive">
+                  <svg
+                    class="status-icon"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 11 11"
+                    fill="none"
+                  >
+                    <circle
+                      cx="5.5"
+                      cy="5.5"
+                      r="5"
+                      stroke="#EB5146"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M3.5 5.5L7.5 5.5"
+                      stroke="#EB5146"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  <span class="status-text">Inactive</span>
+                </div>
+                }
+              </div>
+            </div>
+
+            <!-- Room Name -->
+            <p class="room-name">{{ room.name }}</p>
+
+            <!-- Room Details -->
+            <div class="room-details">
+              <!-- Location -->
+              <div class="room-location">
+                <svg
+                  class="location-icon"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  opacity="0.3"
+                >
+                  <path
+                    d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z"
+                    fill="#121926"
+                  />
+                </svg>
+                <p class="location-text">{{ room.location }}</p>
+              </div>
+              <!-- People and Time -->
+              <div class="room-meta">
+                <div class="room-meta-item">
+                  <svg
+                    class="meta-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    opacity="0.5"
+                  >
+                    <path
+                      d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+                      fill="#121926"
+                    />
+                  </svg>
+                  <span class="meta-text">{{ room.capacity }} people</span>
+                </div>
+                <div class="room-meta-item">
+                  <svg
+                    class="meta-icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    opacity="0.5"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 13H11V7H13V13ZM13 17H11V15H13V17Z"
+                      fill="#121926"
+                    />
+                  </svg>
+                  <span class="meta-text">{{ room.hours }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="room-actions">
+              <button class="room-edit-button" (click)="onEditRoom(room)">
+                <svg
+                  class="action-icon"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                    stroke="#764FDB"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                    stroke="#764FDB"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="action-text">Edit</span>
+              </button>
+              <button class="room-delete-button" (click)="onDeleteRoom(room)">
+                <svg
+                  class="action-icon"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                    stroke="#CDD5DF"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M10 11V17M14 11V17"
+                    stroke="#CDD5DF"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span class="action-text">Delete</span>
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Rooms Table (List View) -->
+        @if (roomViewMode() === 'list') {
+        <div class="rooms-table-container">
+          <table class="rooms-table">
+            <thead>
+              <tr>
+                <th class="table-header">NAME</th>
+                <th class="table-header">LOCATION</th>
+                <th class="table-header">CAPACITY</th>
+                <th class="table-header">ACTIVE TIME</th>
+                <th
+                  class="table-header table-header-sortable"
+                  (click)="toggleStatusSort()"
+                >
+                  <div class="header-sort-container">
+                    <span>STATUS</span>
+                    <div class="sort-icon-wrapper">
+                      @if (statusSortDirection() === 'asc') {
+                      <svg
+                        class="sort-icon sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (statusSortDirection() === 'desc') {
+                      <svg
+                        class="sort-icon sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="table-header">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (room of sortedRooms; track room.id) {
+              <tr class="table-row">
+                <td class="table-cell room-name-cell">
+                  <span class="room-name-text">{{ room.name }}</span>
+                </td>
+                <td class="table-cell location-cell">
+                  <span class="location-text-table">{{ room.location }}</span>
+                </td>
+                <td class="table-cell capacity-cell">
+                  <span class="capacity-text">{{ room.capacity }} people</span>
+                </td>
+                <td class="table-cell time-cell">
+                  <div class="time-cell-content">
+                    <svg
+                      class="time-icon"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      opacity="0.5"
+                    >
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 13H11V7H13V13ZM13 17H11V15H13V17Z"
+                        fill="#121926"
+                      />
+                    </svg>
+                    <span class="time-text">{{ room.hours }}</span>
+                  </div>
+                </td>
+                <td class="table-cell status-cell">
+                  @if (room.status === 'active') {
+                  <div class="status-badge-table status-badge-active-table">
+                    <svg
+                      class="status-icon-table"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#13C05D"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L5 7L7.5 4.5"
+                        stroke="#13C05D"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="status-text-table">Active</span>
+                  </div>
+                  } @else {
+                  <div class="status-badge-table status-badge-inactive-table">
+                    <svg
+                      class="status-icon-table"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#EB5146"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L7.5 5.5"
+                        stroke="#EB5146"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    <span class="status-text-table">Inactive</span>
+                  </div>
+                  }
+                </td>
+                <td class="table-cell action-cell">
+                  <div class="table-actions">
+                    <button
+                      class="table-action-button table-edit-button"
+                      (click)="onEditRoom(room)"
+                    >
+                      <svg
+                        class="table-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      class="table-action-button table-delete-button"
+                      (click)="onDeleteRoom(room)"
+                    >
+                      <svg
+                        class="table-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M10 11V17M14 11V17"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+      </div>
+      } @if (role() === 'company' && view() === 'employees') {
+      <div
+        class="employees-container"
+        [ngClass]="{
+          'employees-container-overlay':
+            modal() === 'inviteEmployee' || modal() === 'editEmployee'
+        }"
+      >
+        <!-- Header Section -->
+        <div class="employees-header">
+          <h1 class="employees-title">Meet the Team</h1>
+          <button
+            (click)="setModal('inviteEmployee')"
+            class="invite-employee-button"
+          >
+            <span class="invite-text">Invite</span>
+            <div class="invite-icon-wrapper">
+              <svg
+                class="invite-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 5V19M5 12H19"
+                  stroke="#764FDB"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+          </button>
+        </div>
+
+        <!-- Employees Table -->
+        <div class="employees-table-container">
+          <table class="employees-table">
+            <thead>
+              <tr>
+                <th class="employee-table-header">FIRST NAME</th>
+                <th class="employee-table-header">LAST NAME</th>
+                <th class="employee-table-header">EMAIL</th>
+                <th class="employee-table-header">DEPARTMENT</th>
+                <th class="employee-table-header">ROLE</th>
+                <th
+                  class="employee-table-header employee-table-header-sortable"
+                  (click)="toggleEmployeeStatusSort()"
+                >
+                  <div class="header-sort-container">
+                    <span>STATUS</span>
+                    <div class="sort-icon-wrapper">
+                      @if (employeeStatusSortDirection() === 'asc') {
+                      <svg
+                        class="sort-icon sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (employeeStatusSortDirection() === 'desc') {
+                      <svg
+                        class="sort-icon sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="employee-table-header">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (employee of sortedEmployees; track employee.id) {
+              <tr class="employee-table-row" (click)="$event.stopPropagation()">
+                <td class="employee-table-cell">{{ employee.firstName }}</td>
+                <td class="employee-table-cell">{{ employee.lastName }}</td>
+                <td class="employee-table-cell">{{ employee.email }}</td>
+                <td class="employee-table-cell">
+                  {{ employee.department || "-" }}
+                </td>
+                <td class="employee-table-cell">{{ employee.role || "-" }}</td>
+                <td class="employee-table-cell employee-status-cell">
+                  @if (employee.status === 'active') {
+                  <div class="employee-status-badge employee-status-active">
+                    <svg
+                      class="employee-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#13C05D"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L5 7L7.5 4.5"
+                        stroke="#13C05D"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="employee-status-text">Active</span>
+                  </div>
+                  } @else if (employee.status === 'pending') {
+                  <div class="employee-status-badge employee-status-pending">
+                    <svg
+                      class="employee-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#F59E0B"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M5.5 3.5V5.5L7 7"
+                        stroke="#F59E0B"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span class="employee-status-text">Pending</span>
+                  </div>
+                  } @else {
+                  <div class="employee-status-badge employee-status-inactive">
+                    <svg
+                      class="employee-status-icon"
+                      width="11"
+                      height="11"
+                      viewBox="0 0 11 11"
+                      fill="none"
+                    >
+                      <circle
+                        cx="5.5"
+                        cy="5.5"
+                        r="5"
+                        stroke="#EB5146"
+                        stroke-width="1"
+                      />
+                      <path
+                        d="M3.5 5.5L7.5 5.5"
+                        stroke="#EB5146"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    <span class="employee-status-text">Inactive</span>
+                  </div>
+                  }
+                </td>
+                <td class="employee-table-cell employee-action-cell">
+                  <div class="employee-table-actions">
+                    <button
+                      class="employee-table-action-button employee-edit-button"
+                      (click)="onEditEmployee(employee)"
+                    >
+                      <svg
+                        class="employee-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"
+                          stroke="#764FDB"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      class="employee-table-action-button employee-delete-button"
+                      (click)="
+                        onDeleteEmployee(employee);
+                        $event.stopPropagation();
+                        $event.preventDefault()
+                      "
+                      (mousedown)="$event.stopPropagation()"
+                      type="button"
+                      aria-label="Delete employee"
+                    >
+                      <svg
+                        class="employee-action-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M10 11V17M14 11V17"
+                          stroke="#CDD5DF"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (invitationResponse) {
+        <div class="bg-white p-6 rounded-xl border">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Invitation Details</h3>
+            <button
+              (click)="onCloseInvitationResponse()"
+              class="modal-close-button"
+            >
+              <svg
+                class="modal-close-icon"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="space-y-4">
+            @if (invitationResponse.message) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Message</label
+              >
+              <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm">
+                {{ invitationResponse.message }}
+              </div>
+            </div>
+            } @if (invitationResponse.invitationLink) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Invitation Link</label
+              >
+              <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all">
+                {{ invitationResponse.invitationLink }}
+              </div>
+            </div>
+            } @if (invitationResponse.token) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Token</label
+              >
+              <div
+                class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all font-mono"
+              >
+                {{ invitationResponse.token }}
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+      } @if (role() === 'company' && view() === 'report') {
+      <div class="report-container">
+        <!-- Header Section -->
+        <div class="report-header">
+          <h1 class="report-title">Report</h1>
+        </div>
+
+        <!-- Report Content -->
+        <div class="report-content">
+          <div class="bg-white p-6 rounded-xl border">
+            <p class="text-gray-600">Report content will be displayed here.</p>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Toast Component -->
+  <p-toast (onClose)="onToastClose()"></p-toast>
+
+  <!-- Confirm Dialog -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Company Detail Component -->
+  @if (showDetail()) {
+  <app-comp-detail
+    [company]="selectedCompany"
+    (close)="onCloseDetail()"
+    (edit)="onEditCompany($event)"
+    (update)="onUpdateAdminFromDetail($event)"
+  ></app-comp-detail>
+  }
+
+  <!-- Company Create Admin Component -->
+  @if (showCreateAdmin()) {
+  <app-comp-create-admin
+    [company]="selectedCompany"
+    (close)="onCloseCreateAdmin()"
+  ></app-comp-create-admin>
+  }
+
+  <!-- Company Update Admin Component -->
+  @if (showUpdateAdmin()) {
+  <app-comp-update-admin
+    [company]="selectedCompany"
+    [admin]="selectedAdmin"
+    (close)="onCloseUpdateAdmin()"
+    (updated)="onAdminUpdated()"
+  ></app-comp-update-admin>
+  }
+
+  <!-- Company Delete Admin Component -->
+  @if (showDeleteAdmin()) {
+  <app-comp-delete-admin
+    [company]="selectedCompany"
+    (close)="onCloseDeleteAdmin()"
+  ></app-comp-delete-admin>
+  }
+
+  <!-- Company Delete Company Component -->
+  @if (showDeleteCompany()) {
+  <app-comp-delete-company
+    [company]="selectedCompany"
+    (close)="onCloseDeleteCompany()"
+    (deleted)="onCompanyDeleted()"
+  ></app-comp-delete-company>
+  }
+
+  <!-- Modals -->
+  @if (modal() === 'createCompany') {
+  <div
+    class="fixed inset-0 bg-gray-50 flex flex-col z-50 overflow-auto transition-all duration-300 ease-in-out"
+    [style.margin-left]="
+      sidebarOpen() ? (sidebarCollapsed() ? '80px' : '333px') : '0'
+    "
+  >
+    <div class="p-8 min-h-full">
+      <!-- Page Title - Left Aligned -->
+      <h1 class="text-3xl font-semibold text-gray-900 mb-8 flex justify-center">
+        Create Company
+      </h1>
+
+      <!-- Form Container - Centered -->
+      <div class="flex justify-center">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl p-8">
+          <style>
+            input::placeholder,
+            input::-webkit-input-placeholder,
+            input::-moz-placeholder,
+            input:-ms-input-placeholder {
+              color: #9aa3b2;
+              font-family: Roboto;
+              font-size: 16px;
+              font-style: normal;
+              font-weight: 400;
+            }
+          </style>
+          <!-- Progress Indicator -->
+          <div class="flex items-center justify-center mb-8">
+            <!-- Step 1: Company Information -->
+            <div class="flex flex-col items-center w-4">
+              <img
+                src="/stepper-left.png"
+                alt="Arrow"
+                class="drawer-chevron"
+                width="32"
+              />
+              <span
+                class="text-sm font-medium mt-3"
+                [ngClass]="{
+                  'text-purple-600': createCompanyStep() >= 1,
+                  'text-gray-400': createCompanyStep() < 1
+                }"
+                >Company Information</span
+              >
+            </div>
+
+            <!-- Separator -->
+            <div
+              class="flex-1 mx-4 border-t-2 border-dashed self-start"
+              [ngClass]="{
+                'border-purple-600': createCompanyStep() >= 2,
+                'border-gray-300': createCompanyStep() < 2
+              }"
+              style="margin-top: 16px"
+            ></div>
+
+            <!-- Step 2: Invite Admins -->
+            <div class="flex flex-col items-center w-4">
+              <img
+                src="/stepper-left.png"
+                alt="Arrow"
+                class="drawer-chevron"
+                width="32"
+              />
+              <span
+                class="text-sm font-medium mt-3"
+                [ngClass]="{
+                  'text-purple-600': createCompanyStep() >= 2,
+                  'text-gray-400': createCompanyStep() < 2
+                }"
+                >Invite Admins</span
+              >
+            </div>
+          </div>
+
+          <!-- Step 1: Company Information Form -->
+          @if (createCompanyStep() === 1) {
+          <!-- Form Fields -->
+          <div class="space-y-6">
+            <!-- Logo Upload -->
+            <div>
+              <label
+                class="block mb-2"
+                style="
+                  color: #4b5565;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 400;
+                  line-height: 24px;
+                "
+                >Logo</label
+              >
+              <div
+                class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer"
+                (click)="triggerLogoUpload()"
+                (dragover)="$event.preventDefault()"
+                (drop)="onLogoDrop($event)"
+              >
+                <p class="text-gray-400 mb-4">
+                  Choose a file or drag & drop it here.
+                </p>
+                <button
+                  type="button"
+                  class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  (click)="triggerLogoUpload(); $event.stopPropagation()"
+                >
+                  Upload Image
+                </button>
+                <p class="text-gray-400 text-sm mt-2 text-center">
+                  Max file size 50MB
+                </p>
+                @if (logoFileSizeError()) {
+                <p class="text-red-500 text-sm mt-2 text-center font-medium">
+                  {{ logoFileSizeError() }}
+                </p>
+                }
+                <input
+                  type="file"
+                  #logoInput
+                  (change)="onLogoSelected($event)"
+                  accept="image/*"
+                  class="hidden"
+                  id="logo-upload-input"
+                />
+                @if (logoPreview) {
+                <div class="mt-4">
+                  <img
+                    [src]="logoPreview"
+                    alt="Logo preview"
+                    class="max-h-32 mx-auto rounded"
+                  />
+                </div>
+                }
+              </div>
+            </div>
+
+            <!-- Company Name -->
+            <div>
+              <label
+                class="block mb-2"
+                style="
+                  color: #4b5565;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 400;
+                  line-height: 24px;
+                "
+                >Company name</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="newCompany.name"
+                class="w-full px-0 py-2 border-0 border-b-2 border-gray-300 focus:outline-none focus:border-purple-600 bg-transparent"
+                placeholder="Your company name"
+              />
+            </div>
+
+            <!-- Address -->
+            <div>
+              <label
+                class="block mb-2"
+                style="
+                  color: #4b5565;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 400;
+                  line-height: 24px;
+                "
+                >Address</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="newCompany.address"
+                class="w-full px-0 py-2 border-0 border-b-2 border-gray-300 focus:outline-none focus:border-purple-600 bg-transparent"
+                placeholder="Your company address"
+              />
+            </div>
+
+            <!-- Industry -->
+            <div>
+              <label
+                class="block mb-2"
+                style="
+                  color: #4b5565;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 400;
+                  line-height: 24px;
+                "
+                >Industry</label
+              >
+              <div class="relative" #industryDropdown>
+                <button
+                  type="button"
+                  (click)="showIndustryDropdown.set(!showIndustryDropdown())"
+                  class="industry-select-button w-full px-0 py-2 border-0 border-b-2 border-gray-300 focus:outline-none focus:border-purple-600 bg-transparent text-left flex items-center justify-between"
+                  [class.text-gray-400]="!newCompany.industry"
+                  [class.text-gray-900]="newCompany.industry"
+                >
+                  <span>{{
+                    newCompany.industry || "Choose your industry"
+                  }}</span>
+                  <svg
+                    class="h-5 text-gray-400 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                @if (showIndustryDropdown()) {
+                <div class="industry-dropdown-menu">
+                  @for (industry of industries(); track industry) {
+                  <button
+                    type="button"
+                    (click)="selectIndustry(industry)"
+                    [ngClass]="{
+                      'industry-option-selected':
+                        newCompany.industry === industry
+                    }"
+                    class="industry-dropdown-option"
+                  >
+                    {{ industry }}
+                  </button>
+                  } @if (!showAddIndustryInput()) {
+                  <button
+                    type="button"
+                    (click)="onAddIndustryClick()"
+                    class="industry-dropdown-option industry-add-option"
+                  >
+                    <svg
+                      class="h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                    <span>Add</span>
+                  </button>
+                  } @else {
+                  <div class="industry-add-input-container">
+                    <input
+                      type="text"
+                      [(ngModel)]="newIndustryNameInput"
+                      (input)="onNewIndustryInputChange($event)"
+                      (keyup.enter)="addNewIndustry()"
+                      (keyup.escape)="cancelAddIndustry()"
+                      placeholder="Enter industry name"
+                      class="industry-add-input"
+                      autofocus
+                    />
+                    <div class="industry-add-actions">
+                      <button
+                        type="button"
+                        (click)="addNewIndustry()"
+                        class="industry-add-confirm"
+                        [disabled]="!newIndustryNameInput.trim()"
+                      >
+                        Add
+                      </button>
+                      <button
+                        type="button"
+                        (click)="cancelAddIndustry()"
+                        class="industry-add-cancel"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label
+                class="block mb-2"
+                style="
+                  color: #4b5565;
+                  font-family: Roboto;
+                  font-size: 16px;
+                  font-style: normal;
+                  font-weight: 400;
+                  line-height: 24px;
+                "
+                >Phone</label
+              >
+              <input
+                type="tel"
+                [(ngModel)]="newCompany.phone"
+                (ngModelChange)="onPhoneChange($event)"
+                [ngClass]="{
+                  'border-red-500 focus:border-red-500': phoneError(),
+                  'border-gray-300 focus:border-purple-600': !phoneError()
+                }"
+                class="w-full px-0 py-2 border-0 border-b-2 bg-transparent focus:outline-none transition-colors"
+                placeholder="Your company phone number"
+              />
+              @if (phoneError()) {
+              <p
+                class="text-red-500 text-sm mt-1"
+                style="font-family: Roboto; font-size: 14px"
+              >
+                {{ phoneError() }}
+              </p>
+              }
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-3 pt-6">
+              <button
+                (click)="setModal('')"
+                class="py-2 border rounded-lg hover:bg-gray-50 transition-colors w-[100px] flex-shrink-0"
+              >
+                Cancel
+              </button>
+              <button
+                (click)="onCreateCompany()"
+                [disabled]="!isCompanyFormValid()"
+                class="py-2 rounded-lg transition-colors w-[100px] flex-shrink-0"
+                [ngClass]="{
+                  'bg-purple-600 text-white hover:bg-purple-700':
+                    isCompanyFormValid(),
+                  'bg-gray-300 text-gray-500 cursor-not-allowed':
+                    !isCompanyFormValid()
+                }"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+          }
+
+          <!-- Step 2: Invite Admins -->
+          @if (createCompanyStep() === 2) {
+          <div class="space-y-6">
+            <div>
+              <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+                Add admin
+              </h2>
+              <p
+                class="text-gray-600 mb-6"
+                style="font-family: Roboto; font-size: 16px"
+              >
+                Please input admin emails (up to 5)
+              </p>
+
+              <!-- Email Input -->
+              <div class="mb-4 flex gap-2">
+                <input
+                  type="email"
+                  [(ngModel)]="newAdminEmailInput"
+                  (keyup)="onAdminEmailKeyPress($event)"
+                  class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 bg-transparent"
+                  placeholder="Email.4@terra|"
+                  [disabled]="adminEmails().length >= 5"
+                />
+                <button
+                  type="button"
+                  (click)="addAdminEmail()"
+                  [disabled]="
+                    adminEmails().length >= 5 || !newAdminEmailInput.trim()
+                  "
+                  class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+
+              <!-- Email Tags -->
+              @if (adminEmails().length > 0) {
+              <div class="flex flex-wrap gap-2 mb-6">
+                @for (email of adminEmails(); track email) {
+                <div
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg"
+                  style="font-family: Roboto; font-size: 14px; color: #4b5565"
+                >
+                  <span>{{ email }}</span>
+                  <button
+                    type="button"
+                    (click)="removeAdminEmail(email)"
+                    class="text-gray-500 hover:text-red-500 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                }
+              </div>
+              }
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between gap-3 pt-6">
+              <button
+                (click)="goBackToStep1()"
+                class="px-6 py-2 border rounded-lg hover:bg-gray-50 transition-colors w-[100px] flex-shrink-0 flex items-center justify-center"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                (click)="onFinishInviteAdmins()"
+                class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors w-[100px] flex-shrink-0 flex items-center justify-center"
+              >
+                Finish
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  } @if (modal() === 'addRoom') {
+  <div
+    class="fixed inset-0 flex items-center justify-center z-50"
+    style="background-color: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 class="text-xl font-semibold">Add Meeting Room</h2>
+        <button (click)="setModal('')" class="modal-close-button">
+          <svg
+            class="modal-close-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Room Name *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="newRoom.name"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter room name"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Capacity *</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="newRoom.capacity"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter capacity"
+              min="1"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Available From *</label
+            >
+            <input
+              type="time"
+              [(ngModel)]="newRoom.availableFrom"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Available To *</label
+            >
+            <input
+              type="time"
+              [(ngModel)]="newRoom.availableTo"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Location *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="newRoom.location"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter location"
+            />
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button
+              (click)="setModal('')"
+              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="onCreateRoom()"
+              class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @if (modal() === 'editRoom') {
+  <div
+    class="fixed inset-0 flex items-center justify-center z-50"
+    style="background-color: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 class="text-xl font-semibold">Edit Meeting Room</h2>
+        <button (click)="setModal('')" class="modal-close-button">
+          <svg
+            class="modal-close-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Room Name *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editRoom.name"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter room name"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Capacity *</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="editRoom.capacity"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter capacity"
+              min="1"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Available From *</label
+            >
+            <input
+              type="time"
+              [(ngModel)]="editRoom.availableFrom"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Available To *</label
+            >
+            <input
+              type="time"
+              [(ngModel)]="editRoom.availableTo"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Location *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editRoom.location"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter location"
+            />
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button
+              (click)="setModal('')"
+              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="onSaveEditRoom()"
+              class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @if (modal() === 'deleteRoom' && roomToDelete) {
+  <div
+    class="fixed inset-0 flex items-center justify-center z-50"
+    style="background-color: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 class="text-xl font-semibold">Delete Room</h2>
+        <button (click)="onCancelDeleteRoom()" class="modal-close-button">
+          <svg
+            class="modal-close-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <p class="text-gray-700">
+            Are you sure you want to delete
+            <strong>"{{ roomToDelete.name }}"</strong>? This action cannot be
+            undone.
+          </p>
+          <div class="flex gap-3 pt-4">
+            <button
+              (click)="onCancelDeleteRoom()"
+              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="onConfirmDeleteRoom()"
+              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @if (modal() === 'inviteEmployee') {
+  <div
+    class="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto"
+    style="background-color: rgba(0, 0, 0, 0.5)"
+  >
+    <div
+      class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 my-4 max-h-[calc(100vh-2rem)] overflow-y-auto invite-employee-modal"
+    >
+      <div
+        class="flex justify-between items-center p-4 sm:p-5 md:p-6 border-b sticky top-0 bg-white z-10 flex-shrink-0"
+      >
+        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold">
+          Invite Employee
+        </h2>
+        <button (click)="setModal('')" class="modal-close-button">
+          <svg
+            class="modal-close-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 sm:p-5 md:p-6 lg:p-6">
+        <div class="space-y-4 md:space-y-5">
+          <div>
+            <label
+              class="block text-sm sm:text-base md:text-base font-medium text-gray-700 mb-2"
+              >Email Address *</label
+            >
+            <p
+              class="text-gray-600 mb-4 text-xs sm:text-sm md:text-base"
+              style="font-family: Roboto"
+            >
+              Please input employee emails
+            </p>
+
+            <!-- Email Input -->
+            <div class="mb-4 flex flex-col sm:flex-row gap-2 md:gap-3">
+              <input
+                type="email"
+                [(ngModel)]="newEmployeeEmailInput"
+                (keyup)="onEmployeeEmailKeyPress($event)"
+                class="flex-1 px-4 py-2.5 sm:py-2 md:py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 bg-transparent text-sm sm:text-base md:text-base"
+                placeholder="Email.4@terra|"
+              />
+              <button
+                type="button"
+                (click)="addEmployeeEmail()"
+                [disabled]="
+                  employeeEmails().length >= 5 || !newEmployeeEmailInput.trim()
+                "
+                class="px-4 sm:px-5 md:px-6 py-2.5 sm:py-2 md:py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base md:text-base whitespace-nowrap"
+              >
+                Add
+              </button>
+            </div>
+
+            <!-- Email Tags -->
+            @if (employeeEmails().length > 0) {
+            <div
+              class="flex flex-wrap gap-2 md:gap-2.5 mb-6 max-h-32 md:max-h-40 overflow-y-auto"
+            >
+              @for (email of employeeEmails(); track email) {
+              <div
+                class="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 md:px-4 md:py-2 bg-gray-100 rounded-lg text-xs sm:text-sm md:text-sm"
+                style="font-family: Roboto; color: #4b5565"
+              >
+                <span class="break-all sm:break-normal md:break-normal">{{
+                  email
+                }}</span>
+                <button
+                  type="button"
+                  (click)="removeEmployeeEmail(email)"
+                  class="text-gray-500 hover:text-red-500 transition-colors flex-shrink-0"
+                >
+                  <svg
+                    class="w-3 h-3 sm:w-4 sm:h-4 md:w-4 md:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+              }
+            </div>
+            }
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-2 md:pt-3">
+            <button
+              type="button"
+              (click)="
+                setModal('');
+                employeeEmails.set([]);
+                newEmployeeEmailInput = '';
+                invitationResponse = null
+              "
+              class="flex-1 px-4 sm:px-5 md:px-6 py-2.5 sm:py-2.5 md:py-3 border rounded-lg hover:bg-gray-50 text-sm sm:text-base md:text-base font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="onInviteEmployee()"
+              [disabled]="employeeEmails().length === 0"
+              class="flex-1 px-4 sm:px-5 md:px-6 py-2.5 sm:py-2.5 md:py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-base font-medium transition-colors"
+            >
+              Invite
+            </button>
+          </div>
+        </div>
+        @if (invitationResponse) {
+        <div class="mt-6 pt-6 border-t">
+          <div class="space-y-4">
+            @if (invitationResponse.message) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Message</label
+              >
+              <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm">
+                {{ invitationResponse.message }}
+              </div>
+            </div>
+            } @if (invitationResponse.invitationLink) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Invitation Link</label
+              >
+              <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all">
+                {{ invitationResponse.invitationLink }}
+              </div>
+            </div>
+            } @if (invitationResponse.token) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Token</label
+              >
+              <div
+                class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all font-mono"
+              >
+                {{ invitationResponse.token }}
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  } @if (modal() === 'editEmployee') {
+  <div
+    class="fixed inset-0 flex items-center justify-center z-50"
+    style="background-color: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+      <div class="flex justify-between items-center p-6 border-b">
+        <h2 class="text-xl font-semibold">Edit Employee</h2>
+        <button (click)="setModal('')" class="modal-close-button">
+          <svg
+            class="modal-close-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >First Name *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editEmployee.firstName"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter first name"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Last Name *</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editEmployee.lastName"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter last name"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Email</label
+            >
+            <input
+              type="email"
+              [value]="editEmployee.email"
+              disabled
+              class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              placeholder="Email (read-only)"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Department</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editEmployee.department"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter department"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Role</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editEmployee.role"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter role"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Status *</label
+            >
+            <select
+              [(ngModel)]="editEmployee.status"
+              (ngModelChange)="onEmployeeStatusChange($event)"
+              [disabled]="updatingEmployeeStatus"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [class.opacity-50]="updatingEmployeeStatus"
+              [class.cursor-not-allowed]="updatingEmployeeStatus"
+            >
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            @if (updatingEmployeeStatus) {
+            <p class="text-gray-500 text-xs mt-1">Updating status...</p>
+            }
+          </div>
+          <div class="flex gap-3 pt-4">
+            <button
+              (click)="setModal('')"
+              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              (click)="onSaveEditEmployee()"
+              class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>

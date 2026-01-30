@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "cursor_ai": {
+    "meeting-room": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/cursor_ai",
+            "outputPath": "dist/meeting-room",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -62,12 +62,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "meeting-room:build:development"
+          },
           "configurations": {
             "production": {
-              "buildTarget": "cursor_ai:build:production"
+              "buildTarget": "meeting-room:build:production"
             },
             "development": {
-              "buildTarget": "cursor_ai:build:development"
+              "buildTarget": "meeting-room:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -98,5 +101,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

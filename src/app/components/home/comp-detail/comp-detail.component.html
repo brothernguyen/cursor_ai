@@ -1,0 +1,291 @@
+@if (company) {
+<div class="modal-overlay">
+  <div class="modal-container">
+    <div
+      class="flex justify-between items-center p-6 border-b sticky top-0 bg-white"
+    >
+      <h2 class="text-xl font-semibold flex items-center">Company Details</h2>
+      <button (click)="onClose()" class="modal-close-button">
+        <svg
+          class="modal-close-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-6 overflow-y-auto flex-1">
+      <!-- Company Logo Upload - Title on left, logo on right -->
+      <div class="flex items-start gap-6">
+        <div class="flex-shrink-0">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Company Logo</label
+          >
+        </div>
+        <div class="flex-1">
+          <div
+            class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-purple-400 transition-colors cursor-pointer"
+            (click)="triggerLogoUpload()"
+            (dragover)="$event.preventDefault()"
+            (drop)="onLogoDrop($event)"
+          >
+            @if (logoPreview) {
+            <div class="mb-4">
+              <img
+                [src]="logoPreview"
+                alt="Logo preview"
+                class="max-h-64 w-auto mx-auto rounded object-contain"
+              />
+            </div>
+            } @else {
+            <p class="text-gray-400 mb-4">
+              Choose a file or drag & drop it here.
+            </p>
+            }
+            <button
+              type="button"
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              (click)="triggerLogoUpload(); $event.stopPropagation()"
+            >
+              Upload Image
+            </button>
+            <p class="text-gray-400 text-sm mt-2 text-center">
+              Max file size 50MB
+            </p>
+            @if (logoFileSizeError) {
+            <p class="text-red-500 text-sm mt-2 text-center font-medium">
+              {{ logoFileSizeError }}
+            </p>
+            }
+            <input
+              type="file"
+              #logoInput
+              (change)="onLogoSelected($event)"
+              accept="image/*"
+              class="hidden"
+              id="company-logo-upload-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="space-y-4">
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Name <span class="text-red-500">*</span></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="formData.name"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Company Name"
+          />
+        </div>
+
+        <!-- Status Dropdown -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Status</label
+          >
+          <select
+            [(ngModel)]="formData.status"
+            (ngModelChange)="onStatusChange($event)"
+            [disabled]="updatingStatus"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none bg-white"
+            [class.opacity-50]="updatingStatus"
+            [class.cursor-not-allowed]="updatingStatus"
+          >
+            @for (option of statusOptions; track option.value) {
+            <option [value]="option.value" [disabled]="option.value === 'pending'">{{ option.label }}</option>
+            }
+          </select>
+          @if (updatingStatus) {
+          <p class="text-gray-500 text-xs mt-1">Updating status...</p>
+          }
+        </div>
+
+        <!-- Industry Select -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Industry <span class="text-red-500">*</span></label
+          >
+          <select
+            [(ngModel)]="formData.industry"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none bg-white"
+            [class.text-gray-400]="!formData.industry"
+            [class.text-gray-900]="formData.industry"
+          >
+            <option value="" disabled>Choose your industry</option>
+            @for (industry of industryOptions; track industry) {
+            <option [value]="industry">{{ industry }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Address -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Address <span class="text-red-500">*</span></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="formData.address"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Company Address"
+          />
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Phone</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="formData.phone"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Phone Number"
+          />
+        </div>
+
+        <!-- Company ID (if exists, disabled) -->
+        @if (formData.companyId) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Company ID</label
+          >
+          <input
+            type="text"
+            [value]="formData.companyId"
+            disabled
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+            readonly
+          />
+        </div>
+        }
+      </div>
+
+      <!-- Admin Section - Keep Untouched -->
+      <div>
+        <label class="text-sm font-medium text-gray-500 mb-3 block"
+          >Admins ({{ loadingAdmins ? "..." : admins.length }})</label
+        >
+        @if (loadingAdmins) {
+        <div class="flex items-center justify-center py-4">
+          <div class="text-gray-500">Loading admins...</div>
+        </div>
+        } @else if (admins.length > 0) {
+        <div class="space-y-2">
+          @for (admin of admins; track admin.id) {
+          <div
+            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div>
+              <p class="font-medium text-gray-900">
+                {{ admin.firstName }} {{ admin.lastName }}
+              </p>
+              <p class="text-sm text-gray-600">{{ admin.email }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span
+                [ngClass]="{
+                  'bg-green-100 text-green-800': admin.status === 'active',
+                  'bg-gray-100 text-gray-800': admin.status === 'inactive'
+                }"
+                class="px-2 py-1 rounded-full text-xs font-medium"
+              >
+                {{ capitalizeStatus(admin.status) }}
+              </span>
+              <button
+                type="button"
+                (click)="onUpdateAdmin(admin)"
+                class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                (click)="onDeleteAdmin(admin)"
+                [disabled]="deletingAdminId === admin.id"
+                class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                @if (deletingAdminId === admin.id) { Deleting... } @else {
+                Delete }
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+        } @else {
+        <div class="text-gray-500 text-sm py-2">No admins found.</div>
+        }
+      </div>
+      @if (company.users && company.users.length > 0) {
+      <div>
+        <label class="text-sm font-medium text-gray-500 mb-3 block"
+          >Users ({{ company.users.length }})</label
+        >
+        <div class="space-y-2">
+          @for (user of company.users; track user.id) {
+          <div
+            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
+            <div>
+              <p class="font-medium text-gray-900">
+                {{ user.firstName }} {{ user.lastName }}
+              </p>
+              <p class="text-sm text-gray-600">{{ user.email }}</p>
+            </div>
+            <span
+              [ngClass]="{
+                'bg-green-100 text-green-800': user.status === 'active',
+                'bg-gray-100 text-gray-800': user.status === 'inactive'
+              }"
+              class="px-2 py-1 rounded-full text-xs font-medium"
+            >
+              {{ capitalizeStatus(user.status) }}
+            </span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    <div class="p-6 border-t">
+      <div class="flex gap-3 justify-end">
+        <button
+          type="button"
+          (click)="onClose()"
+          class="py-2 border rounded-lg hover:bg-gray-50 transition-colors w-[100px] flex-shrink-0"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="onSave()"
+          [disabled]="!isFormValid()"
+          class="py-2 rounded-lg transition-colors w-[100px] flex-shrink-0"
+          [ngClass]="{
+            'bg-purple-600 text-white hover:bg-purple-700': isFormValid(),
+            'bg-gray-300 text-gray-500 cursor-not-allowed': !isFormValid()
+          }"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

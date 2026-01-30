@@ -1,0 +1,285 @@
+.login-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-width: 100vw;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&h=800&fit=crop');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: 1;
+  animation: heroBackgroundAnimation 25s ease-in-out infinite;
+  opacity: 0;
+  animation-fill-mode: forwards;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
+    animation: fadeInOverlay 2s ease-in forwards;
+  }
+}
+
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 480px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 48px 40px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo-text {
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.signin-section {
+  margin-bottom: 32px;
+}
+
+.signin-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.signin-subheading {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.field-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1f2937;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #a855f7;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.error-message {
+  display: block;
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.signin-button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.forgot-password-container {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.forgot-password-link {
+  color: #3b82f6;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+}
+
+// Override PrimeNG password input styles to match email field
+::ng-deep {
+  .p-password {
+    width: 100%;
+    display: block;
+
+    .p-inputwrapper {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .p-inputtext {
+      width: 100% !important;
+      padding: 12px 16px !important;
+      padding-right: 48px !important; // Space for toggle icon
+      border: 1px solid #d1d5db !important;
+      border-radius: 8px !important;
+      font-size: 14px !important;
+      color: #1f2937 !important;
+      background-color: #ffffff !important;
+      transition: border-color 0.2s;
+      box-shadow: none !important;
+
+      &:focus {
+        outline: none !important;
+        border-color: #a855f7 !important;
+      }
+
+      &::placeholder {
+        color: #9ca3af !important;
+      }
+    }
+
+    .p-password-toggle,
+    .p-password-toggle-icon,
+    button[type="button"] {
+      position: absolute;
+      right: 12px;
+      background: transparent !important;
+      border: none !important;
+      color: #6b7280 !important;
+      cursor: pointer;
+      padding: 4px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: auto !important;
+      height: auto !important;
+      box-shadow: none !important;
+
+      &:hover {
+        color: #374151 !important;
+        background: transparent !important;
+      }
+
+      &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+    }
+  }
+
+  .p-button.signin-button {
+    width: 100%;
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+    border: none !important;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff !important;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%) !important;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+
+// Background Animation (from Landing page)
+@keyframes heroBackgroundAnimation {
+  0% {
+    opacity: 0;
+    background-position: center center;
+  }
+  15% {
+    opacity: 1;
+    background-position: center center;
+  }
+  50% {
+    background-position: 55% 45%;
+  }
+  85% {
+    background-position: center center;
+  }
+  100% {
+    opacity: 1;
+    background-position: center center;
+  }
+}
+
+@keyframes fadeInOverlay {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

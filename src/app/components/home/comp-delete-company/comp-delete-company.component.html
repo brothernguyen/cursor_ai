@@ -1,0 +1,61 @@
+@if (company) {
+<div class="modal-overlay">
+  <div class="modal-container">
+    <div
+      class="flex justify-between items-center p-6 border-b sticky top-0 bg-white"
+    >
+      <h2 class="text-xl font-semibold">Delete Company</h2>
+      <button
+        (click)="onClose()"
+        class="modal-close-button"
+      >
+        <svg
+          class="modal-close-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-6">
+      <div>
+        <p class="text-gray-700 mb-4">
+          Are you sure you want to delete the company <strong>"{{ company.name }}"</strong>?
+        </p>
+        <p class="text-sm text-gray-600 mb-6">
+          This action cannot be undone. All company data, admins, and related information will be permanently deleted.
+        </p>
+      </div>
+    </div>
+    <div class="p-6 border-t">
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          (click)="onCancel()"
+          [disabled]="deleting"
+          class="px-4 py-2 border rounded-lg hover:bg-gray-50 hover:border-gray-300 active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="onDelete()"
+          [disabled]="deleting"
+          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+        >
+          @if (deleting) { Deleting... } @else { Delete Company }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+

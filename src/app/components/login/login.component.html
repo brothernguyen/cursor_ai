@@ -1,0 +1,85 @@
+<!-- PrimeNG layout -->
+<!-- <app-floating-configurator /> -->
+<p-toast />
+<div class="login-container">
+  <div class="login-background"></div>
+  <div class="login-card">
+    <!-- Logo -->
+    <div class="logo-container">
+      <h1 class="logo-text">Admin</h1>
+    </div>
+
+    <!-- Sign In Section -->
+    <div class="signin-section">
+      <h2 class="signin-heading">Sign In</h2>
+      <p class="signin-subheading">Access your meeting room dashboard</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-content">
+        <!-- Email Field -->
+        <div class="field">
+          <label
+            for="email"
+            class="field-label"
+            >Email Address</label
+          >
+          <input
+            pInputText
+            id="email"
+            type="text"
+            placeholder="you@company.com"
+            class="field-input"
+            formControlName="email"
+          />
+          <small
+            *ngIf="email.invalid && (email.dirty || email.touched)"
+            class="error-message"
+          >
+            <div *ngIf="email.errors?.['required']">Email is required</div>
+            <div *ngIf="email.errors?.['email']">Enter a valid email</div>
+          </small>
+        </div>
+
+        <!-- Password Field -->
+        <div class="field">
+          <label
+            for="password"
+            class="field-label"
+            >Password</label
+          >
+          <p-password
+            id="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [toggleMask]="true"
+            [fluid]="true"
+            [feedback]="false"
+          ></p-password>
+          <small
+            *ngIf="password.invalid && (password.dirty || password.touched)"
+            class="error-message"
+          >
+            <div *ngIf="password.errors?.['required']">
+              Password is required
+            </div>
+          </small>
+        </div>
+
+        <!-- Sign In Button -->
+        <p-button
+          type="submit"
+          [disabled]="!loginForm.valid"
+          styleClass="signin-button"
+          >Sign In</p-button
+        >
+
+        <!-- Forgot Password Link -->
+        <div class="forgot-password-container">
+          <a class="forgot-password-link">Forgot your password?</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

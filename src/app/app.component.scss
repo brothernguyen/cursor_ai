@@ -1,0 +1,16 @@
+.h-full {
+  height: 100%;
+  overflow: hidden;
+}
+
+.w-full {
+  width: 100%;
+}
+
+// Ensure smooth transitions for route animations
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}

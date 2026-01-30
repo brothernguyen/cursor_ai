@@ -1,0 +1,147 @@
+<div
+  class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden"
+>
+  <div class="flex flex-col items-center justify-center">
+    <div class="register-border">
+      <div
+        class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20"
+        style="border-radius: 53px"
+      >
+        <div class="text-center mb-8">
+          <div
+            class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4"
+          >
+            Welcome to Meeting Room Booking!
+          </div>
+          <div
+            class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4"
+          >
+            Sign Up
+          </div>
+          @if (!token) {
+          <div class="text-red-500 text-sm mb-4">
+            Invalid invitation link. Please check your invitation email.
+          </div>
+          }
+        </div>
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div>
+            <!-- First name -->
+            <div class="field pb-1">
+              <label
+                for="firstName"
+                class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
+                >First Name</label
+              >
+              <input
+                pInputText
+                id="firstName"
+                type="text"
+                placeholder="First name"
+                class="w-full mb-2"
+                formControlName="firstName"
+              />
+              <small
+                *ngIf="
+                  firstName.invalid && (firstName.dirty || firstName.touched)
+                "
+                class="block b-error"
+              >
+                <div *ngIf="firstName.errors?.['required']">
+                  First name is required
+                </div>
+              </small>
+            </div>
+            <!-- Last name -->
+            <div class="field pb-1">
+              <label
+                for="firstName"
+                class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
+                >Last Name</label
+              >
+              <input
+                pInputText
+                id="lastName"
+                type="text"
+                placeholder="Your name"
+                class="w-full mb-2"
+                formControlName="lastName"
+              />
+              <small
+                *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)"
+                class="block b-error"
+              >
+                <div *ngIf="lastName.errors?.['required']">
+                  Last name is required
+                </div>
+              </small>
+            </div>
+
+            <!-- Password -->
+            <div class="field pb-1">
+              <label
+                for="password"
+                class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2"
+                >Password</label
+              >
+              <p-password
+                id="password"
+                formControlName="password"
+                placeholder="Password"
+                [toggleMask]="true"
+                class="w-full mb-2"
+                [fluid]="true"
+                [feedback]="false"
+              ></p-password>
+              <small
+                *ngIf="password.invalid && (password.dirty || password.touched)"
+                class="block b-error"
+              >
+                <div *ngIf="password.errors?.['required']">
+                  Password is required
+                </div>
+              </small>
+            </div>
+            <!-- Phone  -->
+            <div class="field pb-4">
+              <label
+                for="phone"
+                class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2"
+                >Phone</label
+              >
+              <input
+                id="phone"
+                pInputText
+                formControlName="phone"
+                placeholder="Phone"
+              />
+              <!-- <small
+                *ngIf="phone.invalid && (phone.dirty || phone.touched)"
+                class="block b-error"
+              >
+                <div *ngIf="phone.errors?.['required']">
+                  Password is required
+                </div>
+              </small> -->
+            </div>
+
+            <p-button
+              type="submit"
+              [disabled]="!registerForm.valid || isSubmitting || !token"
+              styleClass="w-full"
+              [loading]="isSubmitting"
+              >{{ isSubmitting ? "Registering..." : "Sign Up" }}</p-button
+            >
+            <div class="mt-2">
+              <a routerLink="/login" class="font-italic text-teal-500"
+                >Sign In</a
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Toast Component -->
+  <p-toast></p-toast>
+</div>
