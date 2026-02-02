@@ -106,15 +106,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.primeng.ripple.set(true);
-    
-    // Clear all tokens on app initialization
-    this.authSer.clearAll();
-    
-    // Clear tokens when browser tab is closed
+
+    // Supabase: restore session from Supabase so user stays logged in after refresh
+    this.authSer.restoreSession();
+
+    // Clear tokens when browser tab is closed (optional; remove if you want session to persist)
     this.beforeUnloadHandler = () => {
       this.authSer.clearAll();
     };
-    
+
     window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
 

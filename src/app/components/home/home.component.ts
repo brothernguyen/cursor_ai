@@ -1025,9 +1025,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onLogout() {
-    // sessionStorage.clear();
-    this.authSer.removeToken();
-    this.authSer.removeRole();
+    this.authSer.logout();
     this.router.navigate(['/landing']);
   }
 

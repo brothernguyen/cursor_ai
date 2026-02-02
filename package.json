@@ -19,6 +19,7 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@primeuix/themes": "^2.0.2",
+    "@supabase/supabase-js": "^2.78.0",
     "@tailwindcss/postcss": "^4.1.17",
     "bootstrap": "^5.3.8",
     "postcss": "^8.5.6",
