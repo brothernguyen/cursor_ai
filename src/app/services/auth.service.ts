@@ -331,6 +331,8 @@ export class AuthService {
                 return from(
                   this.sb.client.from('company_admins').update({
                     user_id: userId,
+                    first_name: registerData.firstName,
+                    last_name: registerData.lastName,
                     status: 'active',
                   }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
                 );

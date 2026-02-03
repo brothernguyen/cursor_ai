@@ -2333,32 +2333,37 @@ export class HomeComponent implements OnInit, OnDestroy {
         let adminsList: AdminDisplay[] = [];
         
         // Handle different response structures
-        const companiesData = res.data || res;
-        
-        if (Array.isArray(companiesData)) {
-          // If response is an array of companies
+        const raw = res.data ?? res;
+        const companiesData = Array.isArray(raw) ? raw : (raw?.data ?? raw);
+
+        // Supabase: flat array of company_admin rows with nested company
+        if (Array.isArray(companiesData) && companiesData.length > 0) {
+          const first = companiesData[0];
+          const isSupabaseShape =
+            first != null &&
+            typeof first === 'object' &&
+            ('first_name' in first || 'firstName' in first) &&
+            ('email' in first) &&
+            !('users' in first);
+
+          if (isSupabaseShape) {
+            adminsList = (companiesData as any[]).map((row: any) => ({
+              id: row.id ?? '',
+              firstName: row.first_name ?? row.firstName ?? '',
+              lastName: row.last_name ?? row.lastName ?? '',
+              email: row.email ?? '',
+              status: row.status ?? 'pending',
+              companyName: row.companies?.name ?? row.company?.name ?? '',
+              companyId: row.company_id ?? row.companies?.id ?? row.company?.id ?? ''
+            }));
+          }
+        }
+
+        if (adminsList.length === 0 && Array.isArray(companiesData)) {
+          // Legacy: array of companies with users
           companiesData.forEach((company: any) => {
             if (company.users && Array.isArray(company.users)) {
-              // Filter users with role "company_admin"
-              const companyAdmins = company.users
-                .filter((user: any) => user.role === 'company_admin')
-                .map((user: any) => ({
-                  id: user.id || user._id || '',
-                  firstName: user.firstName || '',
-                  lastName: user.lastName || '',
-                  email: user.email || '',
-                  status: user.status || 'active',
-                  companyName: company.name || '',
-                  companyId: company.id || company._id || ''
-                }));
-              adminsList = [...adminsList, ...companyAdmins];
-            }
-          });
-        } else if (companiesData && Array.isArray(companiesData.companies)) {
-          // If response has nested companies array
-          companiesData.companies.forEach((company: any) => {
-            if (company.users && Array.isArray(company.users)) {
-              const companyAdmins = company.users
+              const companyAdmins = (company.users as any[])
                 .filter((user: any) => user.role === 'company_admin')
                 .map((user: any) => ({
                   id: user.id || user._id || '',
@@ -2373,7 +2378,26 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
           });
         }
-        
+
+        if (adminsList.length === 0 && companiesData?.companies) {
+          companiesData.companies.forEach((company: any) => {
+            if (company.users && Array.isArray(company.users)) {
+              const companyAdmins = (company.users as any[])
+                .filter((user: any) => user.role === 'company_admin')
+                .map((user: any) => ({
+                  id: user.id || user._id || '',
+                  firstName: user.firstName || '',
+                  lastName: user.lastName || '',
+                  email: user.email || '',
+                  status: user.status || 'active',
+                  companyName: company.name || '',
+                  companyId: company.id || company._id || ''
+                }));
+              adminsList = [...adminsList, ...companyAdmins];
+            }
+          });
+        }
+
         this.allAdmins = adminsList;
         console.log('Filtered company admins (role: company_admin):', this.allAdmins);
       },
