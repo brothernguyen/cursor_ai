@@ -584,13 +584,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Ensure view is set to dashboard on initialization
     this.view.set('dashboard');
 
-    // First check role from localStorage
-    const savedRole = this.authSer.getRole();
-    if (savedRole === 'system_admin' || savedRole === 'system') {
+    // After sign-in success (system admin), auth sets a flag so we load companies here
+    if (this.authSer.getAndClearShouldLoadCompanies()) {
       this.role.set('system');
       this.loadCompanies();
-    } else if (savedRole === 'company_admin' || savedRole === 'company') {
-      this.role.set('company');
+    } else {
+      // First check role from localStorage
+      const savedRole = this.authSer.getRole();
+      if (savedRole === 'system_admin' || savedRole === 'sys_admin' || savedRole === 'system') {
+        this.role.set('system');
+        this.loadCompanies();
+      } else if (savedRole === 'company_admin' || savedRole === 'company') {
+        this.role.set('company');
+      }
     }
 
     // Then fetch current user to update role and get user info
@@ -634,7 +640,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         // Use getRole() to check and set component role
         const savedRole = this.authSer.getRole();
-        if (savedRole === 'system_admin' || savedRole === 'system') {
+        if (savedRole === 'system_admin' || savedRole === 'sys_admin' || savedRole === 'system') {
           this.role.set('system');
           // Only load companies if user is system admin
           this.loadCompanies();
@@ -647,7 +653,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.error('Error getting current user:', error);
         // Fallback to role from localStorage if API call fails
         const savedRole = this.authSer.getRole();
-        if (savedRole === 'system_admin' || savedRole === 'system') {
+        if (savedRole === 'system_admin' || savedRole === 'sys_admin' || savedRole === 'system') {
           this.role.set('system');
           // Only load companies if user is system admin
           this.loadCompanies();
@@ -1288,19 +1294,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     const filterStatus = this.companyFilterStatus();
     this.authSer.getAllCompanies(filterStatus).subscribe({
       next: (res: any) => {
-        console.log('==>companies: ', res.data);
+        console.log('==>companies: ', res);
         let companiesList: CompanyWithDetails[] = [];
-        // Ensure res.data is an array before assigning
-        if (Array.isArray(res.data)) {
+        // AuthService.getAllCompanies (Supabase) returns the array directly, not { data: array }
+        if (Array.isArray(res)) {
+          companiesList = res;
+        } else if (Array.isArray(res?.data)) {
           companiesList = res.data;
-        } else if (res.data && Array.isArray(res.data.companies)) {
-          // Handle case where data might be nested
+        } else if (res?.data && Array.isArray(res.data.companies)) {
           companiesList = res.data.companies;
-        } else if (res.data && Array.isArray(res.data.data)) {
-          // Handle another possible nested structure
+        } else if (res?.data && Array.isArray(res.data.data)) {
           companiesList = res.data.data;
         } else {
-          console.warn('API response data is not an array:', res.data);
+          console.warn('API response data is not an array:', res);
           companiesList = [];
         }
         
@@ -1308,7 +1314,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         companiesList.forEach(company => {
           company.admins = undefined;
         });
-        
         this.companies = companiesList;
         
         // Load admin counts only for currently visible companies (paginated)

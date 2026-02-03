@@ -64,10 +64,11 @@ export class LoginComponent implements OnInit {
 
     this.authSer.adminLogin(loginData).subscribe({
       next: (res: any) => {
-        const token = res.data.accessToken;
+        const token = res.data?.accessToken;
         console.log('==>token: ', token);
 
         this.authSer.setToken(token);
+        if (res.role) this.authSer.setRole(res.role);
         this.router.navigate(['/home']);
       },
       error: (error) => {

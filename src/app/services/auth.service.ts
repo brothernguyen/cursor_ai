@@ -12,6 +12,9 @@ export class AuthService {
   // --- Legacy CRUD API (commented for safety, restore if switching back to custom backend) ---
   // private baseUrl = `${BASE_URL}/auth/login`;
 
+  /** Set by adminLogin when sign-in succeeds as system admin; Home reads and clears it to load companies. */
+  private _shouldLoadCompaniesOnNextHomeInit = false;
+
   constructor(
     private http: HttpClient,
     private sb: SupabaseService
@@ -37,9 +40,9 @@ export class AuthService {
     localStorage.setItem('user_role', role);
   }
 
-  // Get the role
+  // Get the role (check user_role first, then CurrentRole as fallback)
   getRole(): string | null {
-    return localStorage.getItem('user_role');
+    return localStorage.getItem('user_role') ?? localStorage.getItem('CurrentRole');
   }
 
   // Remove the role (for logout)
@@ -61,6 +64,14 @@ export class AuthService {
     this.removeToken();
     this.removeRole();
     this.setCompanyId(null);
+    this._shouldLoadCompaniesOnNextHomeInit = false;
+  }
+
+  /** Used by Home after navigation from login to trigger loading companies once. */
+  getAndClearShouldLoadCompanies(): boolean {
+    const value = this._shouldLoadCompaniesOnNextHomeInit;
+    this._shouldLoadCompaniesOnNextHomeInit = false;
+    return value;
   }
 
   // --- Supabase: Admin Login ---
@@ -84,6 +95,8 @@ export class AuthService {
             this.setToken(token);
             this.setRole(profile.role);
             if (profile.company_id) this.setCompanyId(profile.company_id);
+            const isSystemAdmin = profile.role === 'system_admin' || profile.role === 'sys_admin' || profile.role === 'system';
+            if (isSystemAdmin) this._shouldLoadCompaniesOnNextHomeInit = true;
             return { token, role: profile.role, data: { accessToken: token } };
           })
         );
@@ -98,6 +111,8 @@ export class AuthService {
 
   // --- Supabase: Get all companies ---
   getAllCompanies(status?: 'active' | 'inactive' | null): Observable<unknown> {
+    console.log('==>loadCompanies');
+
     let q = this.sb.client.from('companies').select('*');
     if (status) q = q.eq('status', status);
     return from(q.order('created_at', { ascending: false })).pipe(
