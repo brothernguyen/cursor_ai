@@ -93,6 +93,39 @@ returns table (role text, company_id uuid) as $$
 $$ language sql security definer stable;
 
 -- =============================================================================
+-- Trigger: create profiles row when a new auth user is created (long-term fix)
+-- Uses raw_user_meta_data from signUp({ options: { data: { role, company_id, ... } } })
+-- =============================================================================
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, role, company_id, first_name, last_name, status)
+  values (
+    new.id,
+    coalesce(new.email, ''),
+    coalesce(nullif(trim(new.raw_user_meta_data->>'role'), ''), 'employee'),
+    (new.raw_user_meta_data->>'company_id')::uuid,
+    new.raw_user_meta_data->>'first_name',
+    new.raw_user_meta_data->>'last_name',
+    coalesce(nullif(trim(new.raw_user_meta_data->>'status'), ''), 'active')
+  )
+  on conflict (id) do update set
+    email = coalesce(excluded.email, profiles.email),
+    role = coalesce(nullif(trim(excluded.role), ''), profiles.role),
+    company_id = coalesce(excluded.company_id, profiles.company_id),
+    first_name = coalesce(excluded.first_name, profiles.first_name),
+    last_name = coalesce(excluded.last_name, profiles.last_name),
+    status = coalesce(nullif(trim(excluded.status), ''), profiles.status);
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- =============================================================================
 -- RLS: enable and policies
 -- =============================================================================
 

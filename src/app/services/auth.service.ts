@@ -302,6 +302,9 @@ export class AuthService {
                 first_name: registerData.firstName,
                 last_name: registerData.lastName,
                 phone: registerData.phone,
+                role: inv['role'] as string,
+                company_id: inv['company_id'] as string,
+                status: 'active',
               },
             },
           })
@@ -310,42 +313,29 @@ export class AuthService {
             if (error) throw error;
             if (!data.user) throw new Error('Sign up failed');
             const userId = data.user.id;
+            // Trigger on auth.users creates the profiles row from metadata above.
+            // Sync profile and company_admins so we're robust if trigger or RLS differs.
             return from(
-              this.sb.client.functions.invoke('confirm-invited-user', {
-                body: { token, userId },
-              })
+              this.sb.client.from('profiles').upsert({
+                id: userId,
+                email: inv['email'] as string,
+                role: inv['role'] as string,
+                company_id: inv['company_id'] as string,
+                first_name: registerData.firstName,
+                last_name: registerData.lastName,
+                status: 'active',
+              }, { onConflict: 'id' })
             ).pipe(
-              switchMap(({ data: confirmData, error: confirmErr }) => {
-                if (confirmErr) {
-                  console.error('confirm-invited-user failed:', confirmErr);
-                  throw new Error(
-                    'Account was created but email confirmation failed. Please ask your administrator to disable "Confirm email" in Supabase (Authentication → Email) or deploy the confirm-invited-user Edge Function.'
-                  );
-                }
-                const res = confirmData as { error?: string } | null;
-                if (res?.error) {
-                  throw new Error(res.error || 'Email confirmation failed');
-                }
+              switchMap(({ error: upsertErr }) => {
+                if (upsertErr) console.warn('Profiles upsert warning (trigger may have created row):', upsertErr);
                 return from(
-                  this.sb.client.from('profiles').upsert({
-                    id: userId,
-                    email: inv['email'] as string,
-                    role: inv['role'] as string,
-                    company_id: inv['company_id'] as string,
-                    first_name: registerData.firstName,
-                    last_name: registerData.lastName,
+                  this.sb.client.from('company_admins').update({
+                    user_id: userId,
                     status: 'active',
-                  }, { onConflict: 'id' })
-                ).pipe(
-                  switchMap(() =>
-                    this.sb.client.from('company_admins').update({
-                      user_id: userId,
-                      status: 'active',
-                    }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
-                  ),
-                  map(() => ({ success: true }))
+                  }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
                 );
-              })
+              }),
+              map(() => ({ success: true }))
             );
           })
         );
