@@ -40,7 +40,8 @@ export class CompCreateAdminComponent implements OnInit {
 
       const adminData = {
         companyId: this.company.id,
-        email: formValue.email
+        email: formValue.email,
+        companyName: this.company.name ?? undefined
       };
 
       this.authService.createCompanyAdmin(adminData).subscribe({

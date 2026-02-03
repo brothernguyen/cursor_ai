@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, from, map, switchMap } from 'rxjs';
+import { Observable, from, map, switchMap, catchError, of } from 'rxjs';
 import { Company } from '../interfaces/auth';
 // import { BASE_URL } from '../config/constants'; // kept for commented HTTP API
 import { SupabaseService } from './supabase.service';
@@ -186,17 +186,55 @@ export class AuthService {
   //   return this.http.patch(`${BASE_URL}/admin/companies/${companyId}/status`, { status }, { headers });
   // }
 
-  createCompanyAdmin(adminData: { companyId: string; email: string }): Observable<unknown> {
+  createCompanyAdmin(adminData: { companyId: string; email: string; companyName?: string }): Observable<unknown> {
     return from(
       this.sb.client.from('company_admins').insert({
         company_id: adminData.companyId,
         email: adminData.email,
       }).select().single()
     ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data ? this.companyAdminRowToApp(data) : null;
-      })
+      switchMap(({ data: adminRow, error: insertError }) => {
+        if (insertError) throw insertError;
+        const admin = adminRow ? this.companyAdminRowToApp(adminRow) : null;
+        const token = crypto.randomUUID();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        return from(
+          this.sb.client.from('invitations').insert({
+            token,
+            email: adminData.email,
+            role: 'company_admin',
+            company_id: adminData.companyId,
+            expires_at: expiresAt,
+          })
+        ).pipe(
+          map(() => ({ admin, token })),
+          catchError((inviteErr) => {
+            console.error('Failed to create invitation record:', inviteErr);
+            throw inviteErr;
+          })
+        );
+      }),
+      switchMap(({ admin, token }) => {
+        return from(
+          this.sb.client.functions.invoke('send-company-admin-invite', {
+            body: {
+              email: adminData.email,
+              token,
+              companyName: adminData.companyName ?? undefined,
+            },
+          })
+        ).pipe(
+          map(({ data, error: fnError }) => {
+            if (fnError) console.warn('Invitation email may not have been sent:', fnError);
+            return admin;
+          }),
+          catchError((emailErr) => {
+            console.warn('Invitation email failed (admin and invitation were created):', emailErr);
+            return of(admin!);
+          })
+        );
+      }),
+      map((admin) => admin ?? null)
     );
   }
 
@@ -273,23 +311,41 @@ export class AuthService {
             if (!data.user) throw new Error('Sign up failed');
             const userId = data.user.id;
             return from(
-              this.sb.client.from('profiles').upsert({
-                id: userId,
-                email: inv['email'] as string,
-                role: inv['role'] as string,
-                company_id: inv['company_id'] as string,
-                first_name: registerData.firstName,
-                last_name: registerData.lastName,
-                status: 'active',
-              }, { onConflict: 'id' })
+              this.sb.client.functions.invoke('confirm-invited-user', {
+                body: { token, userId },
+              })
             ).pipe(
-              switchMap(() =>
-                this.sb.client.from('company_admins').update({
-                  user_id: userId,
-                  status: 'active',
-                }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
-              ),
-              map(() => ({ success: true }))
+              switchMap(({ data: confirmData, error: confirmErr }) => {
+                if (confirmErr) {
+                  console.error('confirm-invited-user failed:', confirmErr);
+                  throw new Error(
+                    'Account was created but email confirmation failed. Please ask your administrator to disable "Confirm email" in Supabase (Authentication → Email) or deploy the confirm-invited-user Edge Function.'
+                  );
+                }
+                const res = confirmData as { error?: string } | null;
+                if (res?.error) {
+                  throw new Error(res.error || 'Email confirmation failed');
+                }
+                return from(
+                  this.sb.client.from('profiles').upsert({
+                    id: userId,
+                    email: inv['email'] as string,
+                    role: inv['role'] as string,
+                    company_id: inv['company_id'] as string,
+                    first_name: registerData.firstName,
+                    last_name: registerData.lastName,
+                    status: 'active',
+                  }, { onConflict: 'id' })
+                ).pipe(
+                  switchMap(() =>
+                    this.sb.client.from('company_admins').update({
+                      user_id: userId,
+                      status: 'active',
+                    }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
+                  ),
+                  map(() => ({ success: true }))
+                );
+              })
             );
           })
         );

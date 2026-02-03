@@ -208,6 +208,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Create company step state
   createCompanyStep = signal<1 | 2>(1); // 1: Company Information, 2: Invite Admins
   createdCompanyId = signal<string | null>(null);
+  createdCompanyName = signal<string | null>(null);
   adminEmails = signal<string[]>([]);
   newAdminEmail = signal<string>('');
   newAdminEmailInput = ''; // For ngModel binding
@@ -959,6 +960,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       // Reset create company step
       this.createCompanyStep.set(1);
       this.createdCompanyId.set(null);
+      this.createdCompanyName.set(null);
       this.adminEmails.set([]);
       this.newAdminEmail.set('');
       this.newAdminEmailInput = '';
@@ -1166,6 +1168,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         if (companyId) {
           this.createdCompanyId.set(String(companyId));
+          this.createdCompanyName.set(this.newCompany.name?.trim() ?? null);
           console.log('Saved companyId for step 2:', this.createdCompanyId());
         } else {
           console.error('Company ID not found in response. Response structure:', res);
@@ -2031,7 +2034,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       const companyIdStr = String(companyId);
       console.log('Calling createCompanyAdmin with:', { companyId: companyIdStr, email });
 
-      this.authSer.createCompanyAdmin({ companyId: companyIdStr, email }).subscribe({
+      const companyName = this.createdCompanyName() ?? undefined;
+      this.authSer.createCompanyAdmin({ companyId: companyIdStr, email, companyName }).subscribe({
         next: () => {
           completed++;
           // Show success toast for each admin

@@ -1,0 +1,11 @@
+# Supabase project config (used by CLI for deploy/link)
+# See: https://supabase.com/docs/guides/cli/config
+
+[functions.send-company-admin-invite]
+# Disable JWT verification so the app can invoke this function after RLS has
+# already allowed creating the invitation. The function only sends an email.
+verify_jwt = false
+
+[functions.confirm-invited-user]
+# Called by the client right after signUp in the invite flow (user may not be confirmed yet).
+verify_jwt = false
