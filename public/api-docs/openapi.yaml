@@ -1,0 +1,492 @@
+openapi: 3.0.3
+info:
+  title: Meeting Room App API
+  description: |
+    API surface for the Meeting Room application. Implemented via **Supabase** (Auth, PostgREST, Edge Functions).
+    All endpoints require a valid JWT in the `Authorization: Bearer <token>` header unless noted.
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: https://lvoncirunpbomolblvuo.supabase.co
+    description: Supabase project (replace with your project URL)
+  - url: https://lvoncirunpbomolblvuo.supabase.co/functions/v1
+    description: Supabase Edge Functions
+
+tags:
+  - name: Auth
+    description: Authentication and session
+  - name: Companies
+    description: Company CRUD (sys_admin)
+  - name: Company Admins
+    description: Company admin invitations and management
+  - name: Invitations
+    description: Invitation and registration flow
+  - name: Rooms
+    description: Meeting rooms (company_admin)
+  - name: Employees
+    description: Employees (company_admin)
+  - name: Edge Functions
+    description: Custom Supabase Edge Functions
+
+paths:
+  # ---- Auth ----
+  /auth/v1/token?grant_type=password:
+    post:
+      tags: [Auth]
+      summary: Admin login
+      description: Supabase Auth sign-in. Returns session; app then loads profile (role, company_id) from `profiles` table.
+      operationId: adminLogin
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Success (session with access_token)
+        '400':
+          description: Invalid credentials or email_not_confirmed
+
+  /auth/v1/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      operationId: logout
+      responses:
+        '204':
+          description: Signed out
+
+  /auth/v1/user:
+    get:
+      tags: [Auth]
+      summary: Get current session / user
+      operationId: getSession
+      responses:
+        '200':
+          description: Current session and user
+
+  # ---- Companies (Supabase PostgREST: rest/v1/companies) ----
+  /rest/v1/companies:
+    get:
+      tags: [Companies]
+      summary: List all companies
+      description: Select * from companies, optional filter by status. Order by created_at desc.
+      operationId: getAllCompanies
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: List of companies
+    post:
+      tags: [Companies]
+      summary: Create company
+      operationId: createCompany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyRow'
+      responses:
+        '201':
+          description: Created company
+
+  /rest/v1/companies/{companyId}:
+    patch:
+      tags: [Companies]
+      summary: Update company (or status only)
+      operationId: updateCompany
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                address: { type: string }
+                phone: { type: string }
+                industry: { type: string }
+                status: { type: string, enum: [active, inactive] }
+                logo_url: { type: string }
+      responses:
+        '200':
+          description: Updated company
+    delete:
+      tags: [Companies]
+      summary: Delete company
+      operationId: deleteCompany
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Deleted
+
+  # ---- Profiles (used after login) ----
+  /rest/v1/profiles:
+    get:
+      tags: [Auth]
+      summary: Get profile by user id
+      description: Select role, company_id (and other fields) for current user. Used after login.
+      operationId: getProfile
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Profile row
+
+  # ---- Company Admins ----
+  /rest/v1/company_admins:
+    get:
+      tags: [Company Admins]
+      summary: List company admins for a company
+      description: Select * where company_id = :id, order by created_at desc.
+      operationId: getCompanyAdmins
+      parameters:
+        - name: company_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: List of company admins
+    post:
+      tags: [Company Admins]
+      summary: Create company admin (invite)
+      description: Inserts row then creates invitation and calls Edge Function to send email.
+      operationId: createCompanyAdmin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [company_id, email]
+              properties:
+                company_id: { type: string, format: uuid }
+                email: { type: string, format: email }
+                companyName: { type: string, description: 'Optional, for email body' }
+      responses:
+        '201':
+          description: Created; invitation email sent
+
+  /rest/v1/company_admins/{adminId}:
+    patch:
+      tags: [Company Admins]
+      summary: Update company admin
+      operationId: updateCompanyAdmin
+      parameters:
+        - name: adminId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                status: { type: string, enum: [active, inactive, pending] }
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Company Admins]
+      summary: Delete company admin
+      operationId: deleteCompanyAdmin
+      parameters:
+        - name: adminId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Deleted
+
+  # ---- Invitations ----
+  /rest/v1/rpc/get_invitation_by_token:
+    post:
+      tags: [Invitations]
+      summary: Get invitation by token
+      description: Returns invitation row if token valid and not expired. Used by register page.
+      operationId: getInvitationByToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [t]
+              properties:
+                t: { type: string, description: 'Invitation token from email link' }
+      responses:
+        '200':
+          description: Invitation (email, role, company_id, expires_at)
+        '404':
+          description: Invalid or expired token
+
+  # ---- Auth signUp (invitation flow) ----
+  /auth/v1/signup:
+    post:
+      tags: [Invitations]
+      summary: Sign up (accept invitation)
+      description: Called with invitation email + new password. Then app upserts profile, updates company_admins, and calls confirm-invited-user Edge Function.
+      operationId: acceptInvitationSignUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                options:
+                  type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        first_name: { type: string }
+                        last_name: { type: string }
+                        phone: { type: string }
+      responses:
+        '200':
+          description: User created
+
+  # ---- Rooms ----
+  /rest/v1/rooms:
+    get:
+      tags: [Rooms]
+      summary: List rooms for current company
+      operationId: getAllRooms
+      parameters:
+        - name: company_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: List of rooms
+    post:
+      tags: [Rooms]
+      summary: Create room
+      operationId: createRoom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomRow'
+      responses:
+        '201':
+          description: Created room
+
+  /rest/v1/rooms/{roomId}:
+    patch:
+      tags: [Rooms]
+      summary: Update room
+      operationId: updateRoom
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomRow'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Rooms]
+      summary: Delete room
+      operationId: deleteRoom
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Deleted
+
+  # ---- Employees ----
+  /rest/v1/employees:
+    get:
+      tags: [Employees]
+      summary: List employees for current company
+      operationId: getAllEmployees
+      parameters:
+        - name: company_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: List of employees
+    post:
+      tags: [Employees]
+      summary: Invite employee
+      operationId: inviteEmployee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+                role: { type: string, default: employee }
+                status: { type: string, default: pending }
+      responses:
+        '201':
+          description: Created
+
+  /rest/v1/employees/{employeeId}:
+    patch:
+      tags: [Employees]
+      summary: Update employee
+      operationId: updateEmployee
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                department: { type: string }
+                role: { type: string }
+                status: { type: string, enum: [active, inactive, pending] }
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Employees]
+      summary: Delete employee
+      operationId: deleteEmployee
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Deleted
+
+  # ---- Edge Functions ----
+  /functions/v1/send-company-admin-invite:
+    post:
+      tags: [Edge Functions]
+      summary: Send company admin invitation email
+      description: Invoked by app after creating company_admin + invitation. Sends email via Resend with register link. No JWT required (verify_jwt = false).
+      operationId: sendCompanyAdminInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, token]
+              properties:
+                email: { type: string, format: email }
+                token: { type: string, description: 'Invitation token' }
+                companyName: { type: string }
+      responses:
+        '200':
+          description: Email sent
+        '500':
+          description: FRONTEND_URL invalid or Resend error
+
+  /functions/v1/confirm-invited-user:
+    post:
+      tags: [Edge Functions]
+      summary: Confirm invited user email
+      description: Called after signUp in invite flow. Sets email_confirm = true for the user so they can sign in. No JWT required.
+      operationId: confirmInvitedUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, userId]
+              properties:
+                token: { type: string }
+                userId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: User confirmed
+        '400':
+          description: Invalid token or user mismatch
+
+components:
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: apikey
+      description: Supabase anon key (required for Supabase endpoints)
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase access_token (from login/session)
+
+  # Supabase requires BOTH apikey (anon key) and Bearer token for protected endpoints.
+  security:
+    - apiKeyAuth: []
+      bearerAuth: []
+
+  schemas:
+    CompanyRow:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        logo_url: { type: string, nullable: true }
+        address: { type: string }
+        phone: { type: string, nullable: true }
+        industry: { type: string }
+        status: { type: string, enum: [active, inactive] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    RoomRow:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        company_id: { type: string, format: uuid }
+        name: { type: string }
+        capacity: { type: integer }
+        available_from: { type: string }
+        available_to: { type: string }
+        location: { type: string }
+        timezone: { type: string, default: UTC }
