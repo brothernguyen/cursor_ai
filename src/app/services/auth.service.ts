@@ -391,10 +391,20 @@ export class AuthService {
   //   return this.http.put(`${BASE_URL}/admin/company-admins/${adminId}`, adminData, { headers });
   // }
 
+  /**
+   * Deletes the company admin: removes the company_admins row and the auth user (if any)
+   * so they can no longer log in. Uses the delete-company-admin Edge Function.
+   */
   deleteCompanyAdmin(adminId: string): Observable<void> {
-    return from(this.sb.client.from('company_admins').delete().eq('id', adminId)).pipe(
-      map(({ error }) => {
+    return from(
+      this.sb.client.functions.invoke('delete-company-admin', {
+        body: { company_admin_id: adminId },
+      })
+    ).pipe(
+      map(({ data, error }) => {
         if (error) throw error;
+        const err = (data as { error?: string })?.error;
+        if (err) throw new Error(err);
       })
     );
   }
