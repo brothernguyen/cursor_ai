@@ -119,6 +119,13 @@
     border: none;
     border-radius: 0;
   }
+
+  // Align rows-per-page dropdown with paginator controls (avoid vertical cut-off)
+  .p-paginator .p-paginator-rpp-dropdown,
+  .p-paginator .p-paginator-rpp-dropdown .p-select {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 // Sidebar drawer styles
@@ -2931,10 +2938,11 @@
 }
 
 // Paginator wrapper to match companies table border
+// Use overflow: visible so the rows-per-page dropdown is not clipped when it opens
 .paginator-wrapper {
   border: 1px solid #cdd5df;
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .companies-table {
