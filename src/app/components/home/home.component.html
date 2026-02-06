@@ -1611,11 +1611,12 @@
               (mousemove)="onRoomImageMouseMove($event, room.id)"
               (mouseleave)="onRoomImageMouseLeave($event)"
             >
-              @if (room.images && room.images.length > 0) {
+              @if (getDisplayImageUrl(room)) {
               <img
-                [src]="room.images[0]"
+                [src]="getDisplayImageUrl(room)"
                 [alt]="room.name"
                 class="room-image"
+                (error)="onRoomImageError(room)"
               />
               } @else {
               <div class="room-image-placeholder">

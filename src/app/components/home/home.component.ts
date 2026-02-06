@@ -780,18 +780,63 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Helper method to get room images (using placeholder images from Unsplash)
+  // Room images: try real photos (Unsplash); if they fail on load we show the grey placeholder
+  private static readonly ROOM_PHOTOS = [
+    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop&q=80'
+  ] as const;
+
   getRoomImages(roomNameOrId: string | number): string[] {
-    // Use room name or ID to generate consistent images
-    const seed = typeof roomNameOrId === 'string' ? roomNameOrId : roomNameOrId.toString();
-    const baseImages = [
-      `https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&q=80`,
-      `https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=600&fit=crop&q=80`,
-      `https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&h=600&fit=crop&q=80`,
-      `https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&h=600&fit=crop&q=80`
-    ];
-    // Return 2-3 images per room
-    return baseImages.slice(0, 3);
+    const seed = typeof roomNameOrId === 'string' ? roomNameOrId : String(roomNameOrId ?? '');
+    const index = seed ? (Math.abs(this.simpleHash(seed)) % HomeComponent.ROOM_PHOTOS.length) : 0;
+    const primary = HomeComponent.ROOM_PHOTOS[index];
+    return [primary, primary, primary];
+  }
+
+  private simpleHash(str: string): number {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i);
+    return h;
+  }
+
+  /** When Unsplash fails we try placehold.co (works on localhost); only then show grey placeholder */
+  roomFallbackImageUrl = signal<Map<string | number, string>>(new Map());
+  roomImageLoadFailed = signal<Set<string | number>>(new Set());
+
+  getDisplayImageUrl(room: RoomDisplay): string | null {
+    const id = room.id ?? '';
+    if (this.roomImageLoadFailed().has(id)) return null;
+    const fallback = this.roomFallbackImageUrl().get(id);
+    if (fallback) return fallback;
+    return room.images?.[0] ?? null;
+  }
+
+  /** placehold.co works from localhost – used when Unsplash blocks/fails */
+  private getPlaceholdCoUrl(room: RoomDisplay): string {
+    const id = room.id ?? '';
+    const colors = ['764FDB', '4F46E5', '0EA5E9', '059669', 'D97706', 'DC2626'];
+    const idx = Math.abs(this.simpleHash(String(id))) % colors.length;
+    const bg = colors[idx];
+    const text = encodeURIComponent((room.name || 'Room').slice(0, 20));
+    return `https://placehold.co/800x600/${bg}/ffffff?text=${text}`;
+  }
+
+  onRoomImageError(room: RoomDisplay): void {
+    if (room == null) return;
+    const id = room.id ?? '';
+    if (this.roomFallbackImageUrl().has(id)) {
+      this.roomImageLoadFailed.update((s) => new Set(s).add(id));
+      return;
+    }
+    this.roomFallbackImageUrl.update((m) => {
+      const next = new Map(m);
+      next.set(id, this.getPlaceholdCoUrl(room));
+      return next;
+    });
   }
 
   // All filtered companies (for pagination total count)
@@ -1592,6 +1637,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           roomsData = res;
         }
 
+        this.roomImageLoadFailed.set(new Set());
+        this.roomFallbackImageUrl.set(new Map());
         // Transform API data to RoomDisplay format
         this.rooms = roomsData.map((room: any) => {
           const roomDisplay: RoomDisplay = {
