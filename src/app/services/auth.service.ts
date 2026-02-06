@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, from, map, switchMap, catchError, of } from 'rxjs';
+import { Observable, from, map, switchMap, catchError, of, throwError } from 'rxjs';
 import { Company } from '../interfaces/auth';
 // import { BASE_URL } from '../config/constants'; // kept for commented HTTP API
 import { SupabaseService } from './supabase.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -215,24 +216,33 @@ export class AuthService {
         );
       }),
       switchMap(({ admin, token }) => {
-        return from(
-          this.sb.client.functions.invoke('send-company-admin-invite', {
-            body: {
+        const url = `${environment.supabaseUrl}/functions/v1/send-company-admin-invite`;
+        const tokenHeader = this.getToken();
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+          ...(tokenHeader ? { Authorization: `Bearer ${tokenHeader}` } : {}),
+        });
+        return this.http
+          .post<{ success?: boolean; id?: string }>(
+            url,
+            {
               email: adminData.email,
               token,
               companyName: adminData.companyName ?? undefined,
             },
-          })
-        ).pipe(
-          map(({ data, error: fnError }) => {
-            if (fnError) console.warn('Invitation email may not have been sent:', fnError);
-            return admin;
-          }),
-          catchError((emailErr) => {
-            console.warn('Invitation email failed (admin and invitation were created):', emailErr);
-            return of(admin!);
-          })
-        );
+            { headers }
+          )
+          .pipe(
+            map(() => admin),
+            catchError((emailErr) => {
+              const body = emailErr.error as { error?: string; details?: unknown } | undefined;
+              const msg = body?.error && typeof body.error === 'string'
+                ? body.details ? `${body.error}: ${JSON.stringify(body.details)}` : body.error
+                : emailErr.message;
+              console.warn('Invitation email failed (admin and invitation were created):', msg);
+              return of(admin!);
+            })
+          );
       }),
       map((admin) => admin ?? null)
     );
@@ -396,17 +406,28 @@ export class AuthService {
    * so they can no longer log in. Uses the delete-company-admin Edge Function.
    */
   deleteCompanyAdmin(adminId: string): Observable<void> {
-    return from(
-      this.sb.client.functions.invoke('delete-company-admin', {
-        body: { company_admin_id: adminId },
-      })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        const err = (data as { error?: string })?.error;
-        if (err) throw new Error(err);
-      })
-    );
+    const token = this.getToken();
+    const url = `${environment.supabaseUrl}/functions/v1/delete-company-admin`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    });
+
+    return this.http
+      .post<{ success?: boolean; error?: string; details?: string }>(url, { company_admin_id: adminId }, { headers })
+      .pipe(
+        map(() => undefined),
+        catchError((err) => {
+          const body = err.error as { error?: string; details?: string } | undefined;
+          const msg =
+            body?.error && typeof body.error === 'string'
+              ? body.details
+                ? `${body.error}: ${body.details}`
+                : body.error
+              : err.message || 'Failed to delete admin.';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   // --- Legacy CRUD API (commented) ---

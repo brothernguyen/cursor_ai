@@ -48,8 +48,13 @@ export class CompCreateAdminComponent implements OnInit {
         next: (res: any) => {
           console.log('==>Admin created successfully:', res);
           this.isSubmitting = false;
+          this.msgService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Invitation sent to ${formValue.email}. They can accept via the link in the email.`,
+            life: 5000
+          });
           this.onClose();
-          // Optionally reset form
           this.adminForm.reset();
         },
         error: (error) => {

@@ -93,7 +93,11 @@ async function handler(req: Request): Promise<Response> {
     );
   }
 
-  // 3) If they had an auth account, delete it so they can no longer log in
+  // 3) If they had an auth account, delete it so they can no longer log in.
+  //    Login is gated by auth.users; without deleting it, they can still sign in.
+  //    profiles has FK to auth.users(id) ON DELETE CASCADE, so the profile should
+  //    be removed when the user is deleted; we also delete the profile explicitly
+  //    as a safety net in case cascade is not in effect in this project.
   if (userId) {
     const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (deleteUserError) {
@@ -102,6 +106,14 @@ async function handler(req: Request): Promise<Response> {
         JSON.stringify({ error: 'Company admin removed but failed to remove login account', details: deleteUserError.message }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+    const { error: deleteProfileError } = await supabaseAdmin
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+    if (deleteProfileError) {
+      console.error('Profile delete error (auth user already removed):', deleteProfileError);
+      // Don't fail the request: auth user is gone so they can't log in; profile is just leftover data.
     }
   }
 

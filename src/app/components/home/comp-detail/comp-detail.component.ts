@@ -353,12 +353,17 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
           error: (error) => {
             console.error('==>Error deleting admin:', error);
             this.deletingAdminId = null;
-            const errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
+            let errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
+            if (errorMessage.includes('send a request')) {
+              errorMessage = 'Could not reach the delete service. Deploy the Edge Function: run "npx supabase functions deploy delete-company-admin" from the project root, then try again.';
+            } else if (errorMessage.includes('non-2xx status code')) {
+              errorMessage = 'Delete failed (server error). Open DevTools (F12) → Network tab, click the "delete-company-admin" request, and check the Response body for the exact error.';
+            }
             this.msgService.add({
               severity: 'error',
               summary: 'Error',
               detail: errorMessage,
-              life: 3000
+              life: 5000
             });
           }
         });

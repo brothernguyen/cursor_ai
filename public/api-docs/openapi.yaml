@@ -40,6 +40,8 @@ paths:
       operationId: adminLogin
       security:
         - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ApikeyHeader'
       requestBody:
         required: true
         content:
@@ -61,6 +63,8 @@ paths:
       tags: [Auth]
       summary: Logout
       operationId: logout
+      parameters:
+        - $ref: '#/components/parameters/ApikeyHeader'
       responses:
         '204':
           description: Signed out
@@ -70,18 +74,25 @@ paths:
       tags: [Auth]
       summary: Get current session / user
       operationId: getSession
+      parameters:
+        - $ref: '#/components/parameters/ApikeyHeader'
       responses:
         '200':
           description: Current session and user
 
   # ---- Companies (Supabase PostgREST: rest/v1/companies) ----
   /rest/v1/companies:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Companies]
       summary: List all companies
-      description: Select * from companies, optional filter by status. Order by created_at desc.
+      description: |
+        Select * from companies, optional filter by status. Order by created_at desc.
+        **Requires Bearer token:** RLS allows rows only when the request is authenticated as a user whose profile has role `sys_admin`. Send both **apikey** and **Authorization Bearer** (token from Admin login); otherwise the response is an empty array `[]`.
       operationId: getAllCompanies
       parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
         - name: status
           in: query
           schema:
@@ -104,6 +115,8 @@ paths:
           description: Created company
 
   /rest/v1/companies/{companyId}:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Companies]
       summary: Update company (or status only)
@@ -143,6 +156,8 @@ paths:
 
   # ---- Profiles (used after login) ----
   /rest/v1/profiles:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Auth]
       summary: Get profile by user id
@@ -159,6 +174,8 @@ paths:
 
   # ---- Company Admins ----
   /rest/v1/company_admins:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Company Admins]
       summary: List company admins for a company
@@ -192,6 +209,8 @@ paths:
           description: Created; invitation email sent
 
   /rest/v1/company_admins/{adminId}:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Company Admins]
       summary: Update company admin
@@ -228,6 +247,8 @@ paths:
 
   # ---- Invitations ----
   /rest/v1/rpc/get_invitation_by_token:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     post:
       tags: [Invitations]
       summary: Get invitation by token
@@ -249,6 +270,8 @@ paths:
 
   # ---- Auth signUp (invitation flow) ----
   /auth/v1/signup:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     post:
       tags: [Invitations]
       summary: Sign up (accept invitation)
@@ -278,6 +301,8 @@ paths:
 
   # ---- Rooms ----
   /rest/v1/rooms:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Rooms]
       summary: List rooms for current company
@@ -304,6 +329,8 @@ paths:
           description: Created room
 
   /rest/v1/rooms/{roomId}:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Rooms]
       summary: Update room
@@ -336,6 +363,8 @@ paths:
 
   # ---- Employees ----
   /rest/v1/employees:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Employees]
       summary: List employees for current company
@@ -367,6 +396,8 @@ paths:
           description: Created
 
   /rest/v1/employees/{employeeId}:
+    parameters:
+      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Employees]
       summary: Update employee
@@ -448,6 +479,20 @@ paths:
           description: Invalid token or user mismatch
 
 components:
+  parameters:
+    ApikeyHeader:
+      name: apikey
+      in: header
+      required: true
+      description: Supabase anon key (paste from src/environments/environment.ts). Required for every Supabase request.
+      schema: { type: string }
+    AuthorizationHeader:
+      name: Authorization
+      in: header
+      required: true
+      description: 'Paste exactly: Bearer <access_token> (token from Admin login response, e.g. session.access_token). Required for RLS to return rows.'
+      schema: { type: string, example: 'Bearer eyJ...' }
+
   securitySchemes:
     apiKeyAuth:
       type: apiKey

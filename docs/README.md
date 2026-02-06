@@ -44,3 +44,13 @@ The spec documents:
 - **Edge Functions:** send-company-admin-invite, confirm-invited-user
 
 All operations are implemented via Supabase (Auth, PostgREST, RPC, Edge Functions). The spec uses logical paths; actual requests go to your Supabase project URL with the appropriate path prefix (`/auth/v1`, `/rest/v1`, `/functions/v1`).
+
+## Troubleshooting – List companies returns `[]`
+
+1. **Send both headers**  
+   For **List all companies**, fill in **Parameters**:
+   - **apikey**: your Supabase anon key (from `src/environments/environment.ts`).
+   - **Authorization**: paste exactly `Bearer <access_token>` (one space after `Bearer`). Get `<access_token>` from **Admin login** response → `access_token` or `session.access_token`.
+
+2. **Check profile role**  
+   RLS returns companies only if the authenticated user’s profile has role **`sys_admin`**. In Supabase Dashboard → **Table Editor** → **profiles**, find the row where `id` = your auth user id and ensure **role** = `sys_admin`. If it’s missing or different, fix it (e.g. set role to `sys_admin` for your admin user).
