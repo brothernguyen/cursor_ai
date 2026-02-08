@@ -803,8 +803,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     return h;
   }
 
-  /** When Unsplash fails we try placehold.co (works on localhost); only then show grey placeholder */
+  /** URLs that have successfully loaded – reuse one for cards whose image failed */
+  successfulImageUrls = signal<Set<string>>(new Set());
+  /** Room id -> URL to show (reused from a successfully loaded image when primary failed) */
   roomFallbackImageUrl = signal<Map<string | number, string>>(new Map());
+  /** Only when primary failed and no successful image to reuse */
   roomImageLoadFailed = signal<Set<string | number>>(new Set());
 
   getDisplayImageUrl(room: RoomDisplay): string | null {
@@ -815,14 +818,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     return room.images?.[0] ?? null;
   }
 
-  /** placehold.co works from localhost – used when Unsplash blocks/fails */
-  private getPlaceholdCoUrl(room: RoomDisplay): string {
-    const id = room.id ?? '';
-    const colors = ['764FDB', '4F46E5', '0EA5E9', '059669', 'D97706', 'DC2626'];
-    const idx = Math.abs(this.simpleHash(String(id))) % colors.length;
-    const bg = colors[idx];
-    const text = encodeURIComponent((room.name || 'Room').slice(0, 20));
-    return `https://placehold.co/800x600/${bg}/ffffff?text=${text}`;
+  onRoomImageLoad(event: Event): void {
+    const src = (event.target as HTMLImageElement)?.src;
+    if (src) this.successfulImageUrls.update((s) => new Set(s).add(src));
   }
 
   onRoomImageError(room: RoomDisplay): void {
@@ -832,11 +830,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.roomImageLoadFailed.update((s) => new Set(s).add(id));
       return;
     }
-    this.roomFallbackImageUrl.update((m) => {
-      const next = new Map(m);
-      next.set(id, this.getPlaceholdCoUrl(room));
-      return next;
-    });
+    const ok = this.successfulImageUrls();
+    if (ok.size > 0) {
+      const reuseUrl = ok.values().next().value as string;
+      this.roomFallbackImageUrl.update((m) => {
+        const next = new Map(m);
+        next.set(id, reuseUrl);
+        return next;
+      });
+    } else {
+      this.roomImageLoadFailed.update((s) => new Set(s).add(id));
+    }
   }
 
   // All filtered companies (for pagination total count)
@@ -1639,6 +1643,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.roomImageLoadFailed.set(new Set());
         this.roomFallbackImageUrl.set(new Map());
+        this.successfulImageUrls.set(new Set());
         // Transform API data to RoomDisplay format
         this.rooms = roomsData.map((room: any) => {
           const roomDisplay: RoomDisplay = {

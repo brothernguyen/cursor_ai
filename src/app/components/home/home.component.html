@@ -1616,6 +1616,7 @@
                 [src]="getDisplayImageUrl(room)"
                 [alt]="room.name"
                 class="room-image"
+                (load)="onRoomImageLoad($event)"
                 (error)="onRoomImageError(room)"
               />
               } @else {

@@ -6,6 +6,14 @@ import { Company } from '../interfaces/auth';
 import { SupabaseService } from './supabase.service';
 import { environment } from '../../environments/environment';
 
+/** Build redirect URL for password reset (must be allowed in Supabase Auth URL config). */
+function getResetPasswordRedirectUrl(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/reset-password`;
+  }
+  return environment.supabaseUrl ? `${environment.supabaseUrl.replace(/\/$/, '')}/reset-password` : '/reset-password';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -475,6 +483,27 @@ export class AuthService {
   //   if (token) headers = headers.set('Authorization', `Bearer ${token}`);
   //   return this.http.get(`${BASE_URL}/admin/companies/full?role=company_admin`, { headers });
   // }
+
+  /** Request a password reset email. Supabase sends a link to the given redirect URL. */
+  requestPasswordReset(email: string): Observable<void> {
+    const redirectTo = getResetPasswordRedirectUrl();
+    return from(
+      this.sb.client.auth.resetPasswordForEmail(email, { redirectTo })
+    ).pipe(
+      map(({ error }) => {
+        if (error) throw error;
+      })
+    );
+  }
+
+  /** Update the current user's password (used on reset-password page after recovery link). */
+  updatePassword(newPassword: string): Observable<void> {
+    return from(this.sb.client.auth.updateUser({ password: newPassword })).pipe(
+      map(({ error }) => {
+        if (error) throw error;
+      })
+    );
+  }
 
   logout(): void {
     this.sb.client.auth.signOut().then(() => this.clearAll());
