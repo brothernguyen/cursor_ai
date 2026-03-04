@@ -96,7 +96,6 @@ export const routeAnimations = trigger('routeAnimations', [
 export class AppComponent implements OnInit, OnDestroy {
   title = 'meeting-room';
   authSer = inject(AuthService);
-  private beforeUnloadHandler?: () => void;
 
   constructor(private primeng: PrimeNG) { }
 
@@ -109,19 +108,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Supabase: restore session from Supabase so user stays logged in after refresh
     this.authSer.restoreSession();
-
-    // Clear tokens when browser tab is closed (optional; remove if you want session to persist)
-    this.beforeUnloadHandler = () => {
-      this.authSer.clearAll();
-    };
-
-    window.addEventListener('beforeunload', this.beforeUnloadHandler);
   }
 
   ngOnDestroy() {
-    // Clean up event listener
-    if (this.beforeUnloadHandler) {
-      window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-    }
   }
 }
