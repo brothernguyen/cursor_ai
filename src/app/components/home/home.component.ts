@@ -262,7 +262,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onEscapeKey(event: KeyboardEvent) {
+  onEscapeKey(event: Event) {
     // Only handle Esc if no modal is open
     if (this.modal()) {
       // Let modals handle Esc themselves
@@ -780,14 +780,28 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Room images: try real photos (Unsplash); if they fail on load we show the grey placeholder
+  // Room images: Unsplash meeting/office photos; variety so each room gets a distinct image
   private static readonly ROOM_PHOTOS = [
     'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop&q=80',
     'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&h=600&fit=crop&q=80',
     'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&h=600&fit=crop&q=80',
     'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&h=600&fit=crop&q=80',
     'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop&q=80'
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1593062096033-9a26dc09f2d5?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1573164713988-8665fc2effaa?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1568992687947-868a62a9f521?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1556760544-74068565f05e?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1552581234-26160f608093?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1556761175-b19a2182beb8?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&h=600&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&h=600&fit=crop&q=80'
   ] as const;
 
   getRoomImages(roomNameOrId: string | number): string[] {
@@ -812,15 +826,27 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getDisplayImageUrl(room: RoomDisplay): string | null {
     const id = room.id ?? '';
+    if (room == null) return null;
     if (this.roomImageLoadFailed().has(id)) return null;
     const fallback = this.roomFallbackImageUrl().get(id);
     if (fallback) return fallback;
-    return room.images?.[0] ?? null;
+    const fromImages = room.images?.[0];
+    if (fromImages) return fromImages;
+    if (room.featuredImageUrl) return room.featuredImageUrl;
+    const fromApiSnake = (room as unknown as Record<string, unknown>)['featured_image_url'];
+    if (fromApiSnake && typeof fromApiSnake === 'string') return fromApiSnake;
+    return this.getRoomImages(room.name ?? room.id ?? id)[0] ?? null;
   }
 
   onRoomImageLoad(event: Event): void {
     const src = (event.target as HTMLImageElement)?.src;
     if (src) this.successfulImageUrls.update((s) => new Set(s).add(src));
+  }
+
+  /** Picsum fallback so every room card gets an image when Unsplash fails */
+  private getPicsumRoomImageUrl(roomIdOrIndex: string | number): string {
+    const seed = encodeURIComponent(String(roomIdOrIndex));
+    return `https://picsum.photos/seed/${seed}/800/600`;
   }
 
   onRoomImageError(room: RoomDisplay): void {
@@ -839,7 +865,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         return next;
       });
     } else {
-      this.roomImageLoadFailed.update((s) => new Set(s).add(id));
+      // No other image loaded yet – use Picsum so this card still has a featured image
+      const picsumUrl = this.getPicsumRoomImageUrl((id || room.name) ?? 'room');
+      this.roomFallbackImageUrl.update((m) => {
+        const next = new Map(m);
+        next.set(id, picsumUrl);
+        return next;
+      });
     }
   }
 
@@ -1644,8 +1676,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.roomImageLoadFailed.set(new Set());
         this.roomFallbackImageUrl.set(new Map());
         this.successfulImageUrls.set(new Set());
-        // Transform API data to RoomDisplay format
-        this.rooms = roomsData.map((room: any) => {
+        // Prefer featured image from DB (saved after download); else assign from pool
+        this.rooms = roomsData.map((room: any, index: number) => {
+          const savedImage = room.featuredImageUrl ?? room.featured_image_url;
           const roomDisplay: RoomDisplay = {
             id: room.id,
             name: room.name,
@@ -1656,10 +1689,21 @@ export class HomeComponent implements OnInit, OnDestroy {
             timezone: room.timezone || 'UTC',
             hours: this.formatTimeRange(room.availableFrom || '', room.availableTo || ''),
             status: room.status || 'active',
-            images: this.getRoomImages(room.name || room.id)
+            images: savedImage ? [savedImage] : this.getRoomImages(room.name ?? room.id ?? index)
           };
+          console.log('==>card image', room.name, this.getDisplayImageUrl(room));
           return roomDisplay;
         });
+        // Backfill: download images for rooms that don't have one and save to DB, then reload
+        const missing = roomsData.filter((r: any) => !(r.featuredImageUrl ?? r.featured_image_url));
+        if (missing.length > 0) {
+          this.roomSer.ensureRoomImages().subscribe({
+            next: (result) => {
+              if (result.updated > 0) this.loadRooms();
+            },
+            error: () => { /* ignore; cards still show fallback images */ }
+          });
+        }
       },
       error: (error) => {
         console.error('Error loading rooms:', error);

@@ -55,8 +55,18 @@ create table if not exists public.rooms (
   available_to text not null,
   location text not null,
   timezone text default 'UTC',
+  featured_image_url text,
   created_at timestamptz default now()
 );
+
+-- Add featured_image_url if table already exists (run once if you added rooms before this column)
+-- alter table public.rooms add column if not exists featured_image_url text;
+
+-- Storage bucket for room images (public read so cards can display without auth)
+-- Run in SQL Editor if the bucket does not exist:
+-- insert into storage.buckets (id, name, public) values ('room-images', 'room-images', true)
+--   on conflict (id) do update set public = true;
+-- Policy: allow authenticated upload (service role used by Edge Function), public read via bucket public flag
 
 -- 5. Employees (per company)
 create table if not exists public.employees (

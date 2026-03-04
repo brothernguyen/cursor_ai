@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Room } from '../interfaces/auth';
 // import { BASE_URL } from '../config/constants'; // kept for commented HTTP API
 import { AuthService } from './auth.service';
@@ -36,6 +37,7 @@ export class RoomService {
       available_to: r['availableTo'] ?? r['available_to'],
       location: r['location'],
       timezone: r['timezone'] ?? 'UTC',
+      featured_image_url: r['featuredImageUrl'] ?? r['featured_image_url'],
     };
   }
 
@@ -48,6 +50,7 @@ export class RoomService {
       availableTo: row['available_to'],
       location: row['location'],
       timezone: row['timezone'],
+      featuredImageUrl: row['featured_image_url'] ?? null,
     };
   }
 
@@ -132,6 +135,55 @@ export class RoomService {
       map(({ error }) => {
         if (error) throw error;
       })
+    );
+  }
+
+  /** Update only the featured image URL for a room (after download by ensure-room-images). */
+  updateRoomFeaturedImage(roomId: string, featuredImageUrl: string): Observable<unknown> {
+    const companyId = this.getCompanyId();
+    if (!companyId) throw new Error('Company context required');
+    return from(
+      this.sb.client.from('rooms').update({ featured_image_url: featuredImageUrl }).eq('id', roomId).eq('company_id', companyId).select().single()
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return data ? this.roomRowToApp(data) : null;
+      })
+    );
+  }
+
+  /** Call Edge Function to download missing room images and save to Storage + DB. Returns count of rooms updated. */
+  ensureRoomImages(): Observable<{ updated: number }> {
+    const url = this.sb.getEdgeFunctionUrl('ensure-room-images');
+    // Always use the current Supabase session access token (localStorage may be stale)
+    return from(this.sb.client.auth.getSession()).pipe(
+      // getSession() resolves with the latest access token (refreshed by supabase-js)
+      map(({ data, error }) => {
+        if (error) throw error;
+        const token = data.session?.access_token;
+        if (!token) throw new Error('Not authenticated');
+        return token;
+      }),
+      switchMap((token: string) =>
+        from(
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({}),
+          }).then(async (res) => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              const message =
+                (data && (data.error as string)) || `ensure-room-images failed: ${res.status}`;
+              throw new Error(message);
+            }
+            return data as { updated: number };
+          })
+        )
+      )
     );
   }
 

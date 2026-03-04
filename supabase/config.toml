@@ -9,3 +9,9 @@ verify_jwt = false
 [functions.confirm-invited-user]
 # Called by the client right after signUp in the invite flow (user may not be confirmed yet).
 verify_jwt = false
+
+[functions.ensure-room-images]
+# We validate the JWT manually inside the function (using auth.getUser),
+# so platform-level verification is not required. This avoids 'Invalid JWT'
+# errors when calling from the browser with the access token.
+verify_jwt = false

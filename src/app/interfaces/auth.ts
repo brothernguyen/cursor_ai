@@ -29,5 +29,7 @@ export interface Room {
   availableTo: string
   location: string
   timezone: "UTC"
+  /** Featured image URL (from DB/storage); set after download by ensure-room-images */
+  featuredImageUrl?: string | null
 }
 
