@@ -824,10 +824,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   /** Only when primary failed and no successful image to reuse */
   roomImageLoadFailed = signal<Set<string | number>>(new Set());
 
-  getDisplayImageUrl(room: RoomDisplay): string | null {
+  /** Always returns a URL so the card can display an image (never null). */
+  getDisplayImageUrl(room: RoomDisplay): string {
     const id = room.id ?? '';
-    if (room == null) return null;
-    if (this.roomImageLoadFailed().has(id)) return null;
+    if (room == null) return this.getPicsumRoomImageUrl('room');
     const fallback = this.roomFallbackImageUrl().get(id);
     if (fallback) return fallback;
     const fromImages = room.images?.[0];
@@ -835,7 +835,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (room.featuredImageUrl) return room.featuredImageUrl;
     const fromApiSnake = (room as unknown as Record<string, unknown>)['featured_image_url'];
     if (fromApiSnake && typeof fromApiSnake === 'string') return fromApiSnake;
-    return this.getRoomImages(room.name ?? room.id ?? id)[0] ?? null;
+    if (this.roomImageLoadFailed().has(id)) return this.getPicsumRoomImageUrl((id || room.name) ?? 'room');
+    const fromPool = this.getRoomImages(room.name ?? room.id ?? id)[0];
+    return fromPool ?? this.getPicsumRoomImageUrl((id || room.name) ?? 'room');
   }
 
   onRoomImageLoad(event: Event): void {

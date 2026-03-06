@@ -1513,7 +1513,7 @@
   min-height: 0;
 }
 
-// Room Image Container
+// Room Image Container – ensure image area is always visible
 .room-image-container {
   display: flex;
   flex: 1 0 0;
@@ -1522,7 +1522,7 @@
   overflow: hidden;
   border-radius: 8px;
   position: relative;
-  min-height: 0;
+  min-height: 160px;
   transform-style: preserve-3d;
   transition: transform 0.1s ease-out;
   transform-origin: center center;
