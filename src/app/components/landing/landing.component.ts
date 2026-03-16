@@ -52,9 +52,13 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   private readonly gravity = 0.22;
   private readonly particleCount = 80;
 
+  /** Set to true to enable the firework canvas animation. */
+  private readonly fireworksEnabled = false;
+
   constructor(private router: Router) {}
 
   ngAfterViewInit(): void {
+    if (!this.fireworksEnabled) return;
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
     this.ctx = canvas.getContext('2d');
