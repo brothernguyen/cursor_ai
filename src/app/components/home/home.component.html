@@ -2035,11 +2035,76 @@
           <table class="employees-table">
             <thead>
               <tr>
-                <th class="employee-table-header">FIRST NAME</th>
-                <th class="employee-table-header">LAST NAME</th>
-                <th class="employee-table-header">EMAIL</th>
-                <th class="employee-table-header">DEPARTMENT</th>
-                <th class="employee-table-header">ROLE</th>
+                <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeFirstNameSort()">
+                  <div class="header-sort-container">
+                    <span>FIRST NAME</span>
+                    <div class="sort-icon-wrapper">
+                      @if (employeeFirstNameSortDirection() === 'asc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
+                      } @else if (employeeFirstNameSortDirection() === 'desc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 6L0 0H8L4 6Z" fill="#364152" /></svg>
+                      } @else {
+                      <svg class="sort-icon" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" /></svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeLastNameSort()">
+                  <div class="header-sort-container">
+                    <span>LAST NAME</span>
+                    <div class="sort-icon-wrapper">
+                      @if (employeeLastNameSortDirection() === 'asc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
+                      } @else if (employeeLastNameSortDirection() === 'desc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 6L0 0H8L4 6Z" fill="#364152" /></svg>
+                      } @else {
+                      <svg class="sort-icon" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" /></svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeEmailSort()">
+                  <div class="header-sort-container">
+                    <span>EMAIL</span>
+                    <div class="sort-icon-wrapper">
+                      @if (employeeEmailSortDirection() === 'asc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
+                      } @else if (employeeEmailSortDirection() === 'desc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 6L0 0H8L4 6Z" fill="#364152" /></svg>
+                      } @else {
+                      <svg class="sort-icon" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" /></svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeDepartmentSort()">
+                  <div class="header-sort-container">
+                    <span>DEPARTMENT</span>
+                    <div class="sort-icon-wrapper">
+                      @if (employeeDepartmentSortDirection() === 'asc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
+                      } @else if (employeeDepartmentSortDirection() === 'desc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 6L0 0H8L4 6Z" fill="#364152" /></svg>
+                      } @else {
+                      <svg class="sort-icon" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" /></svg>
+                      }
+                    </div>
+                  </div>
+                </th>
+                <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeRoleSort()">
+                  <div class="header-sort-container">
+                    <span>ROLE</span>
+                    <div class="sort-icon-wrapper">
+                      @if (employeeRoleSortDirection() === 'asc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
+                      } @else if (employeeRoleSortDirection() === 'desc') {
+                      <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 6L0 0H8L4 6Z" fill="#364152" /></svg>
+                      } @else {
+                      <svg class="sort-icon" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" /></svg>
+                      }
+                    </div>
+                  </div>
+                </th>
                 <th
                   class="employee-table-header employee-table-header-sortable"
                   (click)="toggleEmployeeStatusSort()"

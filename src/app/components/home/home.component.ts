@@ -99,7 +99,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedUtilizationPeriod = signal<string>('Week');
   roomViewMode = signal<'card' | 'list'>('card'); // Default to card view (right button)
   statusSortDirection = signal<'asc' | 'desc' | null>(null); // null = no sort, 'asc' = active first, 'desc' = inactive first
-  employeeStatusSortDirection = signal<'asc' | 'desc' | null>(null); // For employee status sorting
+  employeeStatusSortDirection = signal<'asc' | 'desc' | null>(null);
+  employeeFirstNameSortDirection = signal<'asc' | 'desc' | null>(null);
+  employeeLastNameSortDirection = signal<'asc' | 'desc' | null>(null);
+  employeeEmailSortDirection = signal<'asc' | 'desc' | null>(null);
+  employeeDepartmentSortDirection = signal<'asc' | 'desc' | null>(null);
+  employeeRoleSortDirection = signal<'asc' | 'desc' | null>(null);
   roomToDelete: RoomDisplay | null = null;
   companyIndustrySortDirection = signal<'asc' | 'desc' | null>(null); // For company industry sorting
   companyStatusSortDirection = signal<'asc' | 'desc' | null>(null); // For company status sorting
@@ -706,49 +711,102 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Get sorted employees based on status sort direction
+  // Get sorted employees — only one column active at a time.
   get sortedEmployees(): EmployeeDisplay[] {
-    const employeesList = [...this.employees];
-    const sortDir = this.employeeStatusSortDirection();
+    const list = [...this.employees];
 
-    if (sortDir === null) {
-      return employeesList; // No sorting
+    const firstName = this.employeeFirstNameSortDirection();
+    const lastName = this.employeeLastNameSortDirection();
+    const email = this.employeeEmailSortDirection();
+    const department = this.employeeDepartmentSortDirection();
+    const role = this.employeeRoleSortDirection();
+    const status = this.employeeStatusSortDirection();
+
+    const strCompare = (a: string, b: string, dir: 'asc' | 'desc') =>
+      dir === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+
+    if (firstName) {
+      return list.sort((a, b) =>
+        strCompare((a.firstName || '').toLowerCase(), (b.firstName || '').toLowerCase(), firstName));
+    }
+    if (lastName) {
+      return list.sort((a, b) =>
+        strCompare((a.lastName || '').toLowerCase(), (b.lastName || '').toLowerCase(), lastName));
+    }
+    if (email) {
+      return list.sort((a, b) =>
+        strCompare((a.email || '').toLowerCase(), (b.email || '').toLowerCase(), email));
+    }
+    if (department) {
+      return list.sort((a, b) =>
+        strCompare((a.department || '').toLowerCase(), (b.department || '').toLowerCase(), department));
+    }
+    if (role) {
+      return list.sort((a, b) =>
+        strCompare((a.role || '').toLowerCase(), (b.role || '').toLowerCase(), role));
+    }
+    if (status) {
+      const weight: { [key: string]: number } = { active: 2, pending: 1, inactive: 0 };
+      return list.sort((a, b) => {
+        const aW = weight[a.status || 'inactive'] ?? 0;
+        const bW = weight[b.status || 'inactive'] ?? 0;
+        return status === 'asc' ? bW - aW : aW - bW;
+      });
     }
 
-    return employeesList.sort((a, b) => {
-      const aStatus = a.status || 'inactive';
-      const bStatus = b.status || 'inactive';
-
-      // Active = 2, Pending = 1, Inactive = 0
-      const statusValue: { [key: string]: number } = {
-        'active': 2,
-        'pending': 1,
-        'inactive': 0
-      };
-
-      const aValue = statusValue[aStatus] || 0;
-      const bValue = statusValue[bStatus] || 0;
-
-      if (sortDir === 'asc') {
-        // Active first (higher values first)
-        return bValue - aValue;
-      } else {
-        // Inactive first (lower values first)
-        return aValue - bValue;
-      }
-    });
+    return list;
   }
 
-  // Toggle employee status sort direction
+  /** Cycles through asc -> desc -> null; resets all other employee sort columns. */
+  private cycleEmployeeSort(
+    target: ReturnType<typeof signal<'asc' | 'desc' | null>>,
+    ...others: ReturnType<typeof signal<'asc' | 'desc' | null>>[]
+  ) {
+    const current = target();
+    others.forEach(s => s.set(null));
+    target.set(current === null ? 'asc' : current === 'asc' ? 'desc' : null);
+  }
+
+  toggleEmployeeFirstNameSort() {
+    this.cycleEmployeeSort(this.employeeFirstNameSortDirection,
+      this.employeeLastNameSortDirection, this.employeeEmailSortDirection,
+      this.employeeDepartmentSortDirection, this.employeeRoleSortDirection,
+      this.employeeStatusSortDirection);
+  }
+
+  toggleEmployeeLastNameSort() {
+    this.cycleEmployeeSort(this.employeeLastNameSortDirection,
+      this.employeeFirstNameSortDirection, this.employeeEmailSortDirection,
+      this.employeeDepartmentSortDirection, this.employeeRoleSortDirection,
+      this.employeeStatusSortDirection);
+  }
+
+  toggleEmployeeEmailSort() {
+    this.cycleEmployeeSort(this.employeeEmailSortDirection,
+      this.employeeFirstNameSortDirection, this.employeeLastNameSortDirection,
+      this.employeeDepartmentSortDirection, this.employeeRoleSortDirection,
+      this.employeeStatusSortDirection);
+  }
+
+  toggleEmployeeDepartmentSort() {
+    this.cycleEmployeeSort(this.employeeDepartmentSortDirection,
+      this.employeeFirstNameSortDirection, this.employeeLastNameSortDirection,
+      this.employeeEmailSortDirection, this.employeeRoleSortDirection,
+      this.employeeStatusSortDirection);
+  }
+
+  toggleEmployeeRoleSort() {
+    this.cycleEmployeeSort(this.employeeRoleSortDirection,
+      this.employeeFirstNameSortDirection, this.employeeLastNameSortDirection,
+      this.employeeEmailSortDirection, this.employeeDepartmentSortDirection,
+      this.employeeStatusSortDirection);
+  }
+
   toggleEmployeeStatusSort() {
-    const current = this.employeeStatusSortDirection();
-    if (current === null) {
-      this.employeeStatusSortDirection.set('asc'); // Active first
-    } else if (current === 'asc') {
-      this.employeeStatusSortDirection.set('desc'); // Inactive first
-    } else {
-      this.employeeStatusSortDirection.set(null); // No sort
-    }
+    this.cycleEmployeeSort(this.employeeStatusSortDirection,
+      this.employeeFirstNameSortDirection, this.employeeLastNameSortDirection,
+      this.employeeEmailSortDirection, this.employeeDepartmentSortDirection,
+      this.employeeRoleSortDirection);
   }
 
   // Load employees (placeholder - will need API endpoint)
