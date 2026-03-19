@@ -755,23 +755,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadEmployees() {
     this.employeeSer.getAllEmployees().subscribe({
       next: (res: any) => {
-        console.log('==>employees: ', res.data);
-        // Ensure res.data is an array before assigning
-        if (Array.isArray(res.data)) {
-          this.employees = res.data;
-        } else if (res.data && Array.isArray(res.data.employees)) {
-          // Handle case where data might be nested
-          this.employees = res.data.employees;
-        } else if (res.data && Array.isArray(res.data.data)) {
-          // Handle another possible nested structure
-          this.employees = res.data.data;
-        } else if (Array.isArray(res)) {
-          // Handle case where response is directly an array
-          this.employees = res;
-        } else {
-          console.warn('API response data is not an array:', res.data);
-          this.employees = [];
-        }
+        // EmployeeService returns an array, but keep defensive handling for older response shapes.
+        if (Array.isArray(res)) this.employees = res;
+        else if (Array.isArray(res?.data)) this.employees = res.data;
+        else if (Array.isArray(res?.data?.employees)) this.employees = res.data.employees;
+        else if (Array.isArray(res?.data?.data)) this.employees = res.data.data;
+        else this.employees = [];
       },
       error: (error) => {
         console.error('==>error loading employees: ', error);

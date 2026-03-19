@@ -1,9 +1,11 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, from } from 'rxjs';
+import { map, Observable, from, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 // import { BASE_URL } from '../config/constants'; // kept for commented HTTP API
 import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +14,29 @@ export class EmployeeService {
   // --- Legacy CRUD API (commented for safety) ---
   // private baseUrl = `${BASE_URL}/company-admin/employees/invite`;
   // private employeesBaseUrl = `${BASE_URL}/company-admin/employees`;
+
+  private readonly dummyEmployees = [
+    { id: 'emp-001', firstName: 'Avery', lastName: 'Nguyen', email: 'avery.nguyen@acme.com', department: 'Engineering', role: 'Frontend Engineer', status: 'active' },
+    { id: 'emp-002', firstName: 'Noah', lastName: 'Tran', email: 'noah.tran@acme.com', department: 'Engineering', role: 'Backend Engineer', status: 'active' },
+    { id: 'emp-003', firstName: 'Mia', lastName: 'Le', email: 'mia.le@acme.com', department: 'Engineering', role: 'QA Engineer', status: 'pending' },
+    { id: 'emp-004', firstName: 'Liam', lastName: 'Pham', email: 'liam.pham@acme.com', department: 'Design', role: 'Product Designer', status: 'active' },
+    { id: 'emp-005', firstName: 'Sophia', lastName: 'Hoang', email: 'sophia.hoang@acme.com', department: 'Product', role: 'Product Manager', status: 'active' },
+    { id: 'emp-006', firstName: 'Ethan', lastName: 'Vu', email: 'ethan.vu@acme.com', department: 'Sales', role: 'Account Executive', status: 'inactive' },
+    { id: 'emp-007', firstName: 'Isabella', lastName: 'Do', email: 'isabella.do@acme.com', department: 'Customer Success', role: 'CSM', status: 'active' },
+    { id: 'emp-008', firstName: 'Oliver', lastName: 'Bui', email: 'oliver.bui@acme.com', department: 'Finance', role: 'Financial Analyst', status: 'pending' },
+    { id: 'emp-009', firstName: 'Charlotte', lastName: 'Dang', email: 'charlotte.dang@acme.com', department: 'HR', role: 'People Ops', status: 'active' },
+    { id: 'emp-010', firstName: 'Lucas', lastName: 'Ngo', email: 'lucas.ngo@acme.com', department: 'Engineering', role: 'DevOps Engineer', status: 'active' },
+    { id: 'emp-011', firstName: 'Amelia', lastName: 'Mai', email: 'amelia.mai@acme.com', department: 'Marketing', role: 'Growth Marketer', status: 'inactive' },
+    { id: 'emp-012', firstName: 'Henry', lastName: 'Ly', email: 'henry.ly@acme.com', department: 'Security', role: 'Security Engineer', status: 'active' },
+    { id: 'emp-013', firstName: 'Harper', lastName: 'Ta', email: 'harper.ta@acme.com', department: 'Operations', role: 'Operations Manager', status: 'active' },
+    { id: 'emp-014', firstName: 'Benjamin', lastName: 'Chau', email: 'benjamin.chau@acme.com', department: 'Engineering', role: 'Data Engineer', status: 'pending' },
+    { id: 'emp-015', firstName: 'Evelyn', lastName: 'Truong', email: 'evelyn.truong@acme.com', department: 'Legal', role: 'Legal Counsel', status: 'active' },
+    { id: 'emp-016', firstName: 'James', lastName: 'Vo', email: 'james.vo@acme.com', department: 'IT', role: 'IT Support', status: 'inactive' },
+    { id: 'emp-017', firstName: 'Abigail', lastName: 'Huynh', email: 'abigail.huynh@acme.com', department: 'Design', role: 'UX Researcher', status: 'active' },
+    { id: 'emp-018', firstName: 'William', lastName: 'Khanh', email: 'william.khanh@acme.com', department: 'Engineering', role: 'Mobile Engineer', status: 'active' },
+    { id: 'emp-019', firstName: 'Ella', lastName: 'Tien', email: 'ella.tien@acme.com', department: 'Marketing', role: 'Content Strategist', status: 'pending' },
+    { id: 'emp-020', firstName: 'Daniel', lastName: 'Minh', email: 'daniel.minh@acme.com', department: 'Sales', role: 'Sales Ops', status: 'active' },
+  ] as const;
 
   constructor(
     private http: HttpClient,
@@ -69,14 +94,19 @@ export class EmployeeService {
 
   getAllEmployees(): Observable<unknown> {
     const companyId = this.getCompanyId();
-    if (!companyId) throw new Error('Company context required');
+    if (!companyId) {
+      return environment.employeeUseDummyData ? of([...this.dummyEmployees]) : of([]);
+    }
     return from(
       this.sb.client.from('employees').select('*').eq('company_id', companyId).order('created_at', { ascending: false })
     ).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        return (data ?? []).map(row => this.employeeRowToApp(row));
-      })
+        const rows = data ?? [];
+        if (rows.length === 0) return environment.employeeUseDummyData ? [...this.dummyEmployees] : [];
+        return rows.map(row => this.employeeRowToApp(row));
+      }),
+      catchError(() => environment.employeeUseDummyData ? of([...this.dummyEmployees]) : of([]))
     );
   }
 
