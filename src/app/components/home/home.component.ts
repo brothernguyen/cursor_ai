@@ -4,6 +4,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angu
 import { PaginatorModule } from 'primeng/paginator';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LayoutService } from '../../services/layout.service';
 import { RoomService } from '../../services/room.service';
 import { EmployeeService } from '../../services/employee.service';
 import { Company, Room } from '../../interfaces/auth';
@@ -70,10 +71,11 @@ interface AdminDisplay {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   role = signal<'system' | 'company'>('system');
-  view = signal<'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report'>('dashboard');
+  view = signal<'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings'>('dashboard');
   modal = signal<string>('');
   search = signal<string>('');
   authSer = inject(AuthService);
+  layoutService = inject(LayoutService);
   roomSer = inject(RoomService);
   employeeSer = inject(EmployeeService);
   msgService = inject(MessageService);
@@ -1216,7 +1218,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.view.set('dashboard');
   }
 
-  setView(view: 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report') {
+  setView(view: 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings') {
     // Close any open modals when switching tabs (only if modal is actually open)
     if (this.modal()) {
       this.setModal('');
@@ -1248,6 +1250,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     // Clear invitation response when switching tabs
     this.invitationResponse = null;
+  }
+
+  setAppThemeMode(mode: 'light' | 'dark'): void {
+    this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: mode === 'dark' }));
   }
 
   setModal(modal: string) {

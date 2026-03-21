@@ -1,4 +1,5 @@
-import { Injectable, effect, signal, computed } from '@angular/core';
+import { Injectable, effect, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Subject } from 'rxjs';
 
 export interface layoutConfig {
@@ -26,6 +27,10 @@ interface MenuChangeEvent {
     providedIn: 'root'
 })
 export class LayoutService {
+    private static readonly LAYOUT_STORAGE_KEY = 'app-layout-config';
+
+    private readonly platformId = inject(PLATFORM_ID);
+
     _config: layoutConfig = {
         preset: 'Aura',
         primary: 'emerald',
@@ -79,6 +84,19 @@ export class LayoutService {
     private initialized = false;
 
     constructor() {
+        if (isPlatformBrowser(this.platformId)) {
+            try {
+                const raw = localStorage.getItem(LayoutService.LAYOUT_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw) as Partial<layoutConfig>;
+                    Object.assign(this._config, parsed);
+                    this.layoutConfig.set({ ...this._config });
+                }
+            } catch {
+                /* ignore corrupt storage */
+            }
+        }
+
         effect(() => {
             const config = this.layoutConfig();
             if (config) {
@@ -88,13 +106,26 @@ export class LayoutService {
 
         effect(() => {
             const config = this.layoutConfig();
-
-            if (!this.initialized || !config) {
-                this.initialized = true;
+            if (!config) {
                 return;
             }
-
+            if (!this.initialized) {
+                this.initialized = true;
+                this.toggleDarkMode(config);
+                return;
+            }
             this.handleDarkModeTransition(config);
+        });
+
+        effect(() => {
+            const c = this.layoutConfig();
+            if (isPlatformBrowser(this.platformId)) {
+                try {
+                    localStorage.setItem(LayoutService.LAYOUT_STORAGE_KEY, JSON.stringify(c));
+                } catch {
+                    /* quota / private mode */
+                }
+            }
         });
     }
 
@@ -120,6 +151,9 @@ export class LayoutService {
     }
 
     toggleDarkMode(config?: layoutConfig): void {
+        if (!isPlatformBrowser(this.platformId)) {
+            return;
+        }
         const _config = config || this.layoutConfig();
         if (_config.darkTheme) {
             document.documentElement.classList.add('app-dark');

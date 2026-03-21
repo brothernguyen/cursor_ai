@@ -495,6 +495,12 @@
   }
 }
 
+.drawer-footer-item-active {
+  background-color: #f3e8ff !important;
+  color: #5b21b6 !important;
+  border-radius: 8px;
+}
+
 .user-icon {
   width: 44px;
   height: 44px;
@@ -2992,6 +2998,158 @@
 .report-table .report-num {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+// Settings page (drawer footer)
+.settings-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 36px 24px 0 0;
+  width: 100%;
+  max-width: 720px;
+}
+
+.settings-header {
+  padding-bottom: 8px;
+}
+
+.settings-title {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 44px;
+  color: #364152;
+  margin: 0;
+}
+
+.settings-subtitle {
+  margin: 8px 0 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #697586;
+}
+
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.settings-section-title {
+  font-family: "Roboto", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 26px;
+  color: #364152;
+  margin: 0 0 12px;
+}
+
+.settings-section-desc {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  line-height: 22px;
+  color: #697586;
+  margin: 0 0 16px;
+}
+
+.settings-card {
+  background: #fff;
+  border: 1px solid #cdd5df;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: baseline;
+  font-family: "Roboto", sans-serif;
+  font-size: 15px;
+}
+
+.settings-label {
+  min-width: 100px;
+  font-weight: 500;
+  color: #9aa3b2;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.settings-value {
+  color: #364152;
+  font-weight: 500;
+}
+
+.settings-theme-toggle {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  background: #f8fafc;
+  border: 1px solid #e3e8ef;
+  border-radius: 10px;
+}
+
+.settings-theme-btn {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #697586;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    color: #364152;
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.settings-theme-btn-active {
+  background: #fff;
+  color: #364152;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+:host-context(html.app-dark) {
+  .settings-title,
+  .settings-section-title {
+    color: #e2e8f0;
+  }
+
+  .settings-subtitle,
+  .settings-section-desc {
+    color: #94a3b8;
+  }
+
+  .settings-card {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .settings-value {
+    color: #e2e8f0;
+  }
+
+  .settings-theme-toggle {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .settings-theme-btn-active {
+    background: #334155;
+    color: #f8fafc;
+    box-shadow: none;
+  }
 }
 
 // System Admin Dashboard Styles

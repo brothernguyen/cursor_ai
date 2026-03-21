@@ -1,4 +1,6 @@
-<div class="h-screen bg-gray-50 flex overflow-hidden">
+<div
+  class="h-screen bg-gray-50 dark:bg-slate-950 flex overflow-hidden transition-colors duration-200"
+>
   <!-- PrimeNG Drawer - Figma Design -->
   <p-drawer
     [(visible)]="sidebarOpen"
@@ -177,8 +179,13 @@
     <ng-template pTemplate="footer">
       <div class="drawer-footer">
         <!-- Setting -->
-        <button class="drawer-footer-item">
-          <img src="/settings-icon.png" alt="TERRALOGIC" class="logo-image" />
+        <button
+          type="button"
+          (click)="setView('settings')"
+          class="drawer-footer-item"
+          [ngClass]="{ 'drawer-footer-item-active': view() === 'settings' }"
+        >
+          <img src="/settings-icon.png" alt="Settings" class="logo-image" />
           @if (!sidebarCollapsed()) {
           <span>Settings</span>
           }
@@ -230,7 +237,7 @@
       <img src="/menu-button.png" alt="Menu" class="w-6 h-6" />
     </button>
     }
-    <div class="p-8 min-h-full">
+    <div class="p-8 min-h-full dark:bg-slate-950">
       @if (role() === 'system' && view() === 'dashboard') {
       <div class="system-dashboard-container">
         <!-- Header Section -->
@@ -2527,6 +2534,72 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+      }
+      @if (view() === 'settings') {
+      <div class="settings-page-container">
+        <div class="settings-header">
+          <h1 class="settings-title">Settings</h1>
+          <p class="settings-subtitle">
+            Manage your profile and how the app looks on this device.
+          </p>
+        </div>
+
+        <div class="settings-sections">
+          <section class="settings-section">
+            <h2 class="settings-section-title">Profile</h2>
+            <div class="settings-card">
+              <div class="settings-row">
+                <span class="settings-label">Name</span>
+                <span class="settings-value">
+                  @if (currentUser().firstName || currentUser().lastName) {
+                  {{ currentUser().firstName }} {{ currentUser().lastName }}
+                  } @else {
+                  —
+                  }
+                </span>
+              </div>
+              @if (currentUser().companyName) {
+              <div class="settings-row">
+                <span class="settings-label">Company</span>
+                <span class="settings-value">{{ currentUser().companyName }}</span>
+              </div>
+              }
+              <div class="settings-row">
+                <span class="settings-label">Role</span>
+                <span class="settings-value">{{
+                  role() === "system" ? "System admin" : "Company user"
+                }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h2 class="settings-section-title">Appearance</h2>
+            <p class="settings-section-desc">
+              Light or dark theme. Your choice is saved in this browser (same as
+              the theme toggle in the layout configurator, if you use it).
+            </p>
+            <div class="settings-theme-toggle" role="group" aria-label="Theme">
+              <button
+                type="button"
+                class="settings-theme-btn"
+                [class.settings-theme-btn-active]="!layoutService.isDarkTheme()"
+                (click)="setAppThemeMode('light')"
+              >
+                Light
+              </button>
+              <button
+                type="button"
+                class="settings-theme-btn"
+                [class.settings-theme-btn-active]="layoutService.isDarkTheme()"
+                (click)="setAppThemeMode('dark')"
+              >
+                Dark
+              </button>
+            </div>
+          </section>
         </div>
       </div>
       }

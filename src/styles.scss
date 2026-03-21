@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.app-dark, .app-dark *));
+
 @import "primeicons/primeicons.css";
 @import "primeflex/themes/primeone-light.css";
 @import 'primeflex/primeflex.css';
@@ -13,4 +16,9 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+html.app-dark body {
+  background-color: #020617;
+  color: #e2e8f0;
 }
