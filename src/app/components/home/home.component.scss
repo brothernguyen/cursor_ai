@@ -114,10 +114,11 @@
     border-radius: 0;
   }
 
-  // Ensure paginator inside wrapper respects border-radius
+  // Match wrapper rounding so border corners render cleanly (dropdown uses appendTo="body")
   .paginator-wrapper .p-paginator {
     border: none;
-    border-radius: 0;
+    border-radius: 12px;
+    background-color: #ffffff;
   }
 
   // Align rows-per-page dropdown with paginator controls (avoid vertical cut-off)
@@ -2656,6 +2657,343 @@
   width: 100%;
 }
 
+.report-header-row {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.report-header-left {
+  flex: 1;
+  min-width: 200px;
+}
+
+.report-subtitle {
+  margin: 8px 0 0;
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #697586;
+  max-width: 520px;
+}
+
+.report-header-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.report-period-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f8fafc;
+  border: 1px solid #e3e8ef;
+  border-radius: 10px;
+}
+
+.report-period-tab {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #697586;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    color: #364152;
+    background: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.report-period-tab-active {
+  background: #fff;
+  color: #364152;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.report-filter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-filter-text {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9aa3b2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.report-building-select {
+  min-width: 180px;
+  padding: 10px 12px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  color: #364152;
+  border: 1px solid #cdd5df;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.report-data-note {
+  margin: 0;
+  padding: 10px 14px;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #697586;
+  background: #f8fafc;
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+}
+
+.report-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.report-kpi-card {
+  background: #fff;
+  border: 1px solid #cdd5df;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-kpi-card-accent {
+  border-color: #c4b5fd;
+  background: linear-gradient(180deg, #faf5ff 0%, #fff 100%);
+}
+
+.report-kpi-label {
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9aa3b2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.report-kpi-value {
+  font-family: "Roboto", sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  color: #364152;
+}
+
+.report-kpi-value-sm {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.report-kpi-hint {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  color: #9aa3b2;
+}
+
+.report-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.report-panel {
+  background: #fff;
+  border: 1px solid #cdd5df;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.report-panel-title {
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+  color: #364152;
+  margin: 0 0 4px;
+}
+
+.report-panel-desc {
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #697586;
+  margin: 0 0 16px;
+}
+
+.report-utilization-chart {
+  width: 100%;
+}
+
+.report-chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-chart-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-chart-label {
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  color: #697586;
+}
+
+.report-chart-track {
+  height: 22px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.report-chart-fill {
+  height: 100%;
+  min-width: 4px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #8b6fe8 0%, #764fdb 100%);
+  transition: width 0.2s ease;
+}
+
+.report-chart-pct {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #364152;
+  text-align: right;
+}
+
+.report-hour-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 160px;
+  padding-top: 8px;
+}
+
+.report-hour-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.report-hour-bar {
+  width: 100%;
+  max-width: 28px;
+  min-height: 4px;
+  background: linear-gradient(180deg, #a78bfa 0%, #764fdb 100%);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.2s ease;
+}
+
+.report-hour-label {
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  color: #697586;
+}
+
+.report-table-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-table-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.report-export-btn {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #cdd5df;
+  background: #fff;
+  color: #364152;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: #f8fafc;
+    border-color: #8b6fe8;
+    color: #764fdb;
+  }
+}
+
+.report-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #cdd5df;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+}
+
+.report-table thead {
+  background: #f8fafc;
+}
+
+.report-table th {
+  text-align: left;
+  padding: 14px 16px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9aa3b2;
+  border-bottom: 1px solid #cdd5df;
+}
+
+.report-table td {
+  padding: 14px 16px;
+  color: #364152;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.report-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.report-table .report-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 // System Admin Dashboard Styles
 .system-dashboard-container {
   display: flex;
@@ -2937,12 +3275,12 @@
   position: relative;
 }
 
-// Paginator wrapper to match companies table border
-// Use overflow: visible so the rows-per-page dropdown is not clipped when it opens
+// Paginator wrapper to match companies table border (overflow hidden keeps rounded border visible)
 .paginator-wrapper {
   border: 1px solid #cdd5df;
   border-radius: 12px;
-  overflow: visible;
+  overflow: hidden;
+  background-color: #ffffff;
 }
 
 .companies-table {

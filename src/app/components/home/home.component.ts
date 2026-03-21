@@ -110,6 +110,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   companyStatusSortDirection = signal<'asc' | 'desc' | null>(null); // For company status sorting
   companyFilterStatus = signal<'active' | 'inactive' | null>(null); // For company filter: active, inactive, or null (all)
 
+  /**
+   * Report tab (company) — v1 focuses on: "How utilized are our meeting rooms this period?"
+   *
+   * Data sources today:
+   * - Real: `activeEmployees` from `this.employees` (status === 'active'); room names/locations from `this.rooms` after `loadRooms()`.
+   * - Mock (until backend exists): total bookings, utilization %, utilization trend, bookings-by-hour, per-room bookings/hours — replace with e.g. GET /api/report/summary?period=&building=
+   */
+  reportPeriod = signal<'thisWeek' | 'thisMonth' | 'last30Days'>('thisMonth');
+  reportBuildingFilter = signal<string>('all');
+
   employees: EmployeeDisplay[] = [];
 
   // Company Admins
@@ -510,10 +520,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadCompanies();
   }
 
-  // Pagination state
+  // Pagination state (companies)
   first = signal<number>(0);
   rows = signal<number>(10);
   rowsPerPageOptions = [5, 10, 15, 20, 50];
+
+  // Pagination state (employees — company view)
+  firstEmployee = signal<number>(0);
+  rowsEmployee = signal<number>(10);
 
   companies: CompanyWithDetails[] = [];
 
@@ -757,6 +771,165 @@ export class HomeComponent implements OnInit, OnDestroy {
     return list;
   }
 
+  /** Employees for current page (after sort) */
+  get paginatedEmployees(): EmployeeDisplay[] {
+    const sorted = this.sortedEmployees;
+    const start = this.firstEmployee();
+    const end = start + this.rowsEmployee();
+    return sorted.slice(start, end);
+  }
+
+  get totalEmployeesRecords(): number {
+    return this.employees.length;
+  }
+
+  onEmployeePageChange(event: { first?: number; rows?: number }): void {
+    if (event.first !== undefined) this.firstEmployee.set(event.first);
+    if (event.rows !== undefined) this.rowsEmployee.set(event.rows);
+  }
+
+  private reportMockSeed(): number {
+    const p = this.reportPeriod();
+    const b = this.reportBuildingFilter();
+    return this.simpleHash(`${p}|${b}|${this.rooms.length}`);
+  }
+
+  private reportPeriodDayCount(): number {
+    switch (this.reportPeriod()) {
+      case 'thisWeek':
+        return 7;
+      case 'thisMonth':
+      case 'last30Days':
+        return 30;
+    }
+  }
+
+  /** Rooms included in report after building filter */
+  get reportRoomsFiltered(): RoomDisplay[] {
+    const filt = this.reportBuildingFilter();
+    if (filt === 'all') return [...this.rooms];
+    return this.rooms.filter((r) => {
+      const loc = (r.location || '').trim();
+      return loc.startsWith(filt) || loc.split(',')[0]?.trim() === filt;
+    });
+  }
+
+  get reportBuildingOptions(): { value: string; label: string }[] {
+    const opts: { value: string; label: string }[] = [{ value: 'all', label: 'All buildings' }];
+    const seen = new Set<string>();
+    for (const r of this.rooms) {
+      const first = (r.location || '').split(',')[0]?.trim();
+      if (first && !seen.has(first)) {
+        seen.add(first);
+        opts.push({ value: first, label: first });
+      }
+    }
+    return opts;
+  }
+
+  get reportSummaryKpis(): {
+    totalBookings: number;
+    utilizationPct: number;
+    peakDayLabel: string;
+    activeEmployees: number;
+  } {
+    const seed = this.reportMockSeed();
+    const days = this.reportPeriodDayCount();
+    const base = 10 + (Math.abs(seed) % 35);
+    const totalBookings = Math.max(0, base * Math.min(days, 14) + (Math.abs(seed) % 20));
+    const utilizationPct = 32 + (Math.abs(seed) % 58);
+    const peakDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const peakDayLabel = peakDays[Math.abs(seed) % peakDays.length];
+    const activeEmployees = this.employees.filter((e) => e.status === 'active').length;
+    return { totalBookings, utilizationPct, peakDayLabel, activeEmployees };
+  }
+
+  /** Utilization trend (mock %) — one row per day (week) or per week chunk (month) */
+  get reportUtilizationTrend(): { label: string; pct: number }[] {
+    const seed = this.reportMockSeed();
+    const period = this.reportPeriod();
+    if (period === 'thisWeek') {
+      const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return labels.map((label, i) => ({
+        label,
+        pct: 25 + ((Math.abs(seed) + i * 11) % 65)
+      }));
+    }
+    const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+    return labels.map((label, i) => ({
+      label,
+      pct: 30 + ((Math.abs(seed) + i * 17) % 60)
+    }));
+  }
+
+  /** Bookings by hour of day (mock) — 8:00–18:00 */
+  get reportBookingsByHour(): { hour: number; count: number }[] {
+    const seed = this.reportMockSeed();
+    const rows: { hour: number; count: number }[] = [];
+    for (let h = 8; h <= 18; h++) {
+      rows.push({
+        hour: h,
+        count: 2 + ((Math.abs(seed) + h * 13) % 28)
+      });
+    }
+    return rows;
+  }
+
+  get reportBookingsByHourMax(): number {
+    const rows = this.reportBookingsByHour;
+    return Math.max(1, ...rows.map((r) => r.count));
+  }
+
+  get reportTopRooms(): {
+    roomName: string;
+    location: string;
+    bookings: number;
+    hours: number;
+  }[] {
+    const seed = this.reportMockSeed();
+    const filtered = this.reportRoomsFiltered;
+    const fallback = [
+      { name: 'Conference Room A', location: 'Building A' },
+      { name: 'Boardroom', location: 'Building B' },
+      { name: 'Huddle Space', location: 'Building B' }
+    ];
+    const source =
+      filtered.length > 0
+        ? filtered.map((r) => ({ name: r.name, location: r.location || '—' }))
+        : fallback;
+    const rows = source.map((r, i) => {
+      const b = 5 + ((Math.abs(seed) + i * 19) % 120);
+      const hrs = Math.round((b * 0.45 + (i % 5)) * 10) / 10;
+      return {
+        roomName: r.name,
+        location: r.location,
+        bookings: b,
+        hours: hrs
+      };
+    });
+    return [...rows].sort((a, b) => b.bookings - a.bookings);
+  }
+
+  downloadReportTopRoomsCsv(): void {
+    const rows = this.reportTopRooms;
+    const header = 'Room,Location,Bookings,Hours booked';
+    const lines = [
+      header,
+      ...rows.map((r) =>
+        [r.roomName, r.location, String(r.bookings), String(r.hours)]
+          .map((c) => `"${String(c).replace(/"/g, '""')}"`)
+          .join(',')
+      )
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meeting-room-report-${this.reportPeriod()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   /** Cycles through asc -> desc -> null; resets all other employee sort columns. */
   private cycleEmployeeSort(
     target: ReturnType<typeof signal<'asc' | 'desc' | null>>,
@@ -819,10 +992,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         else if (Array.isArray(res?.data?.employees)) this.employees = res.data.employees;
         else if (Array.isArray(res?.data?.data)) this.employees = res.data.data;
         else this.employees = [];
+        const total = this.employees.length;
+        if (this.firstEmployee() >= total && total > 0) {
+          this.firstEmployee.set(Math.max(0, total - this.rowsEmployee()));
+        }
+        if (total === 0) this.firstEmployee.set(0);
       },
       error: (error) => {
         console.error('==>error loading employees: ', error);
         this.employees = []; // Ensure employees is always an array
+        this.firstEmployee.set(0);
       }
     });
   }
@@ -1055,7 +1234,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loadRooms();
     }
     if (view === 'employees' && this.role() === 'company') {
+      this.firstEmployee.set(0);
       // Load employees when switching to employees view
+      this.loadEmployees();
+    }
+    if (view === 'report' && this.role() === 'company') {
+      this.loadRooms();
       this.loadEmployees();
     }
     if (view === 'admins' && this.role() === 'system') {

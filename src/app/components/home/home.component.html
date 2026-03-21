@@ -2150,7 +2150,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (employee of sortedEmployees; track employee.id) {
+              @for (employee of paginatedEmployees; track employee.id) {
               <tr class="employee-table-row" (click)="$event.stopPropagation()">
                 <td class="employee-table-cell">{{ employee.firstName }}</td>
                 <td class="employee-table-cell">{{ employee.lastName }}</td>
@@ -2310,6 +2310,17 @@
           </table>
         </div>
 
+        <div class="bg-white paginator-wrapper employees-paginator-wrapper">
+          <p-paginator
+            [first]="firstEmployee()"
+            [rows]="rowsEmployee()"
+            [totalRecords]="totalEmployeesRecords"
+            [rowsPerPageOptions]="rowsPerPageOptions"
+            (onPageChange)="onEmployeePageChange($event)"
+            dropdownAppendTo="body"
+          ></p-paginator>
+        </div>
+
         @if (invitationResponse) {
         <div class="bg-white p-6 rounded-xl border">
           <div class="flex justify-between items-center mb-4">
@@ -2370,15 +2381,151 @@
       </div>
       } @if (role() === 'company' && view() === 'report') {
       <div class="report-container">
-        <!-- Header Section -->
-        <div class="report-header">
-          <h1 class="report-title">Report</h1>
+        <div class="report-header report-header-row">
+          <div class="report-header-left">
+            <h1 class="report-title">Report</h1>
+            <p class="report-subtitle">
+              Meeting room utilization and booking activity for the selected period.
+            </p>
+          </div>
+          <div class="report-header-controls">
+            <div class="report-period-tabs">
+              <button
+                type="button"
+                class="report-period-tab"
+                [class.report-period-tab-active]="reportPeriod() === 'thisWeek'"
+                (click)="reportPeriod.set('thisWeek')"
+              >
+                This week
+              </button>
+              <button
+                type="button"
+                class="report-period-tab"
+                [class.report-period-tab-active]="reportPeriod() === 'thisMonth'"
+                (click)="reportPeriod.set('thisMonth')"
+              >
+                This month
+              </button>
+              <button
+                type="button"
+                class="report-period-tab"
+                [class.report-period-tab-active]="reportPeriod() === 'last30Days'"
+                (click)="reportPeriod.set('last30Days')"
+              >
+                Last 30 days
+              </button>
+            </div>
+            <label class="report-filter-label">
+              <span class="report-filter-text">Building</span>
+              <select
+                class="report-building-select"
+                [value]="reportBuildingFilter()"
+                (change)="reportBuildingFilter.set($any($event.target).value)"
+              >
+                @for (opt of reportBuildingOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
         </div>
 
-        <!-- Report Content -->
-        <div class="report-content">
-          <div class="bg-white p-6 rounded-xl border">
-            <p class="text-gray-600">Report content will be displayed here.</p>
+        <p class="report-data-note">
+          Sample booking metrics below are for layout preview; connect a reporting API to replace mock data. Active employee count uses live data.
+        </p>
+
+        <div class="report-kpi-grid">
+          <div class="report-kpi-card">
+            <span class="report-kpi-label">Total bookings</span>
+            <span class="report-kpi-value">{{ reportSummaryKpis.totalBookings }}</span>
+            <span class="report-kpi-hint">in selected period</span>
+          </div>
+          <div class="report-kpi-card report-kpi-card-accent">
+            <span class="report-kpi-label">Avg. utilization</span>
+            <span class="report-kpi-value">{{ reportSummaryKpis.utilizationPct }}%</span>
+            <span class="report-kpi-hint">mock — replace with API</span>
+          </div>
+          <div class="report-kpi-card">
+            <span class="report-kpi-label">Peak day</span>
+            <span class="report-kpi-value report-kpi-value-sm">{{ reportSummaryKpis.peakDayLabel }}</span>
+            <span class="report-kpi-hint">by booking volume</span>
+          </div>
+          <div class="report-kpi-card">
+            <span class="report-kpi-label">Active employees</span>
+            <span class="report-kpi-value">{{ reportSummaryKpis.activeEmployees }}</span>
+            <span class="report-kpi-hint">live from directory</span>
+          </div>
+        </div>
+
+        <div class="report-panels">
+          <div class="report-panel">
+            <h2 class="report-panel-title">Utilization trend</h2>
+            <p class="report-panel-desc">Mock % utilization by segment — swap for time-series from API.</p>
+            <div class="report-utilization-chart">
+              <div class="report-chart-bars">
+                @for (row of reportUtilizationTrend; track row.label) {
+                <div class="report-chart-row">
+                  <span class="report-chart-label">{{ row.label }}</span>
+                  <div class="report-chart-track">
+                    <div class="report-chart-fill" [style.width.%]="row.pct"></div>
+                  </div>
+                  <span class="report-chart-pct">{{ row.pct }}%</span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="report-panel">
+            <h2 class="report-panel-title">Bookings by hour</h2>
+            <p class="report-panel-desc">Mock counts 8:00–18:00 — peak staffing / cleaning window.</p>
+            <div class="report-hour-chart">
+              @for (h of reportBookingsByHour; track h.hour) {
+              <div class="report-hour-col">
+                <div
+                  class="report-hour-bar"
+                  [style.height.%]="(h.count / reportBookingsByHourMax) * 100"
+                  [attr.title]="h.count + ' bookings'"
+                ></div>
+                <span class="report-hour-label">{{ h.hour }}</span>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="report-table-section">
+          <div class="report-table-header-row">
+            <h2 class="report-panel-title">Top rooms by bookings</h2>
+            <button
+              type="button"
+              class="report-export-btn"
+              (click)="downloadReportTopRoomsCsv()"
+            >
+              Export CSV
+            </button>
+          </div>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Room</th>
+                  <th>Location</th>
+                  <th class="report-num">Bookings</th>
+                  <th class="report-num">Hours booked</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of reportTopRooms; track row.roomName + row.location) {
+                <tr>
+                  <td>{{ row.roomName }}</td>
+                  <td>{{ row.location }}</td>
+                  <td class="report-num">{{ row.bookings }}</td>
+                  <td class="report-num">{{ row.hours }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
