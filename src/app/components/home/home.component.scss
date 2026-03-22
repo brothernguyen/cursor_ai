@@ -19,6 +19,10 @@
 .home-main-inner {
   padding: 2rem;
 
+  @media (max-width: 1023px) {
+    padding: 1rem;
+  }
+
   @media (min-width: 1024px) and (max-width: 1279px) {
     padding: 1.5rem;
   }
@@ -4247,5 +4251,298 @@ select.room-modal-input {
   .add-room-icon-wrapper {
     width: 38px;
     height: 38px;
+  }
+}
+
+// Tablet / small layout (max-width 1023px): narrow drawer, company dashboard stack, chart rail
+@media (max-width: 1023px) {
+  :host {
+    --drawer-expanded: 210px;
+  }
+
+  .company-dashboard-container {
+    padding: 24px 16px 0 0;
+    gap: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 0 10px 0;
+  }
+
+  .period-select-container {
+    align-self: flex-end;
+  }
+
+  .welcome-title {
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .company-subtitle {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .kpi-cards-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .company-kpi-card {
+    flex: none;
+    width: 100%;
+    padding: 12px 16px;
+    gap: 16px;
+  }
+
+  .kpi-label {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .kpi-value {
+    font-size: 34px;
+    line-height: 40px;
+  }
+
+  .kpi-last-month {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .kpi-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .kpi-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .room-utilization-card {
+    height: auto;
+    min-height: 360px;
+    padding: 12px 16px;
+  }
+
+  .utilization-chart-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chart-bars {
+    margin-left: 120px;
+  }
+
+  .room-name-label {
+    width: 108px;
+    left: -120px;
+    font-size: 14px;
+    line-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chart-axis {
+    left: 120px;
+  }
+
+  .axis-labels {
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .axis-labels span {
+    width: auto;
+    min-width: 0;
+    flex: 1;
+    font-size: 11px;
+  }
+
+  // Meeting Rooms: same density as laptop band — base styles only applied at ≥1280px;
+  // without this, 768–1023px still used 3-column grid + large title (clipped with drawer open)
+  .rooms-container {
+    padding: 24px 16px 0 0;
+    min-width: 0;
+  }
+
+  .rooms-header {
+    padding: 16px 0;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .rooms-title {
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .view-toggle-switch {
+    height: 40px;
+  }
+
+  .switch-card-view,
+  .switch-list-view {
+    width: 60px;
+    padding: 6px;
+  }
+
+  .switch-icon,
+  .check-icon,
+  .tile-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .add-room-button {
+    height: 40px;
+  }
+
+  .add-room-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .add-room-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .add-room-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    gap: 12px;
+  }
+
+  .room-image-container {
+    min-height: 140px;
+  }
+
+  .room-placeholder-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .room-name {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .location-text,
+  .meta-text,
+  .action-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .location-icon,
+  .meta-icon,
+  .action-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .room-edit-button,
+  .room-delete-button {
+    height: 40px;
+  }
+
+  ::ng-deep {
+    .p-drawer.drawer-figma {
+      .drawer-header {
+        padding: 20px 16px 0 16px !important;
+      }
+
+      .drawer-separator {
+        margin: 20px 16px 0 16px !important;
+      }
+
+      .drawer-nav {
+        padding: 20px 16px 0 16px !important;
+      }
+
+      .drawer-footer {
+        padding: 0 16px 20px 16px !important;
+      }
+
+      .drawer-nav-item,
+      .drawer-nav-item-active {
+        font-size: 14px;
+        padding: 10px 12px;
+        gap: 10px;
+
+        .logo-image {
+          width: 20px !important;
+          height: 20px !important;
+        }
+
+        .drawer-nav-icon {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .drawer-footer-item {
+        font-size: 14px;
+        padding: 10px 12px;
+        gap: 10px;
+
+        .logo-image {
+          width: 20px !important;
+          height: 20px !important;
+        }
+
+        span.text-sm {
+          font-size: 14px !important;
+        }
+      }
+
+      .menu-button {
+        width: 20px;
+        height: 20px;
+      }
+
+      &.drawer-collapsed {
+        .drawer-header {
+          padding: 20px 10px 0 10px !important;
+        }
+
+        .drawer-separator {
+          margin: 20px 10px 0 10px !important;
+        }
+
+        .drawer-nav {
+          padding: 20px 10px 0 10px !important;
+        }
+
+        .drawer-footer {
+          padding: 0 10px 20px 10px !important;
+        }
+
+        .drawer-nav-item,
+        .drawer-nav-item-active,
+        .drawer-footer-item {
+          padding: 10px !important;
+        }
+      }
+    }
+  }
+
+  // Narrower rail at small tablet width so main column stays usable with drawer open
+  @media (max-width: 768px) {
+    :host {
+      --drawer-expanded: 176px;
+    }
   }
 }

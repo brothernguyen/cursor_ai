@@ -219,7 +219,7 @@
 
   <!-- Main Content -->
   <div
-    class="flex-1 overflow-auto h-full flex-shrink-0 transition-all duration-300 ease-in-out"
+    class="flex-1 min-w-0 overflow-auto h-full flex-shrink-0 transition-all duration-300 ease-in-out"
     [ngClass]="{
       'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
       'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
