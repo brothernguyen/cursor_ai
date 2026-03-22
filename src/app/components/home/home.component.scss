@@ -3,6 +3,25 @@
   height: 100vh;
   width: 100%;
   overflow: hidden;
+  --drawer-expanded: 333px;
+  --drawer-collapsed: 80px;
+}
+
+// Main column offset — uses :host --drawer-* (keeps PrimeNG drawer width and margin in sync)
+.main-shell--offset-expanded {
+  margin-left: var(--drawer-expanded);
+}
+
+.main-shell--offset-collapsed {
+  margin-left: var(--drawer-collapsed);
+}
+
+.home-main-inner {
+  padding: 2rem;
+
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    padding: 1.5rem;
+  }
 }
 
 // Ensure ConfirmDialog appears above modals
@@ -145,7 +164,7 @@
 
     // Figma Design Drawer Styling
     &.drawer-figma {
-      width: 333px !important;
+      width: var(--drawer-expanded) !important;
       background-color: #ffffff !important;
 
       .p-drawer-header {
@@ -156,7 +175,7 @@
       }
 
       &.drawer-collapsed {
-        width: 80px !important;
+        width: var(--drawer-collapsed) !important;
         transition: width 0.3s ease;
 
         .p-drawer-header {
@@ -1763,6 +1782,168 @@
 
 .room-delete-button .action-text {
   color: #cdd5df;
+}
+
+// Add / Edit / Delete room dialogs — compact for laptop–desktop widths
+.room-modal-panel {
+  width: 100%;
+  max-width: 24rem;
+
+  @media (min-width: 1441px) {
+    max-width: 26rem;
+  }
+
+  .modal-close-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .modal-close-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.room-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.room-modal-title {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5rem;
+  color: #111827;
+  margin: 0;
+}
+
+.room-modal-body {
+  padding: 1rem 1rem;
+}
+
+.room-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.room-modal-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.room-modal-input {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+}
+
+select.room-modal-input {
+  cursor: pointer;
+}
+
+.room-modal-message {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+  color: #374151;
+  margin: 0;
+}
+
+.room-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.room-modal-footer-btn {
+  flex: 1 0 0;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 0.5rem;
+  min-width: 0;
+}
+
+.room-modal-invite-hint {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: #4b5563;
+  margin: 0 0 0.75rem;
+}
+
+.room-modal-invite-email-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  align-items: stretch;
+}
+
+.room-modal-invite-add-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-radius: 0.5rem;
+  background: #9333ea;
+  color: #fff;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: #7e22ce;
+  }
+
+  &:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+  }
+}
+
+.room-modal-email-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  max-height: 8rem;
+  overflow-y: auto;
+}
+
+.room-modal-email-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+  color: #4b5565;
+}
+
+.room-modal-invite-response {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.room-modal-response-box {
+  padding: 0.375rem 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: #374151;
 }
 
 // Rooms Table (List View)
@@ -3814,14 +3995,12 @@
   flex-shrink: 0;
 }
 
-// Invite Employee Modal Responsive Styles
+// Invite Employee — scroll + width comes from .room-modal-panel
 .invite-employee-modal {
-  // Smooth scrolling
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #cdd5df #f8fafc;
 
-  // Custom scrollbar for webkit browsers
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -3840,59 +4019,233 @@
     }
   }
 
-  // Tablet styles (768px - 1024px)
-  @media (min-width: 768px) and (max-width: 1024px) {
-    max-width: 90%;
-    max-height: calc(100vh - 3rem);
-    margin: 0 auto;
+  max-height: calc(100vh - 2rem);
 
-    // Adjust modal width for tablets
-    &.max-w-md {
-      max-width: 500px;
-    }
-  }
-
-  // Laptop styles (1024px - 1440px) - Fixed for 1024px viewport
-  @media (min-width: 1024px) and (max-width: 1440px) {
-    max-width: 85%;
-    max-height: calc(100vh - 2rem);
-
-    &.max-w-md {
-      max-width: 480px; // Reduced from 520px to fit better at 1024px
-    }
-  }
-
-  // Large laptop/desktop (1440px+)
-  @media (min-width: 1440px) {
-    max-height: calc(100vh - 2rem);
-
-    &.max-w-md {
-      max-width: 560px;
-    }
-  }
-
-  // Mobile adjustments
   @media (max-width: 640px) {
     margin: 0;
     border-radius: 12px 12px 0 0;
     max-height: calc(100vh - 1rem);
+  }
+}
 
-    // Adjust padding on very small screens
-    .p-4 {
-      padding: 1rem;
+.room-modal-header--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+// Laptop (1024px–1279px): compact drawer, Meeting Rooms density
+@media (min-width: 1024px) and (max-width: 1279px) {
+  :host {
+    --drawer-expanded: 240px;
+    // Keep 80px collapsed: small logo is 70px wide; 72px rail clips it
+    --drawer-collapsed: 80px;
+  }
+
+  .rooms-container {
+    padding: 24px 16px 0 0;
+  }
+
+  .rooms-header {
+    padding: 20px 0;
+  }
+
+  .rooms-title {
+    font-size: 28px;
+    line-height: 34px;
+  }
+
+  .view-toggle-switch {
+    height: 40px;
+  }
+
+  .switch-card-view,
+  .switch-list-view {
+    width: 60px;
+    padding: 6px;
+  }
+
+  .switch-icon,
+  .check-icon,
+  .tile-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .add-room-button {
+    height: 40px;
+  }
+
+  .add-room-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .add-room-icon-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .add-room-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 16px;
+  }
+
+  .room-image-container {
+    min-height: 140px;
+  }
+
+  .room-placeholder-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .room-name {
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .location-text,
+  .meta-text,
+  .action-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .location-icon,
+  .meta-icon,
+  .action-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .room-edit-button,
+  .room-delete-button {
+    height: 40px;
+  }
+
+  ::ng-deep {
+    .p-drawer.drawer-figma {
+      .drawer-header {
+        padding: 20px 16px 0 16px !important;
+      }
+
+      .drawer-separator {
+        margin: 20px 16px 0 16px !important;
+      }
+
+      .drawer-nav {
+        padding: 20px 16px 0 16px !important;
+      }
+
+      .drawer-footer {
+        padding: 0 16px 20px 16px !important;
+      }
+
+      .drawer-nav-item,
+      .drawer-nav-item-active {
+        font-size: 14px;
+        padding: 10px 12px;
+        gap: 10px;
+
+        .logo-image {
+          width: 20px !important;
+          height: 20px !important;
+        }
+
+        .drawer-nav-icon {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .drawer-footer-item {
+        font-size: 14px;
+        padding: 10px 12px;
+        gap: 10px;
+
+        .logo-image {
+          width: 20px !important;
+          height: 20px !important;
+        }
+
+        span.text-sm {
+          font-size: 14px !important;
+        }
+      }
+
+      .menu-button {
+        width: 20px;
+        height: 20px;
+      }
+
+      &.drawer-collapsed {
+        .drawer-header {
+          padding: 20px 10px 0 10px !important;
+        }
+
+        .drawer-separator {
+          margin: 20px 10px 0 10px !important;
+        }
+
+        .drawer-nav {
+          padding: 20px 10px 0 10px !important;
+        }
+
+        .drawer-footer {
+          padding: 0 10px 20px 10px !important;
+        }
+
+        .drawer-nav-item,
+        .drawer-nav-item-active,
+        .drawer-footer-item {
+          padding: 10px !important;
+        }
+      }
     }
   }
+}
 
-  // Tablet portrait (640px - 768px)
-  @media (min-width: 640px) and (max-width: 768px) {
-    max-width: 85%;
-    max-height: calc(100vh - 2rem);
-    margin: 0 auto;
+// Medium desktop (1280px–1440px): slightly smaller page header than full Figma scale
+@media (min-width: 1280px) and (max-width: 1440px) {
+  .rooms-header {
+    padding: 20px 0;
   }
 
-  // Specific fix for 1024px viewport
-  @media (width: 1024px) {
-    max-height: calc(100vh - 2rem);
-    max-width: 480px;
+  .rooms-title {
+    font-size: 30px;
+    line-height: 38px;
+  }
+
+  .view-toggle-switch {
+    height: 42px;
+  }
+
+  .switch-card-view,
+  .switch-list-view {
+    width: 64px;
+    padding: 7px;
+  }
+
+  .add-room-button {
+    height: 42px;
+  }
+
+  .add-room-text {
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .add-room-icon-wrapper {
+    width: 38px;
+    height: 38px;
   }
 }

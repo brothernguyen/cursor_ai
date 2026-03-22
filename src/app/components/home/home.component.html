@@ -220,9 +220,10 @@
   <!-- Main Content -->
   <div
     class="flex-1 overflow-auto h-full flex-shrink-0 transition-all duration-300 ease-in-out"
-    [style.margin-left]="
-      sidebarOpen() ? (sidebarCollapsed() ? '80px' : '333px') : '0'
-    "
+    [ngClass]="{
+      'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
+      'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
+    }"
     [style.padding-left]="sidebarOpen() ? '0' : '0'"
   >
     <!-- Toggle button for drawer (only visible when drawer is closed) -->
@@ -237,7 +238,7 @@
       <img src="/menu-button.png" alt="Menu" class="w-6 h-6" />
     </button>
     }
-    <div class="p-8 min-h-full dark:bg-slate-950">
+    <div class="min-h-full dark:bg-slate-950 home-main-inner">
       @if (role() === 'system' && view() === 'dashboard') {
       <div class="system-dashboard-container">
         <!-- Header Section -->
@@ -2661,11 +2662,12 @@
   @if (modal() === 'createCompany') {
   <div
     class="fixed inset-0 bg-gray-50 flex flex-col z-50 overflow-auto transition-all duration-300 ease-in-out"
-    [style.margin-left]="
-      sidebarOpen() ? (sidebarCollapsed() ? '80px' : '333px') : '0'
-    "
+    [ngClass]="{
+      'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
+      'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
+    }"
   >
-    <div class="p-8 min-h-full">
+    <div class="min-h-full home-main-inner">
       <!-- Page Title - Left Aligned -->
       <h1 class="text-3xl font-semibold text-gray-900 mb-8 flex justify-center">
         Create Company
@@ -3108,9 +3110,9 @@
     class="fixed inset-0 flex items-center justify-center z-50"
     style="background-color: rgba(0, 0, 0, 0.5)"
   >
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-      <div class="flex justify-between items-center p-6 border-b">
-        <h2 class="text-xl font-semibold">Add Meeting Room</h2>
+    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+      <div class="room-modal-header">
+        <h2 class="room-modal-title">Add Meeting Room</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3127,72 +3129,62 @@
           </svg>
         </button>
       </div>
-      <div class="p-6">
-        <div class="space-y-4">
+      <div class="room-modal-body">
+        <div class="room-modal-form">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Room Name *</label
-            >
+            <label class="room-modal-label">Room Name *</label>
             <input
               type="text"
               [(ngModel)]="newRoom.name"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter room name"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Capacity *</label
-            >
+            <label class="room-modal-label">Capacity *</label>
             <input
               type="number"
               [(ngModel)]="newRoom.capacity"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter capacity"
               min="1"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Available From *</label
-            >
+            <label class="room-modal-label">Available From *</label>
             <input
               type="time"
               [(ngModel)]="newRoom.availableFrom"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Available To *</label
-            >
+            <label class="room-modal-label">Available To *</label>
             <input
               type="time"
               [(ngModel)]="newRoom.availableTo"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Location *</label
-            >
+            <label class="room-modal-label">Location *</label>
             <input
               type="text"
               [(ngModel)]="newRoom.location"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter location"
             />
           </div>
-          <div class="flex gap-3 pt-4">
+          <div class="room-modal-actions">
             <button
               (click)="setModal('')"
-              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               (click)="onCreateRoom()"
-              class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700"
             >
               Save
             </button>
@@ -3206,9 +3198,9 @@
     class="fixed inset-0 flex items-center justify-center z-50"
     style="background-color: rgba(0, 0, 0, 0.5)"
   >
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-      <div class="flex justify-between items-center p-6 border-b">
-        <h2 class="text-xl font-semibold">Edit Meeting Room</h2>
+    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+      <div class="room-modal-header">
+        <h2 class="room-modal-title">Edit Meeting Room</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3225,72 +3217,62 @@
           </svg>
         </button>
       </div>
-      <div class="p-6">
-        <div class="space-y-4">
+      <div class="room-modal-body">
+        <div class="room-modal-form">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Room Name *</label
-            >
+            <label class="room-modal-label">Room Name *</label>
             <input
               type="text"
               [(ngModel)]="editRoom.name"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter room name"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Capacity *</label
-            >
+            <label class="room-modal-label">Capacity *</label>
             <input
               type="number"
               [(ngModel)]="editRoom.capacity"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter capacity"
               min="1"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Available From *</label
-            >
+            <label class="room-modal-label">Available From *</label>
             <input
               type="time"
               [(ngModel)]="editRoom.availableFrom"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Available To *</label
-            >
+            <label class="room-modal-label">Available To *</label>
             <input
               type="time"
               [(ngModel)]="editRoom.availableTo"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Location *</label
-            >
+            <label class="room-modal-label">Location *</label>
             <input
               type="text"
               [(ngModel)]="editRoom.location"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter location"
             />
           </div>
-          <div class="flex gap-3 pt-4">
+          <div class="room-modal-actions">
             <button
               (click)="setModal('')"
-              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               (click)="onSaveEditRoom()"
-              class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700"
             >
               Save
             </button>
@@ -3304,9 +3286,9 @@
     class="fixed inset-0 flex items-center justify-center z-50"
     style="background-color: rgba(0, 0, 0, 0.5)"
   >
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-      <div class="flex justify-between items-center p-6 border-b">
-        <h2 class="text-xl font-semibold">Delete Room</h2>
+    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+      <div class="room-modal-header">
+        <h2 class="room-modal-title">Delete Room</h2>
         <button (click)="onCancelDeleteRoom()" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3323,23 +3305,23 @@
           </svg>
         </button>
       </div>
-      <div class="p-6">
-        <div class="space-y-4">
-          <p class="text-gray-700">
+      <div class="room-modal-body">
+        <div class="room-modal-form">
+          <p class="room-modal-message">
             Are you sure you want to delete
             <strong>"{{ roomToDelete.name }}"</strong>? This action cannot be
             undone.
           </p>
-          <div class="flex gap-3 pt-4">
+          <div class="room-modal-actions">
             <button
               (click)="onCancelDeleteRoom()"
-              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               (click)="onConfirmDeleteRoom()"
-              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              class="room-modal-footer-btn bg-red-600 text-white hover:bg-red-700"
             >
               Delete
             </button>
@@ -3354,14 +3336,10 @@
     style="background-color: rgba(0, 0, 0, 0.5)"
   >
     <div
-      class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 my-4 max-h-[calc(100vh-2rem)] overflow-y-auto invite-employee-modal"
+      class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4 my-4 overflow-y-auto invite-employee-modal"
     >
-      <div
-        class="flex justify-between items-center p-4 sm:p-5 md:p-6 border-b sticky top-0 bg-white z-10 flex-shrink-0"
-      >
-        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold">
-          Invite Employee
-        </h2>
+      <div class="room-modal-header room-modal-header--sticky">
+        <h2 class="room-modal-title">Invite Employee</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3378,27 +3356,20 @@
           </svg>
         </button>
       </div>
-      <div class="p-4 sm:p-5 md:p-6 lg:p-6">
-        <div class="space-y-4 md:space-y-5">
+      <div class="room-modal-body">
+        <div class="room-modal-form">
           <div>
-            <label
-              class="block text-sm sm:text-base md:text-base font-medium text-gray-700 mb-2"
-              >Email Address *</label
-            >
-            <p
-              class="text-gray-600 mb-4 text-xs sm:text-sm md:text-base"
-              style="font-family: Roboto"
-            >
+            <label class="room-modal-label">Email Address *</label>
+            <p class="room-modal-invite-hint">
               Please input employee emails
             </p>
 
-            <!-- Email Input -->
-            <div class="mb-4 flex flex-col sm:flex-row gap-2 md:gap-3">
+            <div class="room-modal-invite-email-row">
               <input
                 type="email"
                 [(ngModel)]="newEmployeeEmailInput"
                 (keyup)="onEmployeeEmailKeyPress($event)"
-                class="flex-1 px-4 py-2.5 sm:py-2 md:py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 bg-transparent text-sm sm:text-base md:text-base"
+                class="room-modal-input flex-1 min-w-0 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 bg-transparent"
                 placeholder="Email.4@terra|"
               />
               <button
@@ -3407,32 +3378,24 @@
                 [disabled]="
                   employeeEmails().length >= 5 || !newEmployeeEmailInput.trim()
                 "
-                class="px-4 sm:px-5 md:px-6 py-2.5 sm:py-2 md:py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base md:text-base whitespace-nowrap"
+                class="room-modal-invite-add-btn"
               >
                 Add
               </button>
             </div>
 
-            <!-- Email Tags -->
             @if (employeeEmails().length > 0) {
-            <div
-              class="flex flex-wrap gap-2 md:gap-2.5 mb-6 max-h-32 md:max-h-40 overflow-y-auto"
-            >
+            <div class="room-modal-email-tags">
               @for (email of employeeEmails(); track email) {
-              <div
-                class="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 md:px-4 md:py-2 bg-gray-100 rounded-lg text-xs sm:text-sm md:text-sm"
-                style="font-family: Roboto; color: #4b5565"
-              >
-                <span class="break-all sm:break-normal md:break-normal">{{
-                  email
-                }}</span>
+              <div class="room-modal-email-tag">
+                <span class="break-all">{{ email }}</span>
                 <button
                   type="button"
                   (click)="removeEmployeeEmail(email)"
                   class="text-gray-500 hover:text-red-500 transition-colors flex-shrink-0"
                 >
                   <svg
-                    class="w-3 h-3 sm:w-4 sm:h-4 md:w-4 md:h-4"
+                    class="w-3 h-3"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -3450,7 +3413,7 @@
             </div>
             }
           </div>
-          <div class="flex flex-col sm:flex-row gap-3 md:gap-4 pt-2 md:pt-3">
+          <div class="room-modal-actions">
             <button
               type="button"
               (click)="
@@ -3459,7 +3422,7 @@
                 newEmployeeEmailInput = '';
                 invitationResponse = null
               "
-              class="flex-1 px-4 sm:px-5 md:px-6 py-2.5 sm:py-2.5 md:py-3 border rounded-lg hover:bg-gray-50 text-sm sm:text-base md:text-base font-medium transition-colors"
+              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
             >
               Cancel
             </button>
@@ -3467,41 +3430,33 @@
               type="button"
               (click)="onInviteEmployee()"
               [disabled]="employeeEmails().length === 0"
-              class="flex-1 px-4 sm:px-5 md:px-6 py-2.5 sm:py-2.5 md:py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base md:text-base font-medium transition-colors"
+              class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               Invite
             </button>
           </div>
         </div>
         @if (invitationResponse) {
-        <div class="mt-6 pt-6 border-t">
-          <div class="space-y-4">
+        <div class="room-modal-invite-response">
+          <div class="room-modal-form">
             @if (invitationResponse.message) {
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Message</label
-              >
-              <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm">
+              <label class="room-modal-label">Message</label>
+              <div class="room-modal-response-box">
                 {{ invitationResponse.message }}
               </div>
             </div>
             } @if (invitationResponse.invitationLink) {
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Invitation Link</label
-              >
-              <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all">
+              <label class="room-modal-label">Invitation Link</label>
+              <div class="room-modal-response-box break-all">
                 {{ invitationResponse.invitationLink }}
               </div>
             </div>
             } @if (invitationResponse.token) {
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Token</label
-              >
-              <div
-                class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all font-mono"
-              >
+              <label class="room-modal-label">Token</label>
+              <div class="room-modal-response-box break-all font-mono">
                 {{ invitationResponse.token }}
               </div>
             </div>
@@ -3517,9 +3472,9 @@
     class="fixed inset-0 flex items-center justify-center z-50"
     style="background-color: rgba(0, 0, 0, 0.5)"
   >
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-      <div class="flex justify-between items-center p-6 border-b">
-        <h2 class="text-xl font-semibold">Edit Employee</h2>
+    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+      <div class="room-modal-header">
+        <h2 class="room-modal-title">Edit Employee</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3536,73 +3491,61 @@
           </svg>
         </button>
       </div>
-      <div class="p-6">
-        <div class="space-y-4">
+      <div class="room-modal-body">
+        <div class="room-modal-form">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >First Name *</label
-            >
+            <label class="room-modal-label">First Name *</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.firstName"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter first name"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Last Name *</label
-            >
+            <label class="room-modal-label">Last Name *</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.lastName"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter last name"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Email</label
-            >
+            <label class="room-modal-label">Email</label>
             <input
               type="email"
               [value]="editEmployee.email"
               disabled
-              class="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              class="room-modal-input w-full border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
               placeholder="Email (read-only)"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Department</label
-            >
+            <label class="room-modal-label">Department</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.department"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter department"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Role</label
-            >
+            <label class="room-modal-label">Role</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.role"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="Enter role"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >Status *</label
-            >
+            <label class="room-modal-label">Status *</label>
             <select
               [(ngModel)]="editEmployee.status"
               (ngModelChange)="onEmployeeStatusChange($event)"
               [disabled]="updatingEmployeeStatus"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               [class.opacity-50]="updatingEmployeeStatus"
               [class.cursor-not-allowed]="updatingEmployeeStatus"
             >
@@ -3614,16 +3557,16 @@
             <p class="text-gray-500 text-xs mt-1">Updating status...</p>
             }
           </div>
-          <div class="flex gap-3 pt-4">
+          <div class="room-modal-actions">
             <button
               (click)="setModal('')"
-              class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               (click)="onSaveEditEmployee()"
-              class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700"
             >
               Save
             </button>
