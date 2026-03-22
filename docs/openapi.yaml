@@ -11,6 +11,8 @@ info:
     **Empty `[]` on `GET /rest/v1/companies`:** PostgREST returns HTTP 200 with an empty array when **RLS** hides all rows.
     For this endpoint, `profiles.role` must be `sys_admin` for `auth.uid()` (see `my_profile()` in RLS). If your user has no row in `public.profiles` or `role` is not `sys_admin`, you will see `[]`.
     Bootstrap: `insert into public.profiles (id, email, role) select id, email, 'sys_admin' from auth.users where email = 'your@email.com';` (run in SQL Editor once).
+
+    **PostgREST query filters (Supabase `/rest/v1/...`):** Column filters must use an **operator**, not a bare value. Use **`eq.`** for equality, e.g. `company_id=eq.43becd5c-...` and `status=eq.active`. Sending `company_id=<uuid>` without `eq.` returns **400** with `PGRST100` (“failed to parse filter”).
   version: 1.0.0
   contact:
     name: API Support
@@ -97,11 +99,7 @@ paths:
         Use **Authorize** with anon **apikey** + **Bearer** token from the same user’s login. If the JWT user has no profile row or is not `sys_admin`, response is **`[]`** with HTTP 200 (not an error).
       operationId: getAllCompanies
       parameters:
-        - name: status
-          in: query
-          schema:
-            type: string
-            enum: [active, inactive]
+        - $ref: '#/components/parameters/PostgrestStatusEq'
       responses:
         '200':
           description: List of companies
@@ -164,10 +162,7 @@ paths:
       description: Select role, company_id (and other fields) for current user. Used after login.
       operationId: getProfile
       parameters:
-        - name: id
-          in: query
-          required: true
-          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/PostgrestProfileIdEq'
       responses:
         '200':
           description: Profile row
@@ -177,13 +172,12 @@ paths:
     get:
       tags: [Company Admins]
       summary: List company admins for a company
-      description: Select * where company_id = :id, order by created_at desc.
+      description: |
+        Select * where company_id = :id, order by created_at desc.
+        **Query filter:** PostgREST requires `company_id=eq.<uuid>`, not a bare UUID (see global **PostgREST query filters** note).
       operationId: getCompanyAdmins
       parameters:
-        - name: company_id
-          in: query
-          required: true
-          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/PostgrestCompanyIdEq'
       responses:
         '200':
           description: List of company admins
@@ -302,10 +296,7 @@ paths:
       summary: List rooms for current company
       operationId: getAllRooms
       parameters:
-        - name: company_id
-          in: query
-          required: true
-          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/PostgrestCompanyIdEq'
       responses:
         '200':
           description: List of rooms
@@ -360,10 +351,7 @@ paths:
       summary: List employees for current company
       operationId: getAllEmployees
       parameters:
-        - name: company_id
-          in: query
-          required: true
-          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/PostgrestCompanyIdEq'
       responses:
         '200':
           description: List of employees
@@ -469,6 +457,37 @@ paths:
           description: Invalid token or user mismatch
 
 components:
+  parameters:
+    # PostgREST: ?column=eq.value — bare values cause 400 PGRST100
+    PostgrestCompanyIdEq:
+      name: company_id
+      in: query
+      required: true
+      description: |
+        Equality filter: **`eq.`** + company UUID. Example: `eq.43becd5c-e9c4-44ca-8741-5aa3584e26d5`.
+        In Swagger **Try it out**, paste the full value including the `eq.` prefix.
+      schema:
+        type: string
+        example: eq.43becd5c-e9c4-44ca-8741-5aa3584e26d5
+    PostgrestProfileIdEq:
+      name: id
+      in: query
+      required: true
+      description: |
+        Equality filter: **`eq.`** + profile (user) UUID. Example: `eq.43becd5c-e9c4-44ca-8741-5aa3584e26d5`.
+      schema:
+        type: string
+        example: eq.43becd5c-e9c4-44ca-8741-5aa3584e26d5
+    PostgrestStatusEq:
+      name: status
+      in: query
+      required: false
+      description: Optional. Equality filter — use `eq.active` or `eq.inactive`.
+      schema:
+        type: string
+        enum: [eq.active, eq.inactive]
+        example: eq.active
+
   securitySchemes:
     apiKeyAuth:
       type: apiKey

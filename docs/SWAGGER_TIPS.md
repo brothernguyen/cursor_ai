@@ -14,6 +14,15 @@ Run `npm start` and open **`/api-docs`** (e.g. [http://localhost:4200/api-docs](
 
 You cannot remove the `apikey` header from real HTTP calls: Supabase PostgREST requires it. This project’s OpenAPI spec uses global **security schemes** so you set those once via **Authorize**, not per operation.
 
+## PostgREST query filters (`400` / `PGRST100`)
+
+For **`GET /rest/v1/...`** with query parameters (e.g. `company_id`, `id`, optional `status`), PostgREST expects **filter operators**, not raw values.
+
+- Use **`eq.`** for equality: `company_id=eq.43becd5c-e9c4-44ca-8741-5aa3584e26d5`
+- Optional status on companies: `status=eq.active` or `status=eq.inactive`
+
+If you send `company_id=<uuid>` without `eq.`, the API returns **400** with `PGRST100` (“failed to parse filter”). The Supabase JS client (`.eq('column', value)`) adds this for you; **Swagger “Try it out”** must use the full `eq....` string in the parameter field.
+
 ## `GET /rest/v1/companies` returns `[]`
 
 PostgREST returns **200** with **`[]`** when **RLS** returns no visible rows (not a 403).

@@ -1,7 +1,7 @@
+/* Block layout so Swagger UI can grow with the page scroll (parent allows overflow-y: auto). */
 :host {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+  display: block;
+  min-height: 100%;
   background: #fafafa;
 }
 
@@ -31,8 +31,7 @@
 }
 
 .api-docs__swagger {
-  flex: 1;
-  min-height: 0;
+  display: block;
 }
 
 /* Swagger UI fills the flex area */

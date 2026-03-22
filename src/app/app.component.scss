@@ -1,6 +1,9 @@
+/* Allow vertical scroll for long routes (e.g. /api-docs Swagger UI). overflow: hidden clipped all tags below the fold. */
 .h-full {
   height: 100%;
-  overflow: hidden;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .w-full {
