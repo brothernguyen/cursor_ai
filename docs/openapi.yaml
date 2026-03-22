@@ -3,7 +3,14 @@ info:
   title: Meeting Room App API
   description: |
     API surface for the Meeting Room application. Implemented via **Supabase** (Auth, PostgREST, Edge Functions).
-    All endpoints require a valid JWT in the `Authorization: Bearer <token>` header unless noted.
+
+    **Swagger UI / Editor:** Use the **Authorize** button once and enter **apikey** (anon key) and **bearerAuth** (JWT after login).
+    Per-operation header fields were removed from this spec so you are not prompted for the same headers on every request.
+    The Supabase HTTP API still requires the `apikey` header on every call—that cannot be disabled client-side.
+
+    **Empty `[]` on `GET /rest/v1/companies`:** PostgREST returns HTTP 200 with an empty array when **RLS** hides all rows.
+    For this endpoint, `profiles.role` must be `sys_admin` for `auth.uid()` (see `my_profile()` in RLS). If your user has no row in `public.profiles` or `role` is not `sys_admin`, you will see `[]`.
+    Bootstrap: `insert into public.profiles (id, email, role) select id, email, 'sys_admin' from auth.users where email = 'your@email.com';` (run in SQL Editor once).
   version: 1.0.0
   contact:
     name: API Support
@@ -30,6 +37,11 @@ tags:
   - name: Edge Functions
     description: Custom Supabase Edge Functions
 
+# Default for PostgREST + authenticated routes: anon key + user JWT (set once via Authorize in Swagger UI)
+security:
+  - apiKeyAuth: []
+    bearerAuth: []
+
 paths:
   # ---- Auth ----
   /auth/v1/token?grant_type=password:
@@ -40,8 +52,6 @@ paths:
       operationId: adminLogin
       security:
         - apiKeyAuth: []
-      parameters:
-        - $ref: '#/components/parameters/ApikeyHeader'
       requestBody:
         required: true
         content:
@@ -63,8 +73,6 @@ paths:
       tags: [Auth]
       summary: Logout
       operationId: logout
-      parameters:
-        - $ref: '#/components/parameters/ApikeyHeader'
       responses:
         '204':
           description: Signed out
@@ -74,25 +82,21 @@ paths:
       tags: [Auth]
       summary: Get current session / user
       operationId: getSession
-      parameters:
-        - $ref: '#/components/parameters/ApikeyHeader'
       responses:
         '200':
           description: Current session and user
 
   # ---- Companies (Supabase PostgREST: rest/v1/companies) ----
   /rest/v1/companies:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Companies]
       summary: List all companies
       description: |
         Select * from companies, optional filter by status. Order by created_at desc.
-        **Requires Bearer token:** RLS allows rows only when the request is authenticated as a user whose profile has role `sys_admin`. Send both **apikey** and **Authorization Bearer** (token from Admin login); otherwise the response is an empty array `[]`.
+        **RLS:** Rows are returned only when `public.profiles.role = 'sys_admin'` for `auth.uid()` (policy `companies_sys_admin_all`).
+        Use **Authorize** with anon **apikey** + **Bearer** token from the same user’s login. If the JWT user has no profile row or is not `sys_admin`, response is **`[]`** with HTTP 200 (not an error).
       operationId: getAllCompanies
       parameters:
-        - $ref: '#/components/parameters/AuthorizationHeader'
         - name: status
           in: query
           schema:
@@ -115,8 +119,6 @@ paths:
           description: Created company
 
   /rest/v1/companies/{companyId}:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Companies]
       summary: Update company (or status only)
@@ -156,8 +158,6 @@ paths:
 
   # ---- Profiles (used after login) ----
   /rest/v1/profiles:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Auth]
       summary: Get profile by user id
@@ -174,8 +174,6 @@ paths:
 
   # ---- Company Admins ----
   /rest/v1/company_admins:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Company Admins]
       summary: List company admins for a company
@@ -209,8 +207,6 @@ paths:
           description: Created; invitation email sent
 
   /rest/v1/company_admins/{adminId}:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Company Admins]
       summary: Update company admin
@@ -247,9 +243,9 @@ paths:
 
   # ---- Invitations ----
   /rest/v1/rpc/get_invitation_by_token:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     post:
+      security:
+        - apiKeyAuth: []
       tags: [Invitations]
       summary: Get invitation by token
       description: Returns invitation row if token valid and not expired. Used by register page.
@@ -270,9 +266,9 @@ paths:
 
   # ---- Auth signUp (invitation flow) ----
   /auth/v1/signup:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     post:
+      security:
+        - apiKeyAuth: []
       tags: [Invitations]
       summary: Sign up (accept invitation)
       description: Called with invitation email + new password. Then app upserts profile, updates company_admins, and calls confirm-invited-user Edge Function.
@@ -301,8 +297,6 @@ paths:
 
   # ---- Rooms ----
   /rest/v1/rooms:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Rooms]
       summary: List rooms for current company
@@ -329,8 +323,6 @@ paths:
           description: Created room
 
   /rest/v1/rooms/{roomId}:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Rooms]
       summary: Update room
@@ -363,8 +355,6 @@ paths:
 
   # ---- Employees ----
   /rest/v1/employees:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     get:
       tags: [Employees]
       summary: List employees for current company
@@ -396,8 +386,6 @@ paths:
           description: Created
 
   /rest/v1/employees/{employeeId}:
-    parameters:
-      - $ref: '#/components/parameters/ApikeyHeader'
     patch:
       tags: [Employees]
       summary: Update employee
@@ -437,6 +425,7 @@ paths:
   # ---- Edge Functions ----
   /functions/v1/send-company-admin-invite:
     post:
+      security: []
       tags: [Edge Functions]
       summary: Send company admin invitation email
       description: Invoked by app after creating company_admin + invitation. Sends email via Resend with register link. No JWT required (verify_jwt = false).
@@ -459,6 +448,7 @@ paths:
 
   /functions/v1/confirm-invited-user:
     post:
+      security: []
       tags: [Edge Functions]
       summary: Confirm invited user email
       description: Called after signUp in invite flow. Sets email_confirm = true for the user so they can sign in. No JWT required.
@@ -479,20 +469,6 @@ paths:
           description: Invalid token or user mismatch
 
 components:
-  parameters:
-    ApikeyHeader:
-      name: apikey
-      in: header
-      required: true
-      description: Supabase anon key (paste from src/environments/environment.ts). Required for every Supabase request.
-      schema: { type: string }
-    AuthorizationHeader:
-      name: Authorization
-      in: header
-      required: true
-      description: 'Paste exactly: Bearer <access_token> (token from Admin login response, e.g. session.access_token). Required for RLS to return rows.'
-      schema: { type: string, example: 'Bearer eyJ...' }
-
   securitySchemes:
     apiKeyAuth:
       type: apiKey
@@ -504,11 +480,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Supabase access_token (from login/session)
-
-  # Supabase requires BOTH apikey (anon key) and Bearer token for protected endpoints.
-  security:
-    - apiKeyAuth: []
-      bearerAuth: []
 
   schemas:
     CompanyRow:

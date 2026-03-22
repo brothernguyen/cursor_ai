@@ -29,12 +29,20 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "openapi.yaml",
+                "input": "docs",
+                "output": "/"
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/swagger-ui-dist/swagger-ui.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/swagger-ui-dist/swagger-ui-bundle.js"
+            ]
           },
           "configurations": {
             "production": {

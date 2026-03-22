@@ -5,6 +5,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { HomeComponent } from './components/home/home.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { ApiDocsComponent } from './components/api-docs/api-docs.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -38,6 +39,11 @@ export const routes: Routes = [
     path: 'landing',
     component: LandingComponent,
     data: { animation: 'landing' }
+  },
+  {
+    path: 'api-docs',
+    component: ApiDocsComponent,
+    data: { animation: 'apiDocs' }
   },
   {
     path: '',

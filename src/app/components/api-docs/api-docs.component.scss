@@ -1,0 +1,41 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.api-docs__bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #1b1b1b;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.api-docs__back {
+  color: #89bf04;
+  text-decoration: none;
+  font-size: 0.9rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.api-docs__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.api-docs__swagger {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Swagger UI fills the flex area */
+:host ::ng-deep .swagger-ui {
+  max-width: none;
+}
