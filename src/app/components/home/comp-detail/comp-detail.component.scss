@@ -41,3 +41,13 @@ select {
   background-size: 12px;
   padding-right: 2.5rem;
 }
+
+// Company Details — logo dropzone centered in modal body
+.company-logo-upload {
+  align-items: center;
+}
+
+.company-logo-dropzone {
+  margin-left: auto;
+  margin-right: auto;
+}
