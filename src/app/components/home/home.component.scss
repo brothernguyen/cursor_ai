@@ -1788,10 +1788,33 @@
   color: #cdd5df;
 }
 
+// Backdrop: scrollable on short viewports so tall modals (e.g. Edit Employee) stay reachable
+.room-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px)) 1rem
+    max(0.75rem, env(safe-area-inset-bottom, 0px)) 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background-color: rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
 // Add / Edit / Delete room dialogs — compact for laptop–desktop widths
 .room-modal-panel {
   width: 100%;
   max-width: 24rem;
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  flex-direction: column;
+  max-height: min(90vh, calc(100dvh - 2rem));
+  overflow: hidden;
 
   @media (min-width: 1441px) {
     max-width: 26rem;
@@ -1812,6 +1835,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
   padding: 0.875rem 1rem;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -1827,6 +1851,10 @@
 
 .room-modal-body {
   padding: 1rem 1rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .room-modal-form {

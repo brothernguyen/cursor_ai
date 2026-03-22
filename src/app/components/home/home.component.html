@@ -3106,10 +3106,7 @@
     </div>
   </div>
   } @if (modal() === 'addRoom') {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50"
-    style="background-color: rgba(0, 0, 0, 0.5)"
-  >
+  <div class="room-modal-backdrop">
     <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Add Meeting Room</h2>
@@ -3194,10 +3191,7 @@
     </div>
   </div>
   } @if (modal() === 'editRoom') {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50"
-    style="background-color: rgba(0, 0, 0, 0.5)"
-  >
+  <div class="room-modal-backdrop">
     <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Edit Meeting Room</h2>
@@ -3282,10 +3276,7 @@
     </div>
   </div>
   } @if (modal() === 'deleteRoom' && roomToDelete) {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50"
-    style="background-color: rgba(0, 0, 0, 0.5)"
-  >
+  <div class="room-modal-backdrop">
     <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Delete Room</h2>
@@ -3331,12 +3322,9 @@
     </div>
   </div>
   } @if (modal() === 'inviteEmployee') {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50 p-4 overflow-y-auto"
-    style="background-color: rgba(0, 0, 0, 0.5)"
-  >
+  <div class="room-modal-backdrop">
     <div
-      class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4 my-4 overflow-y-auto invite-employee-modal"
+      class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4 my-4 invite-employee-modal"
     >
       <div class="room-modal-header room-modal-header--sticky">
         <h2 class="room-modal-title">Invite Employee</h2>
@@ -3468,10 +3456,7 @@
     </div>
   </div>
   } @if (modal() === 'editEmployee') {
-  <div
-    class="fixed inset-0 flex items-center justify-center z-50"
-    style="background-color: rgba(0, 0, 0, 0.5)"
-  >
+  <div class="room-modal-backdrop">
     <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Edit Employee</h2>
