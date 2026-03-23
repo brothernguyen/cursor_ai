@@ -9,7 +9,7 @@ import { RoomService } from '../../services/room.service';
 import { EmployeeService } from '../../services/employee.service';
 import { Company, Room } from '../../interfaces/auth';
 import { forkJoin, of, Subject } from 'rxjs';
-import { map, catchError, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { map, catchError, debounceTime, distinctUntilChanged, finalize, takeUntil } from 'rxjs/operators';
 import { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +25,7 @@ import { CompDeleteAdminComponent } from "./comp-delete-admin/comp-delete-admin.
 import { CompDeleteCompanyComponent } from "./comp-delete-company/comp-delete-company.component";
 import { CompUpdateAdminComponent } from "./comp-update-admin/comp-update-admin.component";
 import { User } from '../../interfaces/auth';
+import { LoadingService } from '../../services/loading.service';
 
 // Extended interface for table display with additional fields from API
 interface CompanyWithDetails extends Company {
@@ -78,6 +79,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   layoutService = inject(LayoutService);
   roomSer = inject(RoomService);
   employeeSer = inject(EmployeeService);
+  loading = inject(LoadingService);
   msgService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
   @ViewChild('op') op!: Popover;
@@ -640,7 +642,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   checkCurrentRole() {
-    this.authSer.getCurrentUser().subscribe({
+    this.loading.begin();
+    this.authSer.getCurrentUser().pipe(
+      finalize(() => this.loading.end())
+    ).subscribe({
       next: (res: any) => {
         console.log('Current user info:', res);
         // Extract user data from response
@@ -986,7 +991,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Load employees (placeholder - will need API endpoint)
   loadEmployees() {
-    this.employeeSer.getAllEmployees().subscribe({
+    this.loading.begin();
+    this.employeeSer.getAllEmployees().pipe(
+      finalize(() => this.loading.end())
+    ).subscribe({
       next: (res: any) => {
         // EmployeeService returns an array, but keep defensive handling for older response shapes.
         if (Array.isArray(res)) this.employees = res;
@@ -1615,7 +1623,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadCompanies() {
     const filterStatus = this.companyFilterStatus();
-    this.authSer.getAllCompanies(filterStatus).subscribe({
+    this.loading.begin();
+    this.authSer.getAllCompanies(filterStatus).pipe(
+      finalize(() => this.loading.end())
+    ).subscribe({
       next: (res: any) => {
         console.log('==>companies: ', res);
         let companiesList: CompanyWithDetails[] = [];
@@ -1696,7 +1707,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     // Fetch admin counts in parallel for visible companies only
-    forkJoin(adminCountRequests).subscribe({
+    this.loading.begin();
+    forkJoin(adminCountRequests).pipe(
+      finalize(() => this.loading.end())
+    ).subscribe({
       next: (results) => {
         // Update companies with admin counts
         results.forEach(result => {
@@ -1897,7 +1911,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadRooms() {
-    this.roomSer.getAllRooms().subscribe({
+    this.loading.begin();
+    this.roomSer.getAllRooms().pipe(
+      finalize(() => this.loading.end())
+    ).subscribe({
       next: (res: any) => {
         console.log('Rooms loaded:', res);
         // Handle different response structures
@@ -2659,10 +2676,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Load and log all company admins
   loadAndLogCompanyAdmins() {
     this.loadingAdmins = true;
-    this.authSer.getAllCompanyAdmins().subscribe({
+    this.loading.begin();
+    this.authSer.getAllCompanyAdmins().pipe(
+      finalize(() => {
+        this.loadingAdmins = false;
+        this.loading.end();
+      })
+    ).subscribe({
       next: (res: any) => {
         console.log('All company admins response:', res);
-        this.loadingAdmins = false;
         
         // Extract all admins from the response
         let adminsList: AdminDisplay[] = [];
@@ -2738,7 +2760,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading company admins:', error);
-        this.loadingAdmins = false;
         this.allAdmins = [];
       }
     });

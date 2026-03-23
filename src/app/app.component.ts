@@ -4,7 +4,9 @@ import { ButtonModule } from 'primeng/button';
 import { PrimeNG } from 'primeng/config';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from './services/auth.service';
+import { LoadingService } from './services/loading.service';
 import { trigger, transition, style, query, animateChild, group, animate } from '@angular/animations';
 
 export const routeAnimations = trigger('routeAnimations', [
@@ -87,7 +89,7 @@ export const routeAnimations = trigger('routeAnimations', [
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule, TableModule, CardModule],
+  imports: [RouterOutlet, ButtonModule, TableModule, CardModule, ProgressSpinnerModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   animations: [routeAnimations]
@@ -96,6 +98,7 @@ export const routeAnimations = trigger('routeAnimations', [
 export class AppComponent implements OnInit, OnDestroy {
   title = 'meeting-room';
   authSer = inject(AuthService);
+  loading = inject(LoadingService);
 
   constructor(private primeng: PrimeNG) { }
 

@@ -1,4 +1,9 @@
 <div class="h-full w-full">
+  @if (loading.isLoading()) {
+  <div class="app-global-loading" role="status" aria-live="polite" aria-busy="true">
+    <p-progressSpinner strokeWidth="2" animationDuration=".8s" />
+  </div>
+  }
   <div [@routeAnimations]="prepareRoute(outlet)">
     <router-outlet #outlet="outlet"></router-outlet>
   </div>
