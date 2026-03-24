@@ -7,6 +7,10 @@
   --drawer-collapsed: 80px;
 }
 
+.home-root-shell {
+  background-color: #f8fafc;
+}
+
 // Main column offset — uses :host --drawer-* (keeps PrimeNG drawer width and margin in sync)
 .main-shell--offset-expanded {
   margin-left: var(--drawer-expanded);
@@ -14,6 +18,19 @@
 
 .main-shell--offset-collapsed {
   margin-left: var(--drawer-collapsed);
+}
+
+.main-shell {
+  transition: margin-left 0.3s ease-in-out;
+  background-color: #f8fafc;
+  position: relative;
+  contain: paint;
+}
+
+.home-main-inner {
+  background-color: #f8fafc;
+  position: relative;
+  z-index: 1;
 }
 
 .home-main-inner {
@@ -4662,6 +4679,23 @@ select.room-modal-input {
 
 // Dark mode pass for Home views: sidebar, cards, tables, report, and modals
 :host-context(html.app-dark) {
+  .home-root-shell,
+  .main-shell,
+  .home-main-inner {
+    background-color: #020617 !important;
+  }
+
+  // Keep a persistent dark paint layer under tab content so DOM swaps
+  // never reveal the browser default/light background for a frame.
+  .main-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #020617;
+    z-index: 0;
+    pointer-events: none;
+  }
+
   // Fill the host element itself so no light strip bleeds between the fixed
   // drawer and the margin-offset main panel
   background-color: #020617;

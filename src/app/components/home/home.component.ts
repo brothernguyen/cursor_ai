@@ -1259,8 +1259,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loadEmployees();
     }
     if (view === 'admins' && this.role() === 'system') {
-      // Load and log company admins when switching to admins view
-      this.loadAndLogCompanyAdmins();
+      // Load admins when first entering admins view.
+      // Avoid refetching on every tab switch to prevent spinner flicker.
+      if (this.allAdmins.length === 0) {
+        this.loadAndLogCompanyAdmins();
+      }
     }
     // Clear invitation response when switching tabs
     this.invitationResponse = null;
@@ -2696,11 +2699,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Load and log all company admins
   loadAndLogCompanyAdmins() {
     this.loadingAdmins = true;
-    this.loading.begin();
     this.authSer.getAllCompanyAdmins().pipe(
       finalize(() => {
         this.loadingAdmins = false;
-        this.loading.end();
       })
     ).subscribe({
       next: (res: any) => {

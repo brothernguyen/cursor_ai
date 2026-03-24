@@ -50,6 +50,19 @@ html.app-dark .p-drawer.drawer-figma.drawer-collapsed .toggle-drawer-btn-collaps
   border-color: #334155 !important;
 }
 
+html.app-dark .p-drawer.drawer-figma .toggle-drawer-btn {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .toggle-drawer-btn:hover {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
 html.app-dark .p-drawer.drawer-figma .drawer-nav-item,
 html.app-dark .p-drawer.drawer-figma .drawer-footer-item {
   color: #cbd5e1 !important;
@@ -147,6 +160,26 @@ html.app-dark app-home {
 
 html.app-dark app-home > div {
   background-color: #020617 !important;
+}
+
+html.app-dark app-home .home-main-inner,
+html.app-dark app-home .main-shell--offset-expanded,
+html.app-dark app-home .main-shell--offset-collapsed {
+  background-color: #020617 !important;
+}
+
+/* Prevent brief light-color interpolation during tab content swaps */
+html.app-dark app-home .main-shell,
+html.app-dark app-home .home-main-inner,
+html.app-dark app-home .system-dashboard-container,
+html.app-dark app-home .company-dashboard-container,
+html.app-dark app-home .companies-container,
+html.app-dark app-home .admins-page-container,
+html.app-dark app-home .rooms-container,
+html.app-dark app-home .employees-container,
+html.app-dark app-home .report-container,
+html.app-dark app-home .settings-page-container {
+  transition-property: none !important;
 }
 
 /* ─── Dark mode: Companies search bar ─────────────────────────────────────── */

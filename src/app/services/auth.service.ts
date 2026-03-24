@@ -464,14 +464,20 @@ export class AuthService {
 
   getAllCompanyAdmins(): Observable<unknown> {
     return from(
-      this.sb.client.from('company_admins').select('*, companies(*)').order('created_at', { ascending: false })
+      this.sb.client
+        .from('company_admins')
+        .select('id, first_name, last_name, email, status, company_id, created_at, companies(id, name)')
+        .order('created_at', { ascending: false })
     ).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        return (data ?? []).map(row => ({
-          ...this.companyAdminRowToApp(row),
-          company: row.companies ? this.companyRowToApp(row.companies as Record<string, unknown>) : null,
-        }));
+        return (data ?? []).map(row => {
+          const companyRaw = Array.isArray(row.companies) ? row.companies[0] : row.companies;
+          return {
+            ...this.companyAdminRowToApp(row),
+            company: companyRaw ? this.companyRowToApp(companyRaw as Record<string, unknown>) : null,
+          };
+        });
       })
     );
   }

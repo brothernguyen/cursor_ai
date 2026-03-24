@@ -1,5 +1,5 @@
 <div
-  class="h-screen bg-gray-50 dark:bg-slate-950 flex overflow-hidden transition-colors duration-200"
+  class="home-root-shell h-screen flex overflow-hidden"
 >
   <!-- PrimeNG Drawer - Figma Design -->
   <p-drawer
@@ -219,7 +219,7 @@
 
   <!-- Main Content -->
   <div
-    class="flex-1 min-w-0 overflow-auto h-full flex-shrink-0 transition-all duration-300 ease-in-out"
+    class="main-shell flex-1 min-w-0 overflow-auto h-full flex-shrink-0"
     [ngClass]="{
       'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
       'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
@@ -2628,6 +2628,7 @@
   <app-comp-create-admin
     [company]="selectedCompany"
     (close)="onCloseCreateAdmin()"
+    (created)="onAdminCrudSuccess()"
   ></app-comp-create-admin>
   }
 
@@ -2646,6 +2647,7 @@
   <app-comp-delete-admin
     [company]="selectedCompany"
     (close)="onCloseDeleteAdmin()"
+    (deleted)="onAdminCrudSuccess()"
   ></app-comp-delete-admin>
   }
 
