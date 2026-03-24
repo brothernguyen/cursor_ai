@@ -111,6 +111,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   companyIndustrySortDirection = signal<'asc' | 'desc' | null>(null); // For company industry sorting
   companyStatusSortDirection = signal<'asc' | 'desc' | null>(null); // For company status sorting
   companyFilterStatus = signal<'active' | 'inactive' | null>(null); // For company filter: active, inactive, or null (all)
+  showEditEmployeeStatusMenu = false;
+  employeeStatusOptions: Array<{ label: string; value: 'active' | 'pending' | 'inactive' }> = [
+    { label: 'Active', value: 'active' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Inactive', value: 'inactive' }
+  ];
 
   /**
    * Report tab (company) — v1 focuses on: "How utilized are our meeting rooms this period?"
@@ -1258,6 +1264,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   setModal(modal: string) {
     this.modal.set(modal);
+    if (modal !== 'editEmployee') {
+      this.showEditEmployeeStatusMenu = false;
+    }
     // Reset form when closing the create company modal
     if (modal !== 'createCompany') {
       this.newCompany = {
@@ -2539,6 +2548,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (newStatus !== this.previousEmployeeStatus && this.editEmployee.id) {
       this.employeeStatusChangeSubject.next(newStatus);
     }
+  }
+
+  toggleEditEmployeeStatusMenu() {
+    if (this.updatingEmployeeStatus) return;
+    this.showEditEmployeeStatusMenu = !this.showEditEmployeeStatusMenu;
+  }
+
+  setEditEmployeeStatus(newStatus: 'active' | 'pending' | 'inactive') {
+    this.editEmployee.status = newStatus;
+    this.showEditEmployeeStatusMenu = false;
+    this.onEmployeeStatusChange(newStatus);
   }
 
   updateEmployeeStatus(status: string) {

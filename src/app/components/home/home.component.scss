@@ -1805,6 +1805,22 @@
   box-sizing: border-box;
 }
 
+// Center invite modal within the main (right) panel when drawer is open
+.room-modal-backdrop--with-drawer {
+  left: var(--drawer-expanded);
+  width: calc(100% - var(--drawer-expanded));
+}
+
+.room-modal-backdrop--drawer-collapsed {
+  left: var(--drawer-collapsed);
+  width: calc(100% - var(--drawer-collapsed));
+}
+
+.room-modal-backdrop--centered {
+  justify-content: center;
+  align-items: center;
+}
+
 // Add / Edit / Delete room dialogs — compact for laptop–desktop widths
 .room-modal-panel {
   width: 100%;
@@ -1879,6 +1895,60 @@
 
 select.room-modal-input {
   cursor: pointer;
+}
+
+.status-select-wrap {
+  position: relative;
+}
+
+.status-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.status-select-chevron {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.status-select-menu {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: #ffffff;
+  border: 1px solid #cdd5df;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.status-select-option {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #364152;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+.status-select-option-active {
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 600;
 }
 
 .room-modal-message {
@@ -3363,6 +3433,15 @@ select.room-modal-input {
     color: #f8fafc;
     box-shadow: none;
   }
+
+  .settings-theme-btn:not(.settings-theme-btn-active) {
+    color: #94a3b8;
+
+    &:hover {
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
 }
 
 // System Admin Dashboard Styles
@@ -4032,6 +4111,8 @@ select.room-modal-input {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #cdd5df #f8fafc;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -4066,6 +4147,10 @@ select.room-modal-input {
   z-index: 10;
   background: #ffffff;
   flex-shrink: 0;
+}
+
+:host-context(html.app-dark) .room-modal-header--sticky {
+  background: #0f172a;
 }
 
 // Laptop (1024px–1279px): compact drawer, Meeting Rooms density
@@ -4571,6 +4656,612 @@ select.room-modal-input {
   @media (max-width: 768px) {
     :host {
       --drawer-expanded: 176px;
+    }
+  }
+}
+
+// Dark mode pass for Home views: sidebar, cards, tables, report, and modals
+:host-context(html.app-dark) {
+  // Fill the host element itself so no light strip bleeds between the fixed
+  // drawer and the margin-offset main panel
+  background-color: #020617;
+
+  // Also ensure the root flex container has no light background
+  > div:first-child {
+    background-color: #020617 !important;
+  }
+
+  .drawer-figma {
+    background-color: #0f172a !important;
+
+    .p-drawer-header,
+    .p-drawer-content,
+    .p-drawer-footer {
+      background-color: #0f172a !important;
+    }
+  }
+
+  .drawer-separator {
+    background-color: #1f2937;
+  }
+
+  .drawer-nav-item,
+  .drawer-footer-item {
+    color: #cbd5e1;
+
+    &:hover {
+      background-color: #111827;
+    }
+  }
+
+  .drawer-nav-item-active,
+  .drawer-footer-item-active {
+    background-color: #1e293b !important;
+    border-color: #7c3aed;
+    color: #e2e8f0 !important;
+  }
+
+  .rooms-title,
+  .employees-title,
+  .admins-page-title,
+  .report-title,
+  .system-dashboard-title {
+    color: #e2e8f0;
+  }
+
+  .company-subtitle,
+  .report-subtitle,
+  .utilization-title,
+  .kpi-label,
+  .report-kpi-label,
+  .table-header,
+  .employee-table-header,
+  .companies-table-header,
+  .admins-table-header {
+    color: #94a3b8;
+  }
+
+  .period-select-button,
+  .system-period-select-button,
+  .report-period-tabs,
+  .report-building-select,
+  .view-toggle-switch,
+  .utilization-tabs {
+    background: #0b1220;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .system-period-dropdown-menu,
+  .period-dropdown-menu {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .system-period-dropdown-option,
+  .period-dropdown-option {
+    color: #cbd5e1;
+
+    &:hover {
+      background: #111827;
+    }
+  }
+
+  .kpi-card,
+  .company-kpi-card,
+  .room-card,
+  .room-utilization-card,
+  .rooms-table-container,
+  .employees-table-container,
+  .admins-table-container,
+  .companies-table-container,
+  .report-panel,
+  .report-table-wrap,
+  .companies-search-container,
+  .system-kpi-card-white {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .companies-search-input,
+  .room-modal-input,
+  .report-building-select {
+    background: #111827;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .companies-search-input::placeholder {
+    color: #64748b;
+  }
+
+  .table-row,
+  .employee-table-row,
+  .admins-table-row,
+  .companies-table-row {
+    border-bottom-color: #1f2937;
+    background: #0f172a;
+
+    &:hover {
+      background: #111827;
+    }
+  }
+
+  .companies-table-row-alt {
+    background: #111827;
+
+    &:hover {
+      background: #0b1220;
+    }
+  }
+
+  .table-cell,
+  .employee-table-cell,
+  .admins-table-cell,
+  .companies-table-cell,
+  .room-name-text,
+  .location-text-table,
+  .capacity-text,
+  .time-text,
+  .companies-company-name,
+  .companies-industry-text,
+  .companies-number-text,
+  .companies-admin-text,
+  .report-kpi-value,
+  .report-kpi-value-sm,
+  .report-panel-title,
+  .report-panel-desc,
+  .report-chart-label,
+  .report-chart-pct,
+  .room-name,
+  .location-text,
+  .meta-text,
+  .kpi-value,
+  .kpi-last-month {
+    color: #e2e8f0;
+  }
+
+  .report-kpi-hint,
+  .report-data-note,
+  .axis-labels,
+  .bar-value {
+    color: #94a3b8;
+  }
+
+  .chart-bars::before {
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(9.09% - 0.5px),
+      #334155 calc(9.09% - 0.5px),
+      #334155 calc(9.09% + 0.5px),
+      transparent calc(9.09% + 0.5px),
+      transparent 9.09%
+    );
+  }
+
+  .room-modal-panel,
+  .room-modal-header,
+  .room-modal-body,
+  .room-modal-response-box {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .room-modal-panel {
+    border: 1px solid #334155;
+  }
+
+  .room-modal-title,
+  .room-modal-message,
+  .room-modal-label {
+    color: #e2e8f0;
+  }
+
+  .room-modal-subtext,
+  .room-modal-invite-hint {
+    color: #94a3b8;
+  }
+
+  .room-modal-email-tag {
+    background: #111827;
+    color: #cbd5e1;
+  }
+
+  .room-modal-header {
+    border-bottom-color: #334155;
+  }
+
+  .modal-close-button {
+    color: #94a3b8;
+
+    &:hover {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+  }
+
+  .room-modal-input:disabled,
+  .room-modal-input[disabled] {
+    background: #1e293b !important;
+    color: #64748b !important;
+    border-color: #334155 !important;
+  }
+
+  .room-modal-invite-response {
+    border-top-color: #334155;
+  }
+
+  .room-modal-response-box {
+    background: #111827;
+    color: #cbd5e1;
+  }
+
+  .status-select-menu {
+    background: #0f172a;
+    border-color: #334155;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  .status-select-option {
+    color: #cbd5e1;
+
+    &:hover {
+      background: #1e293b;
+    }
+  }
+
+  .status-select-option-active {
+    background: #312e81;
+    color: #e9d5ff;
+  }
+
+  .room-modal-footer-btn.border {
+    color: #cbd5e1 !important;
+    border-color: #475569 !important;
+    background: transparent;
+
+    &:hover {
+      background: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+  }
+
+  .welcome-title {
+    color: #e2e8f0;
+  }
+
+  .paginator-wrapper,
+  .employees-paginator-wrapper {
+    background-color: #0f172a;
+    border-color: #334155;
+  }
+
+  .toggle-drawer-btn {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+
+    &:hover {
+      background-color: #334155 !important;
+      border-color: #475569 !important;
+    }
+  }
+
+  .drawer-nav-item {
+    color: #cbd5e1;
+    fill: #cbd5e1;
+
+    svg {
+      stroke: #cbd5e1;
+    }
+
+    &:hover {
+      background-color: #111827;
+    }
+  }
+
+  .drawer-nav-item-active {
+    color: #e9d5ff !important;
+    fill: #c4b5fd;
+
+    svg {
+      stroke: #c4b5fd;
+    }
+  }
+
+  .drawer-footer-item {
+    color: #cbd5e1;
+    fill: #cbd5e1;
+
+    svg {
+      stroke: #cbd5e1;
+    }
+
+    &:hover {
+      background-color: #111827;
+    }
+
+    span.text-sm {
+      color: #e2e8f0 !important;
+    }
+  }
+
+  .drawer-footer-item-active {
+    background-color: #2e1064 !important;
+    color: #e9d5ff !important;
+  }
+
+  .filter-btn:not(.filter-btn-active) {
+    background-color: #111827;
+    border-color: #334155;
+    box-shadow: none;
+
+    &:hover {
+      background-color: #1e293b;
+      border-color: #475569;
+    }
+  }
+
+  .filter-text {
+    color: #e2e8f0;
+  }
+
+  .filter-icon-wrapper {
+    background-color: #1e293b;
+  }
+
+  .filter-icon {
+    color: #94a3b8;
+  }
+
+  .table-header,
+  .employee-table-header,
+  .companies-table-header,
+  .admins-table-header {
+    background: #111827 !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  .table-header-sortable:hover,
+  .employee-table-header-sortable:hover,
+  .companies-table-header-sortable:hover,
+  .admins-table-header-sortable:hover {
+    background-color: #1e293b !important;
+  }
+
+  .employee-action-cell {
+    background: #0f172a !important;
+    box-shadow: -8px 0 12px -8px rgba(0, 0, 0, 0.45);
+
+    .employee-table-row & {
+      background: #0f172a !important;
+    }
+
+    .employee-table-row:hover & {
+      background: #111827 !important;
+    }
+  }
+
+  .employee-table-action-button:hover {
+    background-color: #1e293b;
+  }
+
+  .employee-edit-button:hover {
+    background-color: rgba(124, 58, 237, 0.2);
+  }
+
+  .employee-delete-button:hover {
+    background-color: #1e293b;
+  }
+
+  .report-period-tab {
+    color: #94a3b8;
+
+    &:hover {
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .report-period-tab-active {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    box-shadow: none;
+  }
+
+  .report-data-note {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: #334155;
+    color: #cbd5e1;
+  }
+
+  .report-kpi-card {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .report-kpi-card-accent {
+    border-color: #6d28d9;
+    background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+  }
+
+  .report-chart-track {
+    background: #1e293b;
+  }
+
+  .report-export-btn {
+    background: #111827;
+    border-color: #334155;
+    color: #e2e8f0;
+
+    &:hover {
+      background: #1e293b;
+      border-color: #7c3aed;
+      color: #c4b5fd;
+    }
+  }
+
+  .report-table thead {
+    background: #111827;
+  }
+
+  .report-table th {
+    color: #94a3b8;
+    border-bottom-color: #334155;
+  }
+
+  .report-table td {
+    color: #e2e8f0;
+    border-bottom-color: #1e293b;
+  }
+
+  .switch-card-view,
+  .switch-list-view {
+    background: #0f172a;
+  }
+
+  .switch-card-view.switch-active,
+  .switch-list-view.switch-active {
+    background: rgba(124, 58, 237, 0.25);
+  }
+
+  .table-action-button:hover,
+  .admins-action-button:hover {
+    background-color: #1e293b;
+  }
+
+  .table-edit-button:hover,
+  .admins-edit-button:hover {
+    background-color: rgba(124, 58, 237, 0.2);
+  }
+
+  .table-delete-button:hover,
+  .admins-delete-button:hover {
+    background-color: rgba(239, 68, 68, 0.12);
+
+    .table-action-icon,
+    .admins-action-icon {
+      stroke: #f87171;
+    }
+  }
+
+  .companies-action-button:hover {
+    background-color: #1e293b;
+  }
+
+  .companies-edit-button:hover {
+    background-color: rgba(124, 58, 237, 0.2);
+  }
+
+  .companies-delete-button:hover {
+    background-color: rgba(239, 68, 68, 0.12);
+
+    .companies-action-icon {
+      stroke: #f87171;
+    }
+  }
+
+  .companies-three-dots-btn {
+    color: #94a3b8;
+
+    &:hover {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+  }
+
+  .status-badge-active-table {
+    background: rgba(34, 197, 94, 0.18);
+  }
+
+  .status-badge-active-table .status-text-table {
+    color: #4ade80;
+  }
+
+  .status-badge-inactive-table {
+    background: rgba(248, 113, 113, 0.15);
+  }
+
+  .status-badge-inactive-table .status-text-table {
+    color: #fca5a5;
+  }
+
+  // PrimeNG drawer + paginator: base styles use ::ng-deep + !important; mirror that for dark mode
+  ::ng-deep {
+    .p-drawer.drawer-figma {
+      background-color: #0f172a !important;
+      border-right: 1px solid #1e293b !important;
+
+      .p-drawer-header,
+      .p-drawer-content,
+      .p-drawer-footer {
+        background-color: #0f172a !important;
+      }
+
+      .p-drawer-close {
+        color: #cbd5e1 !important;
+
+        &:hover {
+          background-color: #1e293b !important;
+          opacity: 1;
+        }
+      }
+
+      &.drawer-collapsed .toggle-drawer-btn-collapsed {
+        background-color: #1e293b !important;
+        color: #e2e8f0 !important;
+        border-color: #334155 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+
+        &:hover {
+          background-color: #334155 !important;
+          border-color: #475569 !important;
+        }
+      }
+    }
+
+    .p-paginator {
+      background: #0f172a !important;
+      background-color: #0f172a !important;
+      color: #cbd5e1 !important;
+    }
+
+    .paginator-wrapper .p-paginator,
+    .employees-paginator-wrapper .p-paginator {
+      background-color: #0f172a !important;
+    }
+
+    .p-paginator-page,
+    .p-paginator-next,
+    .p-paginator-last,
+    .p-paginator-first,
+    .p-paginator-prev {
+      color: #94a3b8 !important;
+      background: transparent !important;
+    }
+
+    .p-paginator-page:not(.p-disabled):not(.p-paginator-page-selected):hover,
+    .p-paginator-first:not(.p-disabled):hover,
+    .p-paginator-prev:not(.p-disabled):hover,
+    .p-paginator-next:not(.p-disabled):hover,
+    .p-paginator-last:not(.p-disabled):hover {
+      background: #1e293b !important;
+      color: #e2e8f0 !important;
+    }
+
+    .p-paginator-page.p-paginator-page-selected {
+      background: #6d28d9 !important;
+      color: #ffffff !important;
+    }
+
+    .p-paginator .p-disabled {
+      opacity: 0.35;
+    }
+
+    .p-paginator-current {
+      color: #94a3b8 !important;
     }
   }
 }

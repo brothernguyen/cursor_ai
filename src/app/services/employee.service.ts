@@ -52,6 +52,10 @@ export class EmployeeService {
     return this.auth.getCompanyId();
   }
 
+  private isUuid(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  }
+
   private employeeRowToApp(row: Record<string, unknown>): Record<string, unknown> {
     return {
       id: row['id'],
@@ -125,6 +129,20 @@ export class EmployeeService {
     role?: string;
     status?: 'active' | 'inactive' | 'pending';
   }): Observable<unknown> {
+    if (!this.isUuid(employeeId)) {
+      if (environment.employeeUseDummyData) {
+        return of({
+          id: employeeId,
+          firstName: employeeData.firstName,
+          lastName: employeeData.lastName,
+          department: employeeData.department,
+          role: employeeData.role,
+          status: employeeData.status
+        });
+      }
+      throw new Error('Invalid employee id format');
+    }
+
     const companyId = this.getCompanyId();
     if (!companyId) throw new Error('Company context required');
     const row: Record<string, unknown> = {
@@ -154,6 +172,16 @@ export class EmployeeService {
   // }
 
   updateEmployeeStatus(employeeId: string, status: string): Observable<unknown> {
+    // Dummy employees use display IDs like emp-001 (not DB UUID).
+    // Avoid sending those IDs to Supabase, which causes:
+    // "invalid input syntax for type uuid".
+    if (!this.isUuid(employeeId)) {
+      if (environment.employeeUseDummyData) {
+        return of({ id: employeeId, status });
+      }
+      throw new Error('Invalid employee id format');
+    }
+
     const companyId = this.getCompanyId();
     if (!companyId) throw new Error('Company context required');
     return from(
@@ -176,6 +204,13 @@ export class EmployeeService {
   // }
 
   deleteEmployee(employeeId: string): Observable<void> {
+    if (!this.isUuid(employeeId)) {
+      if (environment.employeeUseDummyData) {
+        return of(void 0);
+      }
+      throw new Error('Invalid employee id format');
+    }
+
     const companyId = this.getCompanyId();
     if (!companyId) throw new Error('Company context required');
     return from(
