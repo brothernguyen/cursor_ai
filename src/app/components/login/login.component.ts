@@ -10,8 +10,10 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AuthService } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
+import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'app-login',
   imports: [
@@ -32,6 +34,7 @@ import { Toast } from 'primeng/toast';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   authSer = inject(AuthService);
+  loading = inject(LoadingService);
 
   console = console;
 
@@ -62,7 +65,10 @@ export class LoginComponent implements OnInit {
       password: this.loginForm.value.password
     };
 
-    this.authSer.adminLogin(loginData).subscribe({
+    this.loading.begin();
+    this.authSer.adminLogin(loginData).pipe(
+      finalize(() => this.loading.end())
+    ).subscribe({
       next: (res: any) => {
         const token = res.data?.accessToken;
         console.log('==>token: ', token);

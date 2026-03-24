@@ -6,7 +6,9 @@ import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service';
 import { MessageService } from 'primeng/api';
+import { finalize } from 'rxjs/operators';
 import { Toast } from 'primeng/toast';
 
 @Component({
@@ -30,6 +32,7 @@ export class ForgotPasswordComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private msgService = inject(MessageService);
+  private loading = inject(LoadingService);
 
   constructor() {
     this.form = this.fb.group({
@@ -44,7 +47,13 @@ export class ForgotPasswordComponent {
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting) return;
     this.isSubmitting = true;
-    this.auth.requestPasswordReset(this.form.value.email).subscribe({
+    this.loading.begin();
+    this.auth.requestPasswordReset(this.form.value.email).pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+        this.loading.end();
+      })
+    ).subscribe({
       next: () => {
         this.submitted = true;
         this.msgService.add({
@@ -61,9 +70,6 @@ export class ForgotPasswordComponent {
           detail: err?.message ?? 'Failed to send reset email. Try again.',
           life: 4000,
         });
-      },
-      complete: () => {
-        this.isSubmitting = false;
       },
     });
   }

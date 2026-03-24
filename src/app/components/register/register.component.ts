@@ -12,7 +12,9 @@ import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service';
 import { MessageService } from 'primeng/api';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-register',
@@ -36,6 +38,7 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   console = console;
   authService = inject(AuthService);
+  loading = inject(LoadingService);
   msgService = inject(MessageService);
   token: string | null = null;
   isSubmitting = false;
@@ -81,6 +84,7 @@ export class RegisterComponent implements OnInit {
   onSubmit() {
     if (this.registerForm.valid && this.token) {
       this.isSubmitting = true;
+      this.loading.begin();
       const formValue = this.registerForm.value;
 
       const registerData = {
@@ -90,10 +94,14 @@ export class RegisterComponent implements OnInit {
         phone: formValue.phone || undefined
       };
 
-      this.authService.acceptInvitation(registerData, this.token).subscribe({
+      this.authService.acceptInvitation(registerData, this.token).pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+          this.loading.end();
+        })
+      ).subscribe({
         next: (res: any) => {
           console.log('==>Registration successful:', res);
-          this.isSubmitting = false;
 
           // Remove token from localStorage after successful signup
           this.authService.removeToken();
@@ -103,7 +111,6 @@ export class RegisterComponent implements OnInit {
         },
         error: (error) => {
           console.error('==>Registration error:', error);
-          this.isSubmitting = false;
 
           // Show error message
           const errorMessage = error.error?.message || error.message || 'Failed to complete registration. Please try again.';

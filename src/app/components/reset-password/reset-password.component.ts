@@ -10,7 +10,8 @@ import { SupabaseService } from '../../services/supabase.service';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
+import { LoadingService } from '../../services/loading.service';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -44,6 +45,7 @@ export class ResetPasswordComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private msgService = inject(MessageService);
+  private loading = inject(LoadingService);
 
   showForm = computed(() => this.hasRecoverySession() === true);
   showInvalidLink = computed(() => this.hasRecoverySession() === false);
@@ -71,7 +73,10 @@ export class ResetPasswordComponent implements OnInit {
       from(this.sb.client.auth.getSession()).pipe(
         map(({ data: { session } }) => !!session)
       );
-    checkSession().subscribe((hasSession) => {
+    this.loading.begin();
+    checkSession().pipe(
+      finalize(() => this.loading.end())
+    ).subscribe((hasSession) => {
       if (hasSession) {
         this.hasRecoverySession.set(true);
         return;
@@ -80,7 +85,10 @@ export class ResetPasswordComponent implements OnInit {
       const hasHash = typeof window !== 'undefined' && window.location?.hash?.includes('access_token');
       if (hasHash) {
         setTimeout(() => {
-          checkSession().subscribe((retrySession) => this.hasRecoverySession.set(retrySession));
+          this.loading.begin();
+          checkSession().pipe(
+            finalize(() => this.loading.end())
+          ).subscribe((retrySession) => this.hasRecoverySession.set(retrySession));
         }, 400);
       } else {
         this.hasRecoverySession.set(false);
@@ -91,8 +99,14 @@ export class ResetPasswordComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid || this.isSubmitting) return;
     this.isSubmitting = true;
+    this.loading.begin();
     const newPassword = this.form.value.password;
-    this.auth.updatePassword(newPassword).subscribe({
+    this.auth.updatePassword(newPassword).pipe(
+      finalize(() => {
+        this.isSubmitting = false;
+        this.loading.end();
+      })
+    ).subscribe({
       next: () => {
         this.success = true;
         this.auth.logout(); // So user signs in with new password
@@ -111,10 +125,6 @@ export class ResetPasswordComponent implements OnInit {
           detail: err?.message ?? 'Failed to update password. Try again.',
           life: 4000,
         });
-        this.isSubmitting = false;
-      },
-      complete: () => {
-        this.isSubmitting = false;
       },
     });
   }
