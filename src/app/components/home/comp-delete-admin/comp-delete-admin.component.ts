@@ -13,6 +13,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 export class CompDeleteAdminComponent implements OnInit {
   @Input() company: Company | null = null;
   @Output() close = new EventEmitter<void>();
+  @Output() deleted = new EventEmitter<void>();
 
   authService = inject(AuthService);
   msgService = inject(MessageService);
@@ -90,6 +91,7 @@ export class CompDeleteAdminComponent implements OnInit {
             this.deletingAdminId = null;
             // Reload admins list
             this.loadAdmins();
+            this.deleted.emit();
             this.msgService.add({
               severity: 'success',
               summary: 'Success',

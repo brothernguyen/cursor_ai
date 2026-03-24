@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 export class CompCreateAdminComponent implements OnInit {
   @Input() company: Company | null = null;
   @Output() close = new EventEmitter<void>();
+  @Output() created = new EventEmitter<void>();
 
   adminForm!: FormGroup;
   authService = inject(AuthService);
@@ -54,6 +55,7 @@ export class CompCreateAdminComponent implements OnInit {
             detail: `Invitation sent to ${formValue.email}. They can accept via the link in the email.`,
             life: 5000
           });
+          this.created.emit();
           this.onClose();
           this.adminForm.reset();
         },

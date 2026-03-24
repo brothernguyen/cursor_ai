@@ -135,6 +135,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Company Admins
   allAdmins: AdminDisplay[] = [];
   loadingAdmins = false;
+  private readonly adminsCacheTtlMs = 60_000;
+  private adminsCacheUpdatedAt = 0;
+  private adminsCacheDirty = true;
   firstAdmin = signal<number>(0);
   rowsAdmin = signal<number>(10);
   adminNameSortDirection = signal<'asc' | 'desc' | null>(null);
@@ -502,9 +505,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       }, 0);
     }
     
-    // Reload admins list if we're on the admins view
+    this.onAdminCrudSuccess();
+  }
+
+  onAdminCrudSuccess() {
+    this.adminsCacheDirty = true;
+    // Refresh immediately if user is on admins tab
     if (this.view() === 'admins' && this.role() === 'system') {
-      this.loadAndLogCompanyAdmins();
+      this.loadAndLogCompanyAdmins(true);
     }
   }
 
@@ -1259,10 +1267,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loadEmployees();
     }
     if (view === 'admins' && this.role() === 'system') {
-      // Load admins when first entering admins view.
-      // Avoid refetching on every tab switch to prevent spinner flicker.
-      if (this.allAdmins.length === 0) {
-        this.loadAndLogCompanyAdmins();
+      const cacheExpired = Date.now() - this.adminsCacheUpdatedAt > this.adminsCacheTtlMs;
+      // Use cache during quick tab switches; refresh when dirty/expired/empty.
+      if (this.adminsCacheDirty || cacheExpired || this.allAdmins.length === 0) {
+        this.loadAndLogCompanyAdmins(true);
       }
     }
     // Clear invitation response when switching tabs
@@ -2697,8 +2705,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Delete employee
   // Load and log all company admins
-  loadAndLogCompanyAdmins() {
-    this.loadingAdmins = true;
+  loadAndLogCompanyAdmins(showLoading = true) {
+    this.loadingAdmins = showLoading;
     this.authSer.getAllCompanyAdmins().pipe(
       finalize(() => {
         this.loadingAdmins = false;
@@ -2777,11 +2785,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
 
         this.allAdmins = adminsList;
+        this.adminsCacheUpdatedAt = Date.now();
+        this.adminsCacheDirty = false;
         console.log('Filtered company admins (role: company_admin):', this.allAdmins);
       },
       error: (error) => {
         console.error('Error loading company admins:', error);
         this.allAdmins = [];
+        this.adminsCacheDirty = true;
       }
     });
   }
