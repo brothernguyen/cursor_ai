@@ -104,6 +104,19 @@
   }
 }
 
+/* Ensure popover menu "details-btn" stays readable in dark mode. */
+:host-context(html.app-dark) {
+  .details-btn {
+    &:hover {
+      background-color: rgba(30, 41, 59, 0.95);
+    }
+
+    &:active {
+      background-color: rgba(17, 24, 39, 1);
+    }
+  }
+}
+
 // Room card styles - ensure all cards have same height
 ::ng-deep {
   .room-gallery {
@@ -891,6 +904,7 @@
   height: 46px;
   min-width: 46px;
   background-color: #ffffff;
+  color: #111827; // Used by SVG icons via `stroke="currentColor"`
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2122,10 +2136,22 @@ select.room-modal-input {
   width: 8px;
   height: 6px;
   flex-shrink: 0;
+  color: #CDD5DF; // Inactive sort arrow
 }
 
 .sort-icon-active {
   // Active sort icon uses darker colors
+  color: #364152;
+}
+
+/* Theme-aware sort arrows: SVG paths use hardcoded fills in markup; force them to follow `currentColor`. */
+.sort-icon path,
+.sort-icon-active path,
+.admins-sort-icon path,
+.admins-sort-icon-active path,
+.companies-sort-icon path,
+.companies-sort-icon-active path {
+  fill: currentColor !important;
 }
 
 .table-row {
@@ -2741,10 +2767,11 @@ select.room-modal-input {
   width: 8px;
   height: 6px;
   flex-shrink: 0;
+  color: #CDD5DF; // Inactive
 }
 
 .admins-sort-icon-active {
-  fill: #364152;
+  color: #364152; // Active
 }
 
 .admins-table-row {
@@ -3802,10 +3829,11 @@ select.room-modal-input {
   width: 8px;
   height: 6px;
   flex-shrink: 0;
+  color: #CDD5DF; // Inactive
 }
 
 .companies-sort-icon-active {
-  fill: #364152;
+  color: #364152; // Active
 }
 
 .companies-table-row {
@@ -4971,6 +4999,14 @@ select.room-modal-input {
     border-color: #334155;
   }
 
+  /* Prevent light background "corner pixels" from base rule:
+     `.paginator-wrapper .p-paginator { background-color: #ffffff; }` */
+  .paginator-wrapper .p-paginator,
+  .employees-paginator-wrapper .p-paginator {
+    background-color: #0f172a !important;
+    border-radius: 12px !important;
+  }
+
   .toggle-drawer-btn {
     background-color: #1e293b !important;
     color: #e2e8f0 !important;
@@ -5297,5 +5333,18 @@ select.room-modal-input {
     .p-paginator-current {
       color: #94a3b8 !important;
     }
+  }
+
+  /* Theme-aware sort arrow colors in dark mode */
+  .sort-icon,
+  .admins-sort-icon,
+  .companies-sort-icon {
+    color: #64748b;
+  }
+
+  .sort-icon-active,
+  .admins-sort-icon-active,
+  .companies-sort-icon-active {
+    color: #e2e8f0;
   }
 }

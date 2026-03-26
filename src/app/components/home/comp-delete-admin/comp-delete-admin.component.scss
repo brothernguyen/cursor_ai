@@ -32,3 +32,23 @@
   position: relative;
 }
 
+:host-context(html.app-dark) {
+  .modal-container {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+  }
+
+  .modal-close-button {
+    color: #94a3b8;
+
+    &:hover {
+      background-color: #111827;
+      color: #e2e8f0;
+    }
+  }
+
+  .modal-close-icon {
+    color: #94a3b8;
+  }
+}
+

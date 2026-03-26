@@ -7,6 +7,39 @@
 @import "primeflex/themes/primeone-light.css";
 @import 'primeflex/primeflex.css';
 
+/* Shared theme tokens for light/dark surfaces, text, borders, and form controls. */
+:root {
+  --app-bg: #f8fafc;
+  --app-fg: #0f172a;
+  --app-muted: #6b7280;
+  --app-border: #d1d5db;
+  --app-surface: #ffffff;
+  --app-surface-alt: #f8fafc;
+  --app-input-bg: #ffffff;
+  --app-input-border: #d1d5db;
+  --app-input-text: #1f2937;
+  --app-placeholder: #9ca3af;
+  --app-link: #3b82f6;
+  --app-error: #ef4444;
+  --app-focus-border: #a855f7;
+}
+
+html.app-dark {
+  --app-bg: #020617;
+  --app-fg: #e2e8f0;
+  --app-muted: #94a3b8;
+  --app-border: #334155;
+  --app-surface: #0f172a;
+  --app-surface-alt: #111827;
+  --app-input-bg: #111827;
+  --app-input-border: #334155;
+  --app-input-text: #e2e8f0;
+  --app-placeholder: #64748b;
+  --app-link: #60a5fa;
+  --app-error: #f87171;
+  --app-focus-border: #a855f7;
+}
+
 html,
 body {
   height: 100%;
@@ -19,8 +52,29 @@ body {
 }
 
 html.app-dark body {
-  background-color: #020617;
-  color: #e2e8f0;
+  background-color: var(--app-bg);
+  color: var(--app-fg);
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--app-fg);
+}
+
+/* PrimeNG dark-aware defaults used by auth forms (p-password inputs/buttons). */
+html.app-dark .p-password .p-inputtext {
+  background: var(--app-input-bg) !important;
+  border-color: var(--app-input-border) !important;
+  color: var(--app-input-text) !important;
+}
+
+html.app-dark .p-password .p-inputtext::placeholder {
+  color: var(--app-placeholder) !important;
+}
+
+html.app-dark .p-password-toggle,
+html.app-dark .p-password-toggle-icon {
+  color: var(--app-muted) !important;
 }
 
 /* ─── Dark mode: PrimeNG Drawer (sidebar) ─────────────────────────────────── */

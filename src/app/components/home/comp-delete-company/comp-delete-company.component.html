@@ -1,7 +1,7 @@
 @if (company) {
 <div class="modal-overlay">
   <div
-    class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4 max-h-[90vh] overflow-y-auto"
+    class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700"
   >
     <div class="room-modal-header">
       <h2 class="room-modal-title">Delete Company</h2>
@@ -36,7 +36,7 @@
             type="button"
             (click)="onCancel()"
             [disabled]="deleting"
-            class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="room-modal-footer-btn border border-gray-300 text-gray-800 dark:border-slate-700 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800 dark:hover:text-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
@@ -44,7 +44,7 @@
             type="button"
             (click)="onDelete()"
             [disabled]="deleting"
-            class="room-modal-footer-btn bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            class="room-modal-footer-btn bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
           >
             @if (deleting) {
             Deleting...

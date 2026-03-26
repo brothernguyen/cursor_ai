@@ -71,6 +71,7 @@ interface AdminDisplay {
   providers: [MessageService, ConfirmationService]
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private readonly homeViewStorageKey = 'home:selectedView';
   role = signal<'system' | 'company'>('system');
   view = signal<'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings'>('dashboard');
   modal = signal<string>('');
@@ -619,21 +620,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private fb: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
-    // Ensure view is set to dashboard on initialization
-    this.view.set('dashboard');
+    // Restore previously selected tab on refresh.
+    this.view.set(this.getInitialView());
 
     // After sign-in success (system admin), auth sets a flag so we load companies here
     if (this.authSer.getAndClearShouldLoadCompanies()) {
       this.role.set('system');
+      this.ensureViewAllowedForRole();
       this.loadCompanies();
+      this.loadCurrentViewDataOnRefresh();
     } else {
       // First check role from localStorage
       const savedRole = this.authSer.getRole();
       if (savedRole === 'system_admin' || savedRole === 'sys_admin' || savedRole === 'system') {
         this.role.set('system');
+        this.ensureViewAllowedForRole();
         this.loadCompanies();
+        this.loadCurrentViewDataOnRefresh();
       } else if (savedRole === 'company_admin' || savedRole === 'company') {
         this.role.set('company');
+        this.ensureViewAllowedForRole();
+        this.loadCurrentViewDataOnRefresh();
       }
     }
 
@@ -683,11 +690,15 @@ export class HomeComponent implements OnInit, OnDestroy {
         const savedRole = this.authSer.getRole();
         if (savedRole === 'system_admin' || savedRole === 'sys_admin' || savedRole === 'system') {
           this.role.set('system');
+          this.ensureViewAllowedForRole();
           // Only load companies if user is system admin
           this.loadCompanies();
+          this.loadCurrentViewDataOnRefresh();
         } else if (savedRole === 'company_admin' || savedRole === 'company') {
           this.role.set('company');
+          this.ensureViewAllowedForRole();
           // Don't load companies for company admin
+          this.loadCurrentViewDataOnRefresh();
         }
       },
       error: (error) => {
@@ -696,10 +707,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         const savedRole = this.authSer.getRole();
         if (savedRole === 'system_admin' || savedRole === 'sys_admin' || savedRole === 'system') {
           this.role.set('system');
+          this.ensureViewAllowedForRole();
           // Only load companies if user is system admin
           this.loadCompanies();
+          this.loadCurrentViewDataOnRefresh();
         } else if (savedRole === 'company_admin' || savedRole === 'company') {
           this.role.set('company');
+          this.ensureViewAllowedForRole();
+          this.loadCurrentViewDataOnRefresh();
         }
       }
     });
@@ -1237,6 +1252,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   setRole(role: 'system' | 'company') {
     this.role.set(role);
+    this.saveView('dashboard');
     this.view.set('dashboard');
   }
 
@@ -1250,6 +1266,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.op.hide();
     }
     this.view.set(view);
+    this.saveView(view);
     if (view === 'companies') {
       this.first.set(0); // Reset to first page when switching to companies view
     }
@@ -1275,6 +1292,88 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     // Clear invitation response when switching tabs
     this.invitationResponse = null;
+  }
+
+  private saveView(view: 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings'): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(this.homeViewStorageKey, view);
+      this.updateUrlTabParam(view);
+    }
+  }
+
+  private getSavedView(): 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings' | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    const savedView = localStorage.getItem(this.homeViewStorageKey);
+    if (
+      savedView === 'dashboard' ||
+      savedView === 'companies' ||
+      savedView === 'admins' ||
+      savedView === 'rooms' ||
+      savedView === 'employees' ||
+      savedView === 'report' ||
+      savedView === 'settings'
+    ) {
+      return savedView;
+    }
+    return null;
+  }
+
+  private getInitialView(): 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings' {
+    const urlView = this.getViewFromUrl();
+    if (urlView) {
+      return urlView;
+    }
+    return this.getSavedView() ?? 'dashboard';
+  }
+
+  private getViewFromUrl(): 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings' | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    const value = new URL(window.location.href).searchParams.get('tab');
+    if (
+      value === 'dashboard' ||
+      value === 'companies' ||
+      value === 'admins' ||
+      value === 'rooms' ||
+      value === 'employees' ||
+      value === 'report' ||
+      value === 'settings'
+    ) {
+      return value;
+    }
+    return null;
+  }
+
+  private updateUrlTabParam(view: 'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings'): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', view);
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+
+  private ensureViewAllowedForRole(): void {
+    const currentView = this.view();
+    const allowedViews: Array<'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings'> =
+      this.role() === 'system'
+        ? ['dashboard', 'companies', 'admins', 'settings']
+        : ['dashboard', 'rooms', 'employees', 'report', 'settings'];
+
+    if (!allowedViews.includes(currentView)) {
+      this.saveView('dashboard');
+      this.view.set('dashboard');
+    }
+  }
+
+  private loadCurrentViewDataOnRefresh(): void {
+    if (this.view() === 'admins' && this.role() === 'system') {
+      // Ensure admins data is fetched on browser refresh when "Company Admins" is the saved tab.
+      this.loadAndLogCompanyAdmins(true);
+    }
   }
 
   setAppThemeMode(mode: 'light' | 'dark'): void {

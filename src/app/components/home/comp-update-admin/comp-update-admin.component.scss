@@ -42,3 +42,42 @@
   height: 1.5rem;
   color: #6b7280;
 }
+
+:host-context(html.app-dark) {
+  .modal-container {
+    background: #0f172a;
+    border: 1px solid #334155;
+  }
+
+  // Force the modal header (first child inside modal-container) to use dark
+  // colors. This avoids any Tailwind dark-variant ordering/specificity issues.
+  .modal-container > div:first-child {
+    background: #0f172a !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  .modal-container > div:first-child h2 {
+    color: #e2e8f0 !important;
+  }
+
+  .modal-close-button {
+    color: #94a3b8;
+
+    &:hover {
+      background-color: #111827;
+      color: #e2e8f0;
+    }
+  }
+
+  .modal-close-icon {
+    color: #94a3b8;
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: #111827 !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+  }
+}

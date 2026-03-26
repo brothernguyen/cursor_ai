@@ -73,4 +73,38 @@ select {
     border-color: #334155 !important;
     color: #e2e8f0 !important;
   }
+
+  /* Tailwind utility classes used inside this modal template are light-biased.
+     Override the common ones so the dialog reads correctly in dark mode. */
+  .modal-container .bg-white {
+    background-color: #0f172a !important;
+  }
+
+  .modal-container .bg-gray-50 {
+    background-color: #111827 !important;
+  }
+
+  .modal-container .bg-gray-200 {
+    background-color: #1f2937 !important;
+  }
+
+  .modal-container .bg-gray-300 {
+    background-color: #374151 !important;
+  }
+
+  .modal-container .text-gray-900,
+  .modal-container .text-gray-800,
+  .modal-container .text-gray-700 {
+    color: #e2e8f0 !important;
+  }
+
+  .modal-container .text-gray-600,
+  .modal-container .text-gray-500,
+  .modal-container .text-gray-400 {
+    color: #94a3b8 !important;
+  }
+
+  .modal-container .border-gray-300 {
+    border-color: #334155 !important;
+  }
 }
