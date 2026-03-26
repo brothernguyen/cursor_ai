@@ -195,7 +195,15 @@ export class AuthService {
   //   return this.http.patch(`${BASE_URL}/admin/companies/${companyId}/status`, { status }, { headers });
   // }
 
-  createCompanyAdmin(adminData: { companyId: string; email: string; companyName?: string }): Observable<unknown> {
+  createCompanyAdmin(adminData: {
+    companyId: string;
+    email: string;
+    companyName?: string;
+  }): Observable<{
+    admin: Record<string, unknown> | null;
+    emailSent: boolean;
+    emailError?: string;
+  }> {
     return from(
       this.sb.client.from('company_admins').insert({
         company_id: adminData.companyId,
@@ -241,18 +249,39 @@ export class AuthService {
             { headers }
           )
           .pipe(
-            map(() => admin),
+            map(() => ({
+              admin,
+              emailSent: true as const,
+            })),
             catchError((emailErr) => {
-              const body = emailErr.error as { error?: string; details?: unknown } | undefined;
-              const msg = body?.error && typeof body.error === 'string'
-                ? body.details ? `${body.error}: ${JSON.stringify(body.details)}` : body.error
-                : emailErr.message;
-              console.warn('Invitation email failed (admin and invitation were created):', msg);
-              return of(admin!);
+              const body = emailErr.error as
+                | { error?: string; details?: unknown; hint?: string }
+                | undefined;
+              let msg =
+                body?.error && typeof body.error === 'string'
+                  ? body.details
+                    ? `${body.error}: ${JSON.stringify(body.details)}`
+                    : body.error
+                  : emailErr.message;
+              if (body?.hint && typeof body.hint === 'string') {
+                msg = `${msg} ${body.hint}`;
+              }
+              console.warn(
+                'Invitation email failed (admin and invitation were created):',
+                msg
+              );
+              return of({
+                admin: admin!,
+                emailSent: false as const,
+                emailError: msg,
+              });
             })
           );
       }),
-      map((admin) => admin ?? null)
+      map((result) => ({
+        ...result,
+        admin: result.admin ?? null,
+      }))
     );
   }
 

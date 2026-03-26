@@ -2388,15 +2388,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       const companyName = this.createdCompanyName() ?? undefined;
       this.authSer.createCompanyAdmin({ companyId: companyIdStr, email, companyName }).subscribe({
-        next: () => {
-          completed++;
-          // Show success toast for each admin
-          this.msgService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Successfully invited ${email}`,
-            life: 3000
-          });
+        next: (res) => {
+          if (res.emailSent) {
+            completed++;
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `Successfully invited ${email}`,
+              life: 3000
+            });
+          } else {
+            failed++;
+            this.msgService.add({
+              severity: 'warn',
+              summary: 'Invite saved — email failed',
+              detail: `${email}: ${res.emailError ?? 'Email could not be sent.'}`,
+              life: 10000
+            });
+          }
 
           if (completed + failed === total) {
             // Show summary toast when all invitations are processed

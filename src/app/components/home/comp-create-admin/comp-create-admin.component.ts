@@ -45,15 +45,26 @@ export class CompCreateAdminComponent implements OnInit {
       };
 
       this.authService.createCompanyAdmin(adminData).subscribe({
-        next: (res: any) => {
+        next: (res) => {
           console.log('==>Admin created successfully:', res);
           this.isSubmitting = false;
-          this.msgService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: `Invitation sent to ${formValue.email}. They can accept via the link in the email.`,
-            life: 5000
-          });
+          if (res.emailSent) {
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `Invitation sent to ${formValue.email}. They can accept via the link in the email.`,
+              life: 5000
+            });
+          } else {
+            this.msgService.add({
+              severity: 'warn',
+              summary: 'Admin and invite saved — email not delivered',
+              detail:
+                res.emailError ??
+                'Configure Resend: verify a domain and set Supabase secret RESEND_FROM.',
+              life: 12000
+            });
+          }
           this.onClose();
           this.adminForm.reset();
         },
