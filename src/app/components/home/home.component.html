@@ -2663,7 +2663,7 @@
   <!-- Modals -->
   @if (modal() === 'createCompany') {
   <div
-    class="fixed inset-0 bg-gray-50 flex flex-col z-50 overflow-auto transition-all duration-300 ease-in-out"
+    class="fixed inset-0 bg-gray-50 flex flex-col z-50 overflow-auto transition-all duration-300 ease-in-out create-company-modal-overlay"
     [ngClass]="{
       'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
       'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
@@ -2671,13 +2671,13 @@
   >
     <div class="min-h-full home-main-inner">
       <!-- Page Title - Left Aligned -->
-      <h1 class="text-3xl font-semibold text-gray-900 mb-8 flex justify-center">
+      <h1 class="text-3xl font-semibold text-gray-900 mb-8 flex justify-center create-company-modal-title">
         Create Company
       </h1>
 
       <!-- Form Container - Centered -->
       <div class="flex justify-center">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl p-8">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl p-8 create-company-form-card">
           <style>
             input::placeholder,
             input::-webkit-input-placeholder,
@@ -3273,6 +3273,54 @@
               Save
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } @if (adminToDelete) {
+  <div class="room-modal-backdrop room-modal-backdrop--centered">
+    <div class="room-modal-panel admin-delete-modal-panel bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl w-full mx-4 !max-w-[500px]">
+      <div class="room-modal-header room-modal-header--sticky">
+        <h2 class="room-modal-title">
+          Delete Company Admin
+        </h2>
+        <button (click)="onCancelDeleteAdmin()" class="modal-close-button">
+          <svg
+            class="modal-close-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div class="room-modal-body admin-delete-modal-body">
+        <p class="room-modal-message admin-delete-modal-message">
+          Are you sure you want to delete {{ adminToDelete.firstName }} {{ adminToDelete.lastName }}?
+        </p>
+
+        <div class="room-modal-actions admin-delete-modal-actions">
+          <button
+            type="button"
+            (click)="onCancelDeleteAdmin()"
+            class="room-modal-footer-btn admin-delete-modal-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="onConfirmDeleteAdmin()"
+            class="room-modal-footer-btn admin-delete-modal-btn bg-purple-600 text-white hover:bg-purple-700"
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>

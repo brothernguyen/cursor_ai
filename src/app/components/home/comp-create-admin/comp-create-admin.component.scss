@@ -38,6 +38,16 @@
     border: 1px solid #334155;
   }
 
+  // Force header colors in dark mode to avoid tailwind dark-variant mismatch.
+  .modal-container > div:first-child {
+    background: #0f172a !important;
+    border-bottom-color: #334155 !important;
+  }
+
+  .modal-container > div:first-child h2 {
+    color: #e2e8f0 !important;
+  }
+
   .modal-close-button {
     color: #94a3b8;
 
@@ -57,6 +67,11 @@
     background-color: #111827 !important;
     border-color: #334155 !important;
     color: #e2e8f0 !important;
+  }
+
+  label,
+  p {
+    color: #cbd5e1 !important;
   }
 }
 

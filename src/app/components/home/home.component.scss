@@ -56,6 +56,92 @@
   }
 }
 
+:host-context(html.app-dark) {
+  ::ng-deep {
+    .p-confirmdialog,
+    .p-confirm-dialog,
+    .p-dialog.p-confirmdialog {
+      background: #0f172a !important;
+      border: 1px solid #334155 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+      color: #e2e8f0 !important;
+      overflow: hidden;
+    }
+
+    .p-confirmdialog .p-dialog-header,
+    .p-confirm-dialog .p-dialog-header {
+      background: #0f172a !important;
+      border-bottom: 1px solid #334155 !important;
+      color: #e2e8f0 !important;
+      padding: 20px 24px 14px !important;
+    }
+
+    .p-confirmdialog .p-dialog-title,
+    .p-confirm-dialog .p-dialog-title {
+      color: #e2e8f0 !important;
+      font-weight: 700 !important;
+      font-size: 24px !important;
+      line-height: 32px !important;
+    }
+
+    .p-confirmdialog .p-dialog-content,
+    .p-confirm-dialog .p-dialog-content {
+      background: #0f172a !important;
+      color: #cbd5e1 !important;
+      padding: 14px 24px 20px !important;
+      font-size: 16px !important;
+      line-height: 24px !important;
+    }
+
+    .p-confirmdialog .p-dialog-footer,
+    .p-confirm-dialog .p-dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 24px 20px !important;
+      background: #0f172a !important;
+      border-top: 0 !important;
+    }
+
+    .p-confirmdialog .p-dialog-footer .p-button,
+    .p-confirm-dialog .p-dialog-footer .p-button {
+      border-radius: 10px !important;
+      font-weight: 600 !important;
+      padding: 10px 18px !important;
+      transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease;
+    }
+
+    .p-confirmdialog .p-confirm-dialog-reject,
+    .p-confirm-dialog .p-confirm-dialog-reject {
+      background: transparent !important;
+      border: 1px solid #334155 !important;
+      color: #cbd5e1 !important;
+    }
+
+    .p-confirmdialog .p-confirm-dialog-reject:hover,
+    .p-confirm-dialog .p-confirm-dialog-reject:hover {
+      background: #111827 !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+    }
+
+    .p-confirmdialog .p-confirm-dialog-accept,
+    .p-confirm-dialog .p-confirm-dialog-accept {
+      background: #2563eb !important;
+      border: 1px solid #2563eb !important;
+      color: #ffffff !important;
+    }
+
+    .p-confirmdialog .p-confirm-dialog-accept:hover,
+    .p-confirm-dialog .p-confirm-dialog-accept:hover {
+      background: #1d4ed8 !important;
+      border-color: #1d4ed8 !important;
+    }
+  }
+}
+
 // Enhanced hover and click effects for three dots button
 .three-dots-btn {
   cursor: pointer;
@@ -170,7 +256,7 @@
   // Match wrapper rounding so border corners render cleanly (dropdown uses appendTo="body")
   .paginator-wrapper .p-paginator {
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     background-color: #ffffff;
   }
 
@@ -2002,6 +2088,32 @@ select.room-modal-input {
   line-height: 1.25rem;
   border-radius: 0.5rem;
   min-width: 0;
+}
+
+// Admin delete confirmation uses room modal base, but with regular dialog sizing.
+.admin-delete-modal-panel {
+  max-width: 500px !important;
+  width: 100%;
+}
+
+.admin-delete-modal-body {
+  padding: 1.5rem;
+}
+
+.admin-delete-modal-message {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.admin-delete-modal-actions {
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+}
+
+.admin-delete-modal-btn {
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
 }
 
 .room-modal-invite-hint {
@@ -4959,6 +5071,114 @@ select.room-modal-input {
     color: #cbd5e1;
   }
 
+  .create-company-modal-overlay {
+    background: #020617 !important;
+  }
+
+  .create-company-modal-title {
+    color: #e2e8f0 !important;
+  }
+
+  .create-company-form-card {
+    background: #0f172a !important;
+    border: 1px solid #334155;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+    color: #e2e8f0;
+  }
+
+  .create-company-form-card h2,
+  .create-company-form-card label,
+  .create-company-form-card p,
+  .create-company-form-card span {
+    color: #cbd5e1 !important;
+  }
+
+  .create-company-form-card input,
+  .create-company-form-card textarea,
+  .create-company-form-card .industry-select-button {
+    background: #111827 !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+  }
+
+  .create-company-form-card input::placeholder,
+  .create-company-form-card textarea::placeholder {
+    color: #64748b !important;
+  }
+
+  .create-company-form-card .industry-dropdown-menu {
+    background: #0f172a;
+    border-color: #334155;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .create-company-form-card .industry-dropdown-option {
+    color: #cbd5e1;
+  }
+
+  .create-company-form-card .industry-dropdown-option:hover {
+    background: #1e293b;
+  }
+
+  .create-company-form-card .industry-add-input {
+    background: #111827;
+    color: #e2e8f0;
+    border-color: #334155;
+  }
+
+  .create-company-form-card .border-dashed {
+    border-color: #334155 !important;
+  }
+
+  .create-company-form-card .bg-gray-100 {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+  }
+
+  .create-company-form-card .text-gray-400,
+  .create-company-form-card .text-gray-500,
+  .create-company-form-card .text-gray-600,
+  .create-company-form-card .text-gray-700,
+  .create-company-form-card .text-gray-900 {
+    color: #cbd5e1 !important;
+  }
+
+  // Button contrast fixes (upload/cancel/disabled states)
+  .create-company-form-card button.bg-gray-200,
+  .create-company-form-card button.bg-gray-300 {
+    background: #334155 !important;
+    color: #cbd5e1 !important;
+    border: 1px solid #475569 !important;
+  }
+
+  .create-company-form-card button.bg-gray-200:hover,
+  .create-company-form-card button.bg-gray-300:hover {
+    background: #475569 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .create-company-form-card button.border {
+    border-color: #94a3b8 !important;
+    color: #e2e8f0 !important;
+  }
+
+  .create-company-form-card button.border:hover {
+    background: #1e293b !important;
+    border-color: #cbd5e1 !important;
+    color: #f8fafc !important;
+  }
+
+  .create-company-form-card button.bg-purple-600 {
+    color: #ffffff !important;
+  }
+
+  .create-company-form-card button:disabled {
+    background: #334155 !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+    opacity: 1 !important;
+  }
+
   .status-select-menu {
     background: #0f172a;
     border-color: #334155;
@@ -4997,6 +5217,8 @@ select.room-modal-input {
   .employees-paginator-wrapper {
     background-color: #0f172a;
     border-color: #334155;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   /* Prevent light background "corner pixels" from base rule:
@@ -5004,7 +5226,7 @@ select.room-modal-input {
   .paginator-wrapper .p-paginator,
   .employees-paginator-wrapper .p-paginator {
     background-color: #0f172a !important;
-    border-radius: 12px !important;
+    border-radius: 0 !important;
   }
 
   .toggle-drawer-btn {

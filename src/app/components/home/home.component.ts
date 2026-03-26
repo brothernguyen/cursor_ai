@@ -136,6 +136,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Company Admins
   allAdmins: AdminDisplay[] = [];
   loadingAdmins = false;
+  adminToDelete: AdminDisplay | null = null;
   private readonly adminsCacheTtlMs = 60_000;
   private adminsCacheUpdatedAt = 0;
   private adminsCacheDirty = true;
@@ -2977,49 +2978,53 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Delete admin click handler
   onDeleteAdminClick(admin: AdminDisplay) {
-    const adminName = `${admin.firstName} ${admin.lastName}`;
-    
-    this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${adminName}?`,
-      header: 'Delete Company Admin',
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      acceptLabel: 'OK',
-      rejectLabel: 'Cancel',
-      accept: () => {
-        if (admin.id) {
-          this.authSer.deleteCompanyAdmin(admin.id).subscribe({
-            next: (res: any) => {
-              console.log('Admin deleted successfully:', res);
-              // Remove admin from list
-              this.allAdmins = this.allAdmins.filter(a => a.id !== admin.id);
-              this.msgService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Company admin deleted successfully',
-                life: 3000
-              });
-            },
-            error: (error) => {
-              console.error('Error deleting admin:', error);
-              let errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
-              if (errorMessage.includes('send a request')) {
-                errorMessage = 'Could not reach the delete service. Deploy the Edge Function: run "npx supabase functions deploy delete-company-admin" from the project root, then try again.';
-              } else if (errorMessage.includes('non-2xx status code')) {
-                errorMessage = 'Delete failed (server error). Open DevTools (F12) → Network tab, click the "delete-company-admin" request, and check the Response body for the exact error.';
-              }
-              this.msgService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: errorMessage,
-                life: 5000
-              });
-            }
-          });
-        }
+    this.adminToDelete = admin;
+  }
+
+  onCancelDeleteAdmin() {
+    this.adminToDelete = null;
+  }
+
+  onConfirmDeleteAdmin() {
+    const admin = this.adminToDelete;
+    if (!admin?.id) {
+      this.adminToDelete = null;
+      this.msgService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Admin ID is missing',
+        life: 3000
+      });
+      return;
+    }
+
+    this.authSer.deleteCompanyAdmin(admin.id).subscribe({
+      next: (res: any) => {
+        console.log('Admin deleted successfully:', res);
+        this.adminToDelete = null;
+        // Remove admin from list
+        this.allAdmins = this.allAdmins.filter(a => a.id !== admin.id);
+        this.msgService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Company admin deleted successfully',
+          life: 3000
+        });
       },
-      reject: () => {
-        // User cancelled, do nothing
+      error: (error) => {
+        console.error('Error deleting admin:', error);
+        let errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
+        if (errorMessage.includes('send a request')) {
+          errorMessage = 'Could not reach the delete service. Deploy the Edge Function: run "npx supabase functions deploy delete-company-admin" from the project root, then try again.';
+        } else if (errorMessage.includes('non-2xx status code')) {
+          errorMessage = 'Delete failed (server error). Open DevTools (F12) → Network tab, click the "delete-company-admin" request, and check the Response body for the exact error.';
+        }
+        this.msgService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage,
+          life: 5000
+        });
       }
     });
   }
