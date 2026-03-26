@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 export class CompCreateAdminComponent implements OnInit {
   @Input() company: Company | null = null;
   @Output() close = new EventEmitter<void>();
+  @Output() created = new EventEmitter<void>();
 
   adminForm!: FormGroup;
   authService = inject(AuthService);
@@ -65,6 +66,7 @@ export class CompCreateAdminComponent implements OnInit {
               life: 12000
             });
           }
+          this.created.emit();
           this.onClose();
           this.adminForm.reset();
         },

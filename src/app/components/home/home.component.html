@@ -1,5 +1,5 @@
 <div
-  class="h-screen bg-gray-50 dark:bg-slate-950 flex overflow-hidden transition-colors duration-200"
+  class="home-root-shell h-screen flex overflow-hidden"
 >
   <!-- PrimeNG Drawer - Figma Design -->
   <p-drawer
@@ -219,7 +219,7 @@
 
   <!-- Main Content -->
   <div
-    class="flex-1 min-w-0 overflow-auto h-full flex-shrink-0 transition-all duration-300 ease-in-out"
+    class="main-shell flex-1 min-w-0 overflow-auto h-full flex-shrink-0"
     [ngClass]="{
       'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
       'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
@@ -230,7 +230,7 @@
     @if (!sidebarOpen()) {
     <button
       (click)="toggleSidebar()"
-      class="fixed top-4 left-4 z-30 p-2 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-all duration-300 border border-gray-200"
+      class="fixed top-4 left-4 z-30 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-300 border border-gray-200 dark:border-slate-600"
       type="button"
       aria-label="Open sidebar"
       title="Open sidebar (Ctrl+B or Cmd+B)"
@@ -488,7 +488,7 @@
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl companies-search-container flex gap-3">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-xl companies-search-container flex gap-3">
           <div class="flex-1 relative">
             <svg
               class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-[18px] h-[18px]"
@@ -855,7 +855,7 @@
           </table>
         </div>
 
-        <div class="bg-white paginator-wrapper">
+        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper">
           <p-paginator
             [first]="first()"
             [rows]="rows()"
@@ -2318,7 +2318,7 @@
           </table>
         </div>
 
-        <div class="bg-white paginator-wrapper employees-paginator-wrapper">
+        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper employees-paginator-wrapper">
           <p-paginator
             [first]="firstEmployee()"
             [rows]="rowsEmployee()"
@@ -2330,9 +2330,9 @@
         </div>
 
         @if (invitationResponse) {
-        <div class="bg-white p-6 rounded-xl border">
+        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 p-6 rounded-xl border border-gray-200 dark:border-slate-700">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Invitation Details</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100">Invitation Details</h3>
             <button
               (click)="onCloseInvitationResponse()"
               class="modal-close-button"
@@ -2628,6 +2628,7 @@
   <app-comp-create-admin
     [company]="selectedCompany"
     (close)="onCloseCreateAdmin()"
+    (created)="onAdminCrudSuccess()"
   ></app-comp-create-admin>
   }
 
@@ -2646,6 +2647,7 @@
   <app-comp-delete-admin
     [company]="selectedCompany"
     (close)="onCloseDeleteAdmin()"
+    (deleted)="onAdminCrudSuccess()"
   ></app-comp-delete-admin>
   }
 
@@ -3107,7 +3109,7 @@
   </div>
   } @if (modal() === 'addRoom') {
   <div class="room-modal-backdrop">
-    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Add Meeting Room</h2>
         <button (click)="setModal('')" class="modal-close-button">
@@ -3175,7 +3177,7 @@
           <div class="room-modal-actions">
             <button
               (click)="setModal('')"
-              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
               Cancel
             </button>
@@ -3192,7 +3194,7 @@
   </div>
   } @if (modal() === 'editRoom') {
   <div class="room-modal-backdrop">
-    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Edit Meeting Room</h2>
         <button (click)="setModal('')" class="modal-close-button">
@@ -3260,7 +3262,7 @@
           <div class="room-modal-actions">
             <button
               (click)="setModal('')"
-              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
               Cancel
             </button>
@@ -3277,7 +3279,7 @@
   </div>
   } @if (modal() === 'deleteRoom' && roomToDelete) {
   <div class="room-modal-backdrop">
-    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Delete Room</h2>
         <button (click)="onCancelDeleteRoom()" class="modal-close-button">
@@ -3306,7 +3308,7 @@
           <div class="room-modal-actions">
             <button
               (click)="onCancelDeleteRoom()"
-              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
               Cancel
             </button>
@@ -3322,9 +3324,16 @@
     </div>
   </div>
   } @if (modal() === 'inviteEmployee') {
-  <div class="room-modal-backdrop">
+  <div
+    class="room-modal-backdrop"
+    [ngClass]="{
+      'room-modal-backdrop--centered': true,
+      'room-modal-backdrop--with-drawer': sidebarOpen(),
+      'room-modal-backdrop--drawer-collapsed': sidebarOpen() && sidebarCollapsed()
+    }"
+  >
     <div
-      class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4 my-4 invite-employee-modal"
+      class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4 invite-employee-modal"
     >
       <div class="room-modal-header room-modal-header--sticky">
         <h2 class="room-modal-title">Invite Employee</h2>
@@ -3410,7 +3419,7 @@
                 newEmployeeEmailInput = '';
                 invitationResponse = null
               "
-              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
               Cancel
             </button>
@@ -3457,7 +3466,7 @@
   </div>
   } @if (modal() === 'editEmployee') {
   <div class="room-modal-backdrop">
-    <div class="bg-white rounded-xl shadow-2xl room-modal-panel w-full mx-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
         <h2 class="room-modal-title">Edit Employee</h2>
         <button (click)="setModal('')" class="modal-close-button">
@@ -3502,7 +3511,7 @@
               type="email"
               [value]="editEmployee.email"
               disabled
-              class="room-modal-input w-full border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              class="room-modal-input w-full border rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-500 cursor-not-allowed dark:border-slate-600"
               placeholder="Email (read-only)"
             />
           </div>
@@ -3526,18 +3535,38 @@
           </div>
           <div>
             <label class="room-modal-label">Status *</label>
-            <select
-              [(ngModel)]="editEmployee.status"
-              (ngModelChange)="onEmployeeStatusChange($event)"
-              [disabled]="updatingEmployeeStatus"
-              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              [class.opacity-50]="updatingEmployeeStatus"
-              [class.cursor-not-allowed]="updatingEmployeeStatus"
-            >
-              <option value="active">Active</option>
-              <option value="pending">Pending</option>
-              <option value="inactive">Inactive</option>
-            </select>
+            <div class="status-select-wrap">
+              <button
+                type="button"
+                (click)="toggleEditEmployeeStatusMenu()"
+                [disabled]="updatingEmployeeStatus"
+                class="status-select-trigger room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                [class.opacity-50]="updatingEmployeeStatus"
+                [class.cursor-not-allowed]="updatingEmployeeStatus"
+                [attr.aria-expanded]="showEditEmployeeStatusMenu"
+                aria-haspopup="listbox"
+              >
+                <span>{{ editEmployee.status | titlecase }}</span>
+                <i class="pi pi-chevron-down status-select-chevron"></i>
+              </button>
+
+              @if (showEditEmployeeStatusMenu && !updatingEmployeeStatus) {
+              <div class="status-select-menu" role="listbox">
+                @for (status of employeeStatusOptions; track status.value) {
+                <button
+                  type="button"
+                  class="status-select-option"
+                  [class.status-select-option-active]="editEmployee.status === status.value"
+                  (click)="setEditEmployeeStatus(status.value)"
+                  role="option"
+                  [attr.aria-selected]="editEmployee.status === status.value"
+                >
+                  {{ status.label }}
+                </button>
+                }
+              </div>
+              }
+            </div>
             @if (updatingEmployeeStatus) {
             <p class="text-gray-500 text-xs mt-1">Updating status...</p>
             }
@@ -3545,7 +3574,7 @@
           <div class="room-modal-actions">
             <button
               (click)="setModal('')"
-              class="room-modal-footer-btn border border-gray-300 text-gray-800 hover:bg-gray-50"
+              class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
               Cancel
             </button>

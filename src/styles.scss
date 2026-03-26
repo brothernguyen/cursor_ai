@@ -22,3 +22,178 @@ html.app-dark body {
   background-color: #020617;
   color: #e2e8f0;
 }
+
+/* ─── Dark mode: PrimeNG Drawer (sidebar) ─────────────────────────────────── */
+html.app-dark .p-drawer.drawer-figma,
+html.app-dark .p-drawer.drawer-figma .p-drawer-header,
+html.app-dark .p-drawer.drawer-figma .p-drawer-content,
+html.app-dark .p-drawer.drawer-figma .p-drawer-footer {
+  background-color: #0f172a !important;
+}
+
+html.app-dark .p-drawer.drawer-figma {
+  border-right: 1px solid #1e293b !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .p-drawer-close {
+  color: #cbd5e1 !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .p-drawer-close:hover {
+  background-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+html.app-dark .p-drawer.drawer-figma.drawer-collapsed .toggle-drawer-btn-collapsed {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .toggle-drawer-btn {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .toggle-drawer-btn:hover {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .drawer-nav-item,
+html.app-dark .p-drawer.drawer-figma .drawer-footer-item {
+  color: #cbd5e1 !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .drawer-nav-item:hover,
+html.app-dark .p-drawer.drawer-figma .drawer-footer-item:hover {
+  background-color: #111827 !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .drawer-nav-item-active,
+html.app-dark .p-drawer.drawer-figma .drawer-footer-item-active {
+  background-color: #2e1065 !important;
+  color: #e9d5ff !important;
+  border: 1px solid #7c3aed !important;
+  border-radius: 8px !important;
+}
+
+html.app-dark .p-drawer.drawer-figma .drawer-footer-item-active img,
+html.app-dark .p-drawer.drawer-figma .drawer-nav-item-active img {
+  filter: brightness(0) saturate(100%) invert(84%) sepia(29%) saturate(632%)
+    hue-rotate(218deg) brightness(98%) contrast(95%);
+}
+
+/* ─── Dark mode: PrimeNG Paginator ────────────────────────────────────────── */
+html.app-dark .p-paginator {
+  background-color: #0f172a !important;
+  color: #cbd5e1 !important;
+}
+
+html.app-dark .p-paginator-page,
+html.app-dark .p-paginator-next,
+html.app-dark .p-paginator-last,
+html.app-dark .p-paginator-first,
+html.app-dark .p-paginator-prev {
+  color: #94a3b8 !important;
+  background: transparent !important;
+}
+
+html.app-dark .p-paginator-page:not(.p-disabled):not(.p-paginator-page-selected):hover,
+html.app-dark .p-paginator-first:not(.p-disabled):hover,
+html.app-dark .p-paginator-prev:not(.p-disabled):hover,
+html.app-dark .p-paginator-next:not(.p-disabled):hover,
+html.app-dark .p-paginator-last:not(.p-disabled):hover {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .p-paginator-page.p-paginator-page-selected {
+  background: #6d28d9 !important;
+  color: #ffffff !important;
+}
+
+html.app-dark .p-paginator-current {
+  color: #94a3b8 !important;
+}
+
+/* ─── Dark mode: PrimeNG Select dropdown (rows-per-page) ──────────────────── */
+html.app-dark .p-select {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .p-select-label {
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .p-select-overlay,
+html.app-dark .p-dropdown-panel {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html.app-dark .p-select-option,
+html.app-dark .p-dropdown-item {
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .p-select-option:hover,
+html.app-dark .p-dropdown-item:hover {
+  background: #1e293b !important;
+}
+
+html.app-dark .p-select-option.p-select-option-selected,
+html.app-dark .p-dropdown-item.p-highlight {
+  background: #312e81 !important;
+  color: #e9d5ff !important;
+}
+
+/* ─── Dark mode: fill gap between fixed drawer and main panel ─────────────── */
+html.app-dark app-home {
+  background-color: #020617;
+}
+
+html.app-dark app-home > div {
+  background-color: #020617 !important;
+}
+
+html.app-dark app-home .home-main-inner,
+html.app-dark app-home .main-shell--offset-expanded,
+html.app-dark app-home .main-shell--offset-collapsed {
+  background-color: #020617 !important;
+}
+
+/* Prevent brief light-color interpolation during tab content swaps */
+html.app-dark app-home .main-shell,
+html.app-dark app-home .home-main-inner,
+html.app-dark app-home .system-dashboard-container,
+html.app-dark app-home .company-dashboard-container,
+html.app-dark app-home .companies-container,
+html.app-dark app-home .admins-page-container,
+html.app-dark app-home .rooms-container,
+html.app-dark app-home .employees-container,
+html.app-dark app-home .report-container,
+html.app-dark app-home .settings-page-container {
+  transition-property: none !important;
+}
+
+/* ─── Dark mode: Companies search bar ─────────────────────────────────────── */
+html.app-dark .companies-search-container {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.app-dark .companies-search-input {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .companies-search-input::placeholder {
+  color: #64748b !important;
+}

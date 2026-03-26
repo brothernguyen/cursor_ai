@@ -113,6 +113,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   companyIndustrySortDirection = signal<'asc' | 'desc' | null>(null); // For company industry sorting
   companyStatusSortDirection = signal<'asc' | 'desc' | null>(null); // For company status sorting
   companyFilterStatus = signal<'active' | 'inactive' | null>(null); // For company filter: active, inactive, or null (all)
+  showEditEmployeeStatusMenu = false;
+  employeeStatusOptions: Array<{ label: string; value: 'active' | 'pending' | 'inactive' }> = [
+    { label: 'Active', value: 'active' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Inactive', value: 'inactive' }
+  ];
 
   /**
    * Report tab (company) — v1 focuses on: "How utilized are our meeting rooms this period?"
@@ -129,6 +135,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Company Admins
   allAdmins: AdminDisplay[] = [];
   loadingAdmins = false;
+  private readonly adminsCacheTtlMs = 60_000;
+  private adminsCacheUpdatedAt = 0;
+  private adminsCacheDirty = true;
   firstAdmin = signal<number>(0);
   rowsAdmin = signal<number>(10);
   adminNameSortDirection = signal<'asc' | 'desc' | null>(null);
@@ -496,9 +505,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       }, 0);
     }
     
-    // Reload admins list if we're on the admins view
+    this.onAdminCrudSuccess();
+  }
+
+  onAdminCrudSuccess() {
+    this.adminsCacheDirty = true;
+    // Refresh immediately if user is on admins tab
     if (this.view() === 'admins' && this.role() === 'system') {
-      this.loadAndLogCompanyAdmins();
+      this.loadAndLogCompanyAdmins(true);
     }
   }
 
@@ -1253,8 +1267,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loadEmployees();
     }
     if (view === 'admins' && this.role() === 'system') {
-      // Load and log company admins when switching to admins view
-      this.loadAndLogCompanyAdmins();
+      const cacheExpired = Date.now() - this.adminsCacheUpdatedAt > this.adminsCacheTtlMs;
+      // Use cache during quick tab switches; refresh when dirty/expired/empty.
+      if (this.adminsCacheDirty || cacheExpired || this.allAdmins.length === 0) {
+        this.loadAndLogCompanyAdmins(true);
+      }
     }
     // Clear invitation response when switching tabs
     this.invitationResponse = null;
@@ -1266,6 +1283,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   setModal(modal: string) {
     this.modal.set(modal);
+    if (modal !== 'editEmployee') {
+      this.showEditEmployeeStatusMenu = false;
+    }
     // Reset form when closing the create company modal
     if (modal !== 'createCompany') {
       this.newCompany = {
@@ -2567,6 +2587,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleEditEmployeeStatusMenu() {
+    if (this.updatingEmployeeStatus) return;
+    this.showEditEmployeeStatusMenu = !this.showEditEmployeeStatusMenu;
+  }
+
+  setEditEmployeeStatus(newStatus: 'active' | 'pending' | 'inactive') {
+    this.editEmployee.status = newStatus;
+    this.showEditEmployeeStatusMenu = false;
+    this.onEmployeeStatusChange(newStatus);
+  }
+
   updateEmployeeStatus(status: string) {
     // Type guard to ensure status is valid
     const validStatus: 'active' | 'inactive' | 'pending' = (status === 'active' || status === 'inactive' || status === 'pending') 
@@ -2683,13 +2714,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Delete employee
   // Load and log all company admins
-  loadAndLogCompanyAdmins() {
-    this.loadingAdmins = true;
-    this.loading.begin();
+  loadAndLogCompanyAdmins(showLoading = true) {
+    this.loadingAdmins = showLoading;
     this.authSer.getAllCompanyAdmins().pipe(
       finalize(() => {
         this.loadingAdmins = false;
-        this.loading.end();
       })
     ).subscribe({
       next: (res: any) => {
@@ -2765,11 +2794,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
 
         this.allAdmins = adminsList;
+        this.adminsCacheUpdatedAt = Date.now();
+        this.adminsCacheDirty = false;
         console.log('Filtered company admins (role: company_admin):', this.allAdmins);
       },
       error: (error) => {
         console.error('Error loading company admins:', error);
         this.allAdmins = [];
+        this.adminsCacheDirty = true;
       }
     });
   }

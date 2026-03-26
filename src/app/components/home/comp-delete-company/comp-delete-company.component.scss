@@ -113,3 +113,30 @@
 .modal-close-icon {
   flex-shrink: 0;
 }
+
+:host-context(html.app-dark) {
+  .room-modal-panel,
+  .room-modal-header,
+  .room-modal-body {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .room-modal-title,
+  .room-modal-message {
+    color: #e2e8f0;
+  }
+
+  .room-modal-subtext {
+    color: #94a3b8;
+  }
+
+  .modal-close-button {
+    color: #94a3b8;
+
+    &:hover {
+      background-color: #111827;
+      color: #e2e8f0;
+    }
+  }
+}

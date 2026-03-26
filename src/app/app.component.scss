@@ -29,3 +29,7 @@
   backdrop-filter: blur(2px);
   pointer-events: all;
 }
+
+:host-context(html.app-dark) .app-global-loading {
+  background: rgba(2, 6, 23, 0.55);
+}
