@@ -115,6 +115,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   companyStatusSortDirection = signal<'asc' | 'desc' | null>(null); // For company status sorting
   companyFilterStatus = signal<'active' | 'inactive' | null>(null); // For company filter: active, inactive, or null (all)
   showEditEmployeeStatusMenu = false;
+  companyNameSortDirection = signal<'asc' | 'desc' | null>(null); // For company name sorting
   employeeStatusOptions: Array<{ label: string; value: 'active' | 'pending' | 'inactive' }> = [
     { label: 'Active', value: 'active' },
     { label: 'Pending', value: 'pending' },
@@ -1384,6 +1385,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     const searchTerm = this.search().toLowerCase();
     let filtered = this.companies.filter(c => c.name && c.name.toLowerCase().includes(searchTerm));
 
+    // Sort by Company Name
+    const nameSort = this.companyNameSortDirection();
+    if (nameSort) {
+      filtered = [...filtered].sort((a, b) => {
+        const aName = (a.name || '').toLowerCase();
+        const bName = (b.name || '').toLowerCase();
+        if (nameSort === 'asc') {
+          return aName.localeCompare(bName);
+        } else {
+          return bName.localeCompare(aName);
+        }
+      });
+    }
+
     // Sort by Industry
     const industrySort = this.companyIndustrySortDirection();
     if (industrySort) {
@@ -2530,6 +2545,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     // Reset status sort when toggling industry
     this.companyStatusSortDirection.set(null);
+    this.companyNameSortDirection.set(null);
   }
 
   // Industry dropdown methods
@@ -2847,6 +2863,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     // Reset industry sort when toggling status
     this.companyIndustrySortDirection.set(null);
+    this.companyNameSortDirection.set(null);
+  }
+
+  // Toggle Company Name sort
+  toggleCompanyNameSort() {
+    const current = this.companyNameSortDirection();
+    if (current === null) {
+      this.companyNameSortDirection.set('asc');
+    } else if (current === 'asc') {
+      this.companyNameSortDirection.set('desc');
+    } else {
+      this.companyNameSortDirection.set(null);
+    }
+    // Reset other sorts when toggling company name
+    this.companyIndustrySortDirection.set(null);
+    this.companyStatusSortDirection.set(null);
   }
 
   // 3D tilt effect for room card images

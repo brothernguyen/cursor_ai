@@ -572,18 +572,43 @@
                 </th>
                 <th
                   class="companies-table-header companies-table-header-sortable companies-company-header"
+                  (click)="toggleCompanyNameSort()"
                 >
                   <div class="companies-header-sort-container">
                     <span>COMPANY</span>
-                    <svg
-                      class="companies-sort-icon"
-                      width="8"
-                      height="6"
-                      viewBox="0 0 8 6"
-                      fill="none"
-                    >
-                      <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
-                    </svg>
+                    <div class="companies-sort-icon-wrapper">
+                      @if (companyNameSortDirection() === 'asc') {
+                      <svg
+                        class="companies-sort-icon companies-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#364152" />
+                      </svg>
+                      } @else if (companyNameSortDirection() === 'desc') {
+                      <svg
+                        class="companies-sort-icon companies-sort-icon-active"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 6L0 0H8L4 6Z" fill="#364152" />
+                      </svg>
+                      } @else {
+                      <svg
+                        class="companies-sort-icon"
+                        width="8"
+                        height="6"
+                        viewBox="0 0 8 6"
+                        fill="none"
+                      >
+                        <path d="M4 0L0 6H8L4 0Z" fill="#CDD5DF" />
+                      </svg>
+                      }
+                    </div>
                   </div>
                 </th>
                 <th
