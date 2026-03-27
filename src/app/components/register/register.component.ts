@@ -15,6 +15,8 @@ import { AuthService } from '../../services/auth.service';
 import { LoadingService } from '../../services/loading.service';
 import { MessageService } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageSelectComponent } from '../language-select/language-select.component';
 
 @Component({
   selector: 'app-register',
@@ -29,6 +31,8 @@ import { finalize } from 'rxjs/operators';
     PasswordModule,
     RippleModule,
     ToastModule,
+    TranslatePipe,
+    LanguageSelectComponent,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
@@ -40,6 +44,7 @@ export class RegisterComponent implements OnInit {
   authService = inject(AuthService);
   loading = inject(LoadingService);
   msgService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
   token: string | null = null;
   isSubmitting = false;
 
@@ -113,10 +118,13 @@ export class RegisterComponent implements OnInit {
           console.error('==>Registration error:', error);
 
           // Show error message
-          const errorMessage = error.error?.message || error.message || 'Failed to complete registration. Please try again.';
+          const errorMessage =
+            error.error?.message ||
+            error.message ||
+            this.translate.instant('toast.registerError');
           this.msgService.add({
             severity: 'error',
-            summary: 'Registration Failed',
+            summary: this.translate.instant('toast.registerFailed'),
             detail: errorMessage,
             life: 5000
           });
@@ -131,8 +139,8 @@ export class RegisterComponent implements OnInit {
       if (!this.token) {
         this.msgService.add({
           severity: 'error',
-          summary: 'Invalid Token',
-          detail: 'Invalid invitation token. Please check your invitation link.',
+          summary: this.translate.instant('toast.invalidToken'),
+          detail: this.translate.instant('toast.invalidInviteToken'),
           life: 5000
         });
       }

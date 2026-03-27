@@ -4,8 +4,8 @@
     class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-slate-700"
   >
     <div class="room-modal-header">
-      <h2 class="room-modal-title">Delete Company</h2>
-      <button (click)="onClose()" class="modal-close-button" type="button" aria-label="Close">
+      <h2 class="room-modal-title">{{ 'modals.deleteCompany' | translate }}</h2>
+      <button (click)="onClose()" class="modal-close-button" type="button" [attr.aria-label]="'modals.ariaClose' | translate">
         <svg
           class="modal-close-icon"
           fill="none"
@@ -24,12 +24,10 @@
     <div class="room-modal-body">
       <div class="room-modal-form">
         <p class="room-modal-message">
-          Are you sure you want to delete the company
-          <strong>"{{ company.name }}"</strong>?
+          {{ 'modals.deleteCompanyConfirmName' | translate: { name: company.name } }}
         </p>
         <p class="room-modal-subtext">
-          This action cannot be undone. All company data, admins, and related
-          information will be permanently deleted.
+          {{ 'modals.deleteCompanyWarning' | translate }}
         </p>
         <div class="room-modal-actions">
           <button
@@ -38,7 +36,7 @@
             [disabled]="deleting"
             class="room-modal-footer-btn border border-gray-300 text-gray-800 dark:border-slate-700 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800 dark:hover:text-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancel
+            {{ 'common.cancel' | translate }}
           </button>
           <button
             type="button"
@@ -47,9 +45,9 @@
             class="room-modal-footer-btn bg-red-600 text-white hover:bg-red-700 disabled:bg-gray-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed"
           >
             @if (deleting) {
-            Deleting...
+            {{ 'modals.deleting' | translate }}
             } @else {
-            Delete Company
+            {{ 'modals.deleteCompanyButton' | translate }}
             }
           </button>
         </div>

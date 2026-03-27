@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 // Firework particle after explosion
 interface Particle {
@@ -35,7 +36,7 @@ interface Rocket {
 
 @Component({
   selector: 'app-landing',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })

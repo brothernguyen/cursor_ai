@@ -1,12 +1,14 @@
 import { Component, EventEmitter, Input, Output, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Company, User } from '../../../interfaces/auth';
 import { AuthService } from '../../../services/auth.service';
 import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-comp-delete-admin',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './comp-delete-admin.component.html',
   styleUrl: './comp-delete-admin.component.scss'
 })
@@ -17,6 +19,7 @@ export class CompDeleteAdminComponent implements OnInit {
 
   authService = inject(AuthService);
   msgService = inject(MessageService);
+  private translate = inject(TranslateService);
   admins: User[] = [];
   loading = false;
   deletingAdminId: string | null = null;
@@ -55,8 +58,8 @@ export class CompDeleteAdminComponent implements OnInit {
         this.loading = false;
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load admins. Please try again.',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('toast.loadAdminsFailed'),
           life: 3000
         });
       }
@@ -78,8 +81,8 @@ export class CompDeleteAdminComponent implements OnInit {
     if (!admin.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Admin ID is missing',
+        summary: this.translate.instant('common.error'),
+        detail: this.translate.instant('toast.adminIdMissing'),
         life: 3000
       });
       this.adminPendingDelete = null;
@@ -95,23 +98,24 @@ export class CompDeleteAdminComponent implements OnInit {
         this.deleted.emit();
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Admin deleted successfully',
+          summary: this.translate.instant('common.success'),
+          detail: this.translate.instant('toast.adminDeletedDetail'),
           life: 3000
         });
       },
       error: (error) => {
         console.error('==>Error deleting admin:', error);
         this.deletingAdminId = null;
-        let errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
+        let errorMessage =
+          error.error?.message || error.message || this.translate.instant('toast.deleteAdminFailed');
         if (errorMessage.includes('send a request')) {
-          errorMessage = 'Could not reach the delete service. Deploy the Edge Function: run "npx supabase functions deploy delete-company-admin" from the project root, then try again.';
+          errorMessage = this.translate.instant('toast.deleteServiceUnreachable');
         } else if (errorMessage.includes('non-2xx status code')) {
-          errorMessage = 'Delete failed (server error). Open DevTools (F12) → Network tab, click the "delete-company-admin" request, and check the Response body for the exact error.';
+          errorMessage = this.translate.instant('toast.deleteServerErrorHint');
         }
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.translate.instant('common.error'),
           detail: errorMessage,
           life: 5000
         });

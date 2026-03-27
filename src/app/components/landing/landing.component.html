@@ -18,18 +18,18 @@
             <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round" />
           </svg>
-          <span class="logo-text">Cursor AI Logic</span>
+          <span class="logo-text">{{ 'landing.brand' | translate }}</span>
         </div>
         <nav class="nav">
-          <a href="#" class="nav-link">HOME</a>
-          <a href="#" class="nav-link">SERVICES</a>
-          <a href="#" class="nav-link">BOOKINGS</a>
-          <a href="#" class="nav-link">EXPLORE</a>
-          <a href="#" class="nav-link">MEMBERSHIP</a>
+          <a href="#" class="nav-link">{{ 'landing.navHome' | translate }}</a>
+          <a href="#" class="nav-link">{{ 'landing.navServices' | translate }}</a>
+          <a href="#" class="nav-link">{{ 'landing.navBookings' | translate }}</a>
+          <a href="#" class="nav-link">{{ 'landing.navExplore' | translate }}</a>
+          <a href="#" class="nav-link">{{ 'landing.navMembership' | translate }}</a>
         </nav>
         <div class="header-actions">
-          <button class="btn-register" (click)="handleRegister()" style="display: none;">Register</button>
-          <button class="btn-signin" (click)="handleSignin()">Sign in</button>
+          <button class="btn-register" (click)="handleRegister()" style="display: none;">{{ 'landing.register' | translate }}</button>
+          <button class="btn-signin" (click)="handleSignin()">{{ 'landing.signIn' | translate }}</button>
         </div>
       </div>
     </div>
@@ -41,8 +41,8 @@
     <div class="hero-content">
       <div class="container">
         <div class="hero-text">
-          <h1 class="hero-title">Book your perfect meeting space. Reserve your room now.</h1>
-          <p class="hero-subtitle">Discover and reserve the finest meeting rooms for your team.</p>
+          <h1 class="hero-title">{{ 'landing.heroTitle' | translate }}</h1>
+          <p class="hero-subtitle">{{ 'landing.heroSubtitle' | translate }}</p>
         </div>
       </div>
     </div>

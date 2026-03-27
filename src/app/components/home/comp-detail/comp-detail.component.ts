@@ -5,10 +5,11 @@ import { Company, User } from '../../../interfaces/auth';
 import { AuthService } from '../../../services/auth.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-comp-detail',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './comp-detail.component.html',
   styleUrl: './comp-detail.component.scss'
 })
@@ -21,6 +22,7 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
   authService = inject(AuthService);
   msgService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
+  private translate = inject(TranslateService);
   admins: User[] = [];
   loadingAdmins = false;
   deletingAdminId: string | null = null;
@@ -46,10 +48,10 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
   private destroy$ = new Subject<void>();
   private previousStatus: string = '';
   
-  statusOptions = [
-    { label: 'Active', value: 'active' },
-    { label: 'Inactive', value: 'inactive' },
-    { label: 'Pending', value: 'pending' }
+  readonly statusOptions: Array<'active' | 'inactive' | 'pending'> = [
+    'active',
+    'inactive',
+    'pending'
   ];
   
   industryOptions = ['Technology', 'Finance', 'Healthcare'];
@@ -171,7 +173,7 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
       const maxFileSize = 50 * 1024 * 1024; // 50MB in bytes
       
       if (file.size > maxFileSize) {
-        this.logoFileSizeError = 'File size exceeds 50MB. Please choose a smaller file.';
+        this.logoFileSizeError = this.translate.instant('toast.fileExceeds50Detail');
         this.logoFile = null;
         this.logoPreview = null;
         // Clear the input
@@ -179,8 +181,8 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
         // Show warning message
         this.msgService.add({
           severity: 'warn',
-          summary: 'File Too Large',
-          detail: 'The selected file exceeds 50MB. Please choose a smaller file.',
+          summary: this.translate.instant('toast.fileTooLargeSummary'),
+          detail: this.translate.instant('toast.fileExceeds50Detail'),
           life: 5000
         });
         return;
@@ -206,14 +208,14 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
       const maxFileSize = 50 * 1024 * 1024; // 50MB in bytes
       
       if (file.size > maxFileSize) {
-        this.logoFileSizeError = 'File size exceeds 50MB. Please choose a smaller file.';
+        this.logoFileSizeError = this.translate.instant('toast.fileExceeds50Detail');
         this.logoFile = null;
         this.logoPreview = null;
         // Show warning message
         this.msgService.add({
           severity: 'warn',
-          summary: 'File Too Large',
-          detail: 'The selected file exceeds 50MB. Please choose a smaller file.',
+          summary: this.translate.instant('toast.fileTooLargeSummary'),
+          detail: this.translate.instant('toast.fileExceeds50Detail'),
           life: 5000
         });
         return;
@@ -229,11 +231,6 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
       };
       reader.readAsDataURL(file);
     }
-  }
-
-  capitalizeStatus(status: string | undefined): string {
-    if (!status) return '';
-    return status.charAt(0).toUpperCase() + status.slice(1);
   }
 
   isFormValid(): boolean {
@@ -257,8 +254,8 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
     if (newStatus === 'pending') {
       this.msgService.add({
         severity: 'warn',
-        summary: 'Status Not Available',
-        detail: 'Pending status is temporarily disabled',
+        summary: this.translate.instant('toast.statusPendingDisabledSummary'),
+        detail: this.translate.instant('toast.statusPendingDisabledDetail'),
         life: 3000
       });
       // Revert to previous status
@@ -294,8 +291,8 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
         }
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Company status updated successfully',
+          summary: this.translate.instant('common.success'),
+          detail: this.translate.instant('toast.companyStatusUpdatedDetail'),
           life: 2000
         });
       },
@@ -304,10 +301,13 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
         this.updatingStatus = false;
         // Revert to previous status on error
         this.formData.status = this.previousStatus;
-        const errorMessage = error.error?.message || error.message || 'Failed to update company status. Please try again.';
+        const errorMessage =
+          error.error?.message ||
+          error.message ||
+          this.translate.instant('toast.failedUpdateCompanyStatus');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.translate.instant('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -319,8 +319,8 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
     if (!admin.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Admin ID is missing',
+        summary: this.translate.instant('common.error'),
+        detail: this.translate.instant('toast.adminIdMissing'),
         life: 3000
       });
       return;
@@ -329,12 +329,12 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
     const adminName = `${admin.firstName} ${admin.lastName}`;
     
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${adminName}?`,
-      header: 'Delete Admin',
+      message: this.translate.instant('toast.confirmDeleteAdminMessage', { name: adminName }),
+      header: this.translate.instant('toast.confirmDeleteAdminHeader'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
-      acceptLabel: 'OK',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.translate.instant('common.ok'),
+      rejectLabel: this.translate.instant('common.cancel'),
       accept: () => {
         this.deletingAdminId = admin.id!;
         this.authService.deleteCompanyAdmin(admin.id!).subscribe({
@@ -345,23 +345,24 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
             this.loadAdmins();
             this.msgService.add({
               severity: 'success',
-              summary: 'Success',
-              detail: 'Admin deleted successfully',
+              summary: this.translate.instant('common.success'),
+              detail: this.translate.instant('toast.adminDeletedDetail'),
               life: 3000
             });
           },
           error: (error) => {
             console.error('==>Error deleting admin:', error);
             this.deletingAdminId = null;
-            let errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
+            let errorMessage =
+              error.error?.message || error.message || this.translate.instant('toast.deleteAdminFailed');
             if (errorMessage.includes('send a request')) {
-              errorMessage = 'Could not reach the delete service. Deploy the Edge Function: run "npx supabase functions deploy delete-company-admin" from the project root, then try again.';
+              errorMessage = this.translate.instant('toast.deleteServiceUnreachable');
             } else if (errorMessage.includes('non-2xx status code')) {
-              errorMessage = 'Delete failed (server error). Open DevTools (F12) → Network tab, click the "delete-company-admin" request, and check the Response body for the exact error.';
+              errorMessage = this.translate.instant('toast.deleteServerErrorHint');
             }
             this.msgService.add({
               severity: 'error',
-              summary: 'Error',
+              summary: this.translate.instant('common.error'),
               detail: errorMessage,
               life: 5000
             });

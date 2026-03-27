@@ -4,7 +4,7 @@
     <div
       class="flex justify-between items-center p-6 border-b sticky top-0 bg-white"
     >
-      <h2 class="text-xl font-semibold flex items-center">Company Details</h2>
+      <h2 class="text-xl font-semibold flex items-center">{{ 'modals.companyDetails' | translate }}</h2>
       <button (click)="onClose()" class="modal-close-button">
         <svg
           class="modal-close-icon"
@@ -24,7 +24,7 @@
     <div class="p-6 space-y-6 overflow-y-auto flex-1">
       <!-- Company Logo Upload — label + dropzone centered -->
       <div class="company-logo-upload flex w-full flex-col items-center gap-2">
-        <label class="text-sm font-medium text-gray-700">Company Logo</label>
+        <label class="text-sm font-medium text-gray-700">{{ 'modals.companyLogo' | translate }}</label>
         <div
           class="company-logo-dropzone w-full max-w-md border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors cursor-pointer"
           (click)="triggerLogoUpload()"
@@ -35,13 +35,13 @@
           <div class="mb-4 flex justify-center">
             <img
               [src]="logoPreview"
-              alt="Logo preview"
+              [attr.alt]="'modals.logoPreviewAlt' | translate"
               class="max-h-64 w-auto max-w-full rounded object-contain"
             />
           </div>
           } @else {
           <p class="text-gray-400 mb-4">
-            Choose a file or drag & drop it here.
+            {{ 'modals.dropLogoHere' | translate }}
           </p>
           }
           <button
@@ -49,10 +49,10 @@
             class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             (click)="triggerLogoUpload(); $event.stopPropagation()"
           >
-            Upload Image
+            {{ 'modals.uploadImage' | translate }}
           </button>
           <p class="text-gray-400 text-sm mt-2 text-center">
-            Max file size 50MB
+            {{ 'modals.maxFileSize50' | translate }}
           </p>
           @if (logoFileSizeError) {
           <p class="text-red-500 text-sm mt-2 text-center font-medium">
@@ -75,21 +75,21 @@
         <!-- Name -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Name <span class="text-red-500">*</span></label
+            >{{ 'modals.nameRequiredLabel' | translate }}</label
           >
           <input
             type="text"
             [(ngModel)]="formData.name"
             required
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="Company Name"
+            [attr.placeholder]="'modals.placeholderCompanyDisplayName' | translate"
           />
         </div>
 
         <!-- Status Dropdown -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Status</label
+            >{{ 'modals.formStatus' | translate }}</label
           >
           <select
             [(ngModel)]="formData.status"
@@ -99,19 +99,19 @@
             [class.opacity-50]="updatingStatus"
             [class.cursor-not-allowed]="updatingStatus"
           >
-            @for (option of statusOptions; track option.value) {
-            <option [value]="option.value" [disabled]="option.value === 'pending'">{{ option.label }}</option>
+            @for (opt of statusOptions; track opt) {
+            <option [value]="opt" [disabled]="opt === 'pending'">{{ ('common.' + opt) | translate }}</option>
             }
           </select>
           @if (updatingStatus) {
-          <p class="text-gray-500 text-xs mt-1">Updating status...</p>
+          <p class="text-gray-500 text-xs mt-1">{{ 'modals.updatingStatus' | translate }}</p>
           }
         </div>
 
         <!-- Industry Select -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Industry <span class="text-red-500">*</span></label
+            >{{ 'modals.industry' | translate }} <span class="text-red-500">*</span></label
           >
           <select
             [(ngModel)]="formData.industry"
@@ -120,7 +120,7 @@
             [class.text-gray-400]="!formData.industry"
             [class.text-gray-900]="formData.industry"
           >
-            <option value="" disabled>Choose your industry</option>
+            <option value="" disabled>{{ 'modals.chooseIndustry' | translate }}</option>
             @for (industry of industryOptions; track industry) {
             <option [value]="industry">{{ industry }}</option>
             }
@@ -130,27 +130,27 @@
         <!-- Address -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Address <span class="text-red-500">*</span></label
+            >{{ 'modals.address' | translate }} <span class="text-red-500">*</span></label
           >
           <input
             type="text"
             [(ngModel)]="formData.address"
             required
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="Company Address"
+            [attr.placeholder]="'modals.placeholderCompanyAddressShort' | translate"
           />
         </div>
 
         <!-- Phone -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Phone</label
+            >{{ 'modals.phoneField' | translate }}</label
           >
           <input
             type="text"
             [(ngModel)]="formData.phone"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="Phone Number"
+            [attr.placeholder]="'modals.placeholderPhoneShort' | translate"
           />
         </div>
 
@@ -158,7 +158,7 @@
         @if (formData.companyId) {
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2"
-            >Company ID</label
+            >{{ 'modals.companyId' | translate }}</label
           >
           <input
             type="text"
@@ -173,12 +173,16 @@
 
       <!-- Admin Section - Keep Untouched -->
       <div>
-        <label class="text-sm font-medium text-gray-500 mb-3 block"
-          >Admins ({{ loadingAdmins ? "..." : admins.length }})</label
-        >
+        <label class="text-sm font-medium text-gray-500 mb-3 block">
+          @if (loadingAdmins) {
+          {{ 'modals.adminsLoadingShort' | translate }}
+          } @else {
+          {{ 'modals.adminsCount' | translate: { count: admins.length } }}
+          }
+        </label>
         @if (loadingAdmins) {
         <div class="flex items-center justify-center py-4">
-          <div class="text-gray-500">Loading admins...</div>
+          <div class="text-gray-500">{{ 'modals.loadingAdmins' | translate }}</div>
         </div>
         } @else if (admins.length > 0) {
         <div class="space-y-2">
@@ -200,14 +204,14 @@
                 }"
                 class="px-2 py-1 rounded-full text-xs font-medium"
               >
-                {{ capitalizeStatus(admin.status) }}
+                {{ admin.status ? (('common.' + admin.status) | translate) : '' }}
               </span>
               <button
                 type="button"
                 (click)="onUpdateAdmin(admin)"
                 class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
               >
-                Update
+                {{ 'modals.update' | translate }}
               </button>
               <button
                 type="button"
@@ -215,21 +219,24 @@
                 [disabled]="deletingAdminId === admin.id"
                 class="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
-                @if (deletingAdminId === admin.id) { Deleting... } @else {
-                Delete }
+                @if (deletingAdminId === admin.id) {
+                {{ 'modals.deleting' | translate }}
+                } @else {
+                {{ 'common.delete' | translate }}
+                }
               </button>
             </div>
           </div>
           }
         </div>
         } @else {
-        <div class="text-gray-500 text-sm py-2">No admins found.</div>
+        <div class="text-gray-500 text-sm py-2">{{ 'modals.noAdminsLine' | translate }}</div>
         }
       </div>
       @if (company.users && company.users.length > 0) {
       <div>
         <label class="text-sm font-medium text-gray-500 mb-3 block"
-          >Users ({{ company.users.length }})</label
+          >{{ 'modals.usersCount' | translate: { count: company.users.length } }}</label
         >
         <div class="space-y-2">
           @for (user of company.users; track user.id) {
@@ -249,7 +256,7 @@
               }"
               class="px-2 py-1 rounded-full text-xs font-medium"
             >
-              {{ capitalizeStatus(user.status) }}
+              {{ user.status ? (('common.' + user.status) | translate) : '' }}
             </span>
           </div>
           }
@@ -264,7 +271,7 @@
           (click)="onClose()"
           class="py-2 border rounded-lg hover:bg-gray-50 transition-colors w-[100px] flex-shrink-0"
         >
-          Cancel
+          {{ 'common.cancel' | translate }}
         </button>
         <button
           type="button"
@@ -276,7 +283,7 @@
             'bg-gray-300 text-gray-500 cursor-not-allowed': !isFormValid()
           }"
         >
-          Save
+          {{ 'common.save' | translate }}
         </button>
       </div>
     </div>

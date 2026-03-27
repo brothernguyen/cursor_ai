@@ -546,6 +546,12 @@ export class AuthService {
 
   /** Restore token/role/companyId from Supabase session (e.g. on app load after refresh). */
   restoreSession(): void {
+    if (!this.sb.isConfigured()) {
+      console.warn(
+        '[Auth] Supabase is not configured. Set `supabaseUrl` and `supabaseAnonKey` in src/environments/environment.ts — skipping session restore so the app can still load.'
+      );
+      return;
+    }
     this.sb.client.auth.getSession().then(({ data: { session } }) => {
       if (!session) return;
       this.sb.client.from('profiles').select('role, company_id').eq('id', session.user.id).single().then(({ data: profile }) => {

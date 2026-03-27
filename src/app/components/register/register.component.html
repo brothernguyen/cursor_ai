@@ -1,6 +1,9 @@
 <div
-  class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden"
+  class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden relative"
 >
+  <div class="auth-lang-bar">
+    <app-language-select />
+  </div>
   <div class="flex flex-col items-center justify-center">
     <div class="register-border">
       <div
@@ -11,33 +14,32 @@
           <div
             class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4"
           >
-            Welcome to Meeting Room Booking!
+            {{ 'register.welcome' | translate }}
           </div>
           <div
             class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4"
           >
-            Sign Up
+            {{ 'register.signUp' | translate }}
           </div>
           @if (!token) {
           <div class="text-red-500 text-sm mb-4">
-            Invalid invitation link. Please check your invitation email.
+            {{ 'register.invalidInvite' | translate }}
           </div>
           }
         </div>
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           <div>
-            <!-- First name -->
             <div class="field pb-1">
               <label
                 for="firstName"
                 class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
-                >First Name</label
+                >{{ 'register.firstName' | translate }}</label
               >
               <input
                 pInputText
                 id="firstName"
                 type="text"
-                placeholder="First name"
+                [placeholder]="'register.firstNamePlaceholder' | translate"
                 class="w-full mb-2"
                 formControlName="firstName"
               />
@@ -48,22 +50,21 @@
                 class="block b-error"
               >
                 <div *ngIf="firstName.errors?.['required']">
-                  First name is required
+                  {{ 'register.firstNameRequired' | translate }}
                 </div>
               </small>
             </div>
-            <!-- Last name -->
             <div class="field pb-1">
               <label
-                for="firstName"
+                for="lastName"
                 class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
-                >Last Name</label
+                >{{ 'register.lastName' | translate }}</label
               >
               <input
                 pInputText
                 id="lastName"
                 type="text"
-                placeholder="Your name"
+                [placeholder]="'register.lastNamePlaceholder' | translate"
                 class="w-full mb-2"
                 formControlName="lastName"
               />
@@ -72,22 +73,21 @@
                 class="block b-error"
               >
                 <div *ngIf="lastName.errors?.['required']">
-                  Last name is required
+                  {{ 'register.lastNameRequired' | translate }}
                 </div>
               </small>
             </div>
 
-            <!-- Password -->
             <div class="field pb-1">
               <label
                 for="password"
                 class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2"
-                >Password</label
+                >{{ 'register.password' | translate }}</label
               >
               <p-password
                 id="password"
                 formControlName="password"
-                placeholder="Password"
+                [placeholder]="'register.passwordPlaceholder' | translate"
                 [toggleMask]="true"
                 class="w-full mb-2"
                 [fluid]="true"
@@ -98,31 +98,22 @@
                 class="block b-error"
               >
                 <div *ngIf="password.errors?.['required']">
-                  Password is required
+                  {{ 'register.passwordRequired' | translate }}
                 </div>
               </small>
             </div>
-            <!-- Phone  -->
             <div class="field pb-4">
               <label
                 for="phone"
                 class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2"
-                >Phone</label
+                >{{ 'register.phone' | translate }}</label
               >
               <input
                 id="phone"
                 pInputText
                 formControlName="phone"
-                placeholder="Phone"
+                [placeholder]="'register.phonePlaceholder' | translate"
               />
-              <!-- <small
-                *ngIf="phone.invalid && (phone.dirty || phone.touched)"
-                class="block b-error"
-              >
-                <div *ngIf="phone.errors?.['required']">
-                  Password is required
-                </div>
-              </small> -->
             </div>
 
             <p-button
@@ -130,18 +121,17 @@
               [disabled]="!registerForm.valid || isSubmitting || !token"
               styleClass="w-full"
               [loading]="isSubmitting"
-              >{{ isSubmitting ? "Registering..." : "Sign Up" }}</p-button
-            >
+              [label]="(isSubmitting ? ('register.registering' | translate) : ('register.signUp' | translate))"
+            />
             <div class="mt-2">
-              <a routerLink="/login" class="font-italic text-teal-500"
-                >Sign In</a
-              >
+              <a routerLink="/login" class="font-italic text-teal-500">{{
+                'register.signInLink' | translate
+              }}</a>
             </div>
           </div>
         </form>
       </div>
     </div>
   </div>
-  <!-- Toast Component -->
   <p-toast></p-toast>
 </div>

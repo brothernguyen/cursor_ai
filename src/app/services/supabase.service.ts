@@ -8,6 +8,13 @@ import { environment } from '../../environments/environment';
 export class SupabaseService {
   private _client: SupabaseClient | null = null;
 
+  /** Use before accessing `client` to avoid throwing when env is not set (e.g. fresh clone). */
+  isConfigured(): boolean {
+    const url = environment.supabaseUrl?.trim() ?? '';
+    const key = environment.supabaseAnonKey?.trim() ?? '';
+    return url.length > 0 && key.length > 0;
+  }
+
   /** URL for an Edge Function (e.g. ensure-room-images). */
   getEdgeFunctionUrl(name: string): string {
     const base = environment.supabaseUrl ?? '';
@@ -16,8 +23,10 @@ export class SupabaseService {
 
   get client(): SupabaseClient {
     if (!this._client) {
-      if (!environment.supabaseUrl || !environment.supabaseAnonKey) {
-        throw new Error('Supabase URL and anon key must be set in environment.');
+      if (!this.isConfigured()) {
+        throw new Error(
+          'Supabase URL and anon key must be set in src/environments/environment.ts (see dashboard Project Settings → API).'
+        );
       }
       this._client = createClient(
         environment.supabaseUrl,

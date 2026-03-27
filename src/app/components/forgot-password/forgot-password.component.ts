@@ -10,6 +10,8 @@ import { LoadingService } from '../../services/loading.service';
 import { MessageService } from 'primeng/api';
 import { finalize } from 'rxjs/operators';
 import { Toast } from 'primeng/toast';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageSelectComponent } from '../language-select/language-select.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -20,6 +22,8 @@ import { Toast } from 'primeng/toast';
     ButtonModule,
     RouterLink,
     Toast,
+    TranslatePipe,
+    LanguageSelectComponent,
   ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
@@ -33,6 +37,7 @@ export class ForgotPasswordComponent {
   private router = inject(Router);
   private msgService = inject(MessageService);
   private loading = inject(LoadingService);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
     this.form = this.fb.group({
@@ -58,16 +63,16 @@ export class ForgotPasswordComponent {
         this.submitted = true;
         this.msgService.add({
           severity: 'success',
-          summary: 'Check your email',
-          detail: "If an account exists, we've sent a reset link to your email.",
+          summary: this.translate.instant('forgot.toastCheckEmail'),
+          detail: this.translate.instant('forgot.toastResetSent'),
           life: 5000,
         });
       },
       error: (err) => {
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: err?.message ?? 'Failed to send reset email. Try again.',
+          summary: this.translate.instant('common.error'),
+          detail: err?.message ?? this.translate.instant('forgot.toastResetFailed'),
           life: 4000,
         });
       },

@@ -12,6 +12,8 @@ import { Toast } from 'primeng/toast';
 import { from } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
 import { LoadingService } from '../../services/loading.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageSelectComponent } from '../language-select/language-select.component';
 
 function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
@@ -31,6 +33,8 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
     ButtonModule,
     RouterLink,
     Toast,
+    TranslatePipe,
+    LanguageSelectComponent,
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
@@ -46,6 +50,7 @@ export class ResetPasswordComponent implements OnInit {
   private router = inject(Router);
   private msgService = inject(MessageService);
   private loading = inject(LoadingService);
+  private readonly translate = inject(TranslateService);
 
   showForm = computed(() => this.hasRecoverySession() === true);
   showInvalidLink = computed(() => this.hasRecoverySession() === false);
@@ -68,6 +73,13 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.sb.isConfigured()) {
+      console.warn(
+        '[ResetPassword] Supabase is not configured. Set credentials in src/environments/environment.ts.'
+      );
+      this.hasRecoverySession.set(false);
+      return;
+    }
     // Supabase puts tokens in URL hash; client recovers session on load (may be async).
     const checkSession = () =>
       from(this.sb.client.auth.getSession()).pipe(
@@ -112,8 +124,8 @@ export class ResetPasswordComponent implements OnInit {
         this.auth.logout(); // So user signs in with new password
         this.msgService.add({
           severity: 'success',
-          summary: 'Password updated',
-          detail: 'You can now sign in with your new password.',
+          summary: this.translate.instant('toast.passwordUpdated'),
+          detail: this.translate.instant('toast.passwordUpdatedDetail'),
           life: 5000,
         });
         this.router.navigate(['/login']);
@@ -121,8 +133,8 @@ export class ResetPasswordComponent implements OnInit {
       error: (err) => {
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: err?.message ?? 'Failed to update password. Try again.',
+          summary: this.translate.instant('common.error'),
+          detail: err?.message ?? this.translate.instant('toast.passwordUpdateFailed'),
           life: 4000,
         });
       },

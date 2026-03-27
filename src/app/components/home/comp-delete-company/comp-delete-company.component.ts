@@ -1,12 +1,14 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Company } from '../../../interfaces/auth';
 import { AuthService } from '../../../services/auth.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-comp-delete-company',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './comp-delete-company.component.html',
   styleUrl: './comp-delete-company.component.scss'
 })
@@ -18,14 +20,15 @@ export class CompDeleteCompanyComponent {
   authService = inject(AuthService);
   msgService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
+  private translate = inject(TranslateService);
   deleting = false;
 
   onDelete() {
     if (!this.company?.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Company ID is missing',
+        summary: this.translate.instant('common.error'),
+        detail: this.translate.instant('toast.companyIdMissing'),
         life: 3000
       });
       return;
@@ -35,12 +38,14 @@ export class CompDeleteCompanyComponent {
     const companyName = this.company.name;
 
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete "${companyName}"? This action cannot be undone.`,
-      header: 'Delete Company',
+      message: this.translate.instant('toast.deleteCompanyConfirmDialogMessage', {
+        name: companyName
+      }),
+      header: this.translate.instant('modals.deleteCompany'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
-      acceptLabel: 'OK',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.translate.instant('common.ok'),
+      rejectLabel: this.translate.instant('common.cancel'),
       accept: () => {
         this.deleting = true;
         this.authService.deleteCompany(companyId).subscribe({
@@ -49,8 +54,8 @@ export class CompDeleteCompanyComponent {
             this.deleting = false;
             this.msgService.add({
               severity: 'success',
-              summary: 'Success',
-              detail: 'Company deleted successfully',
+              summary: this.translate.instant('common.success'),
+              detail: this.translate.instant('toast.companyDeletedDetail'),
               life: 3000
             });
             // Emit deleted event first, then close modal
@@ -60,10 +65,13 @@ export class CompDeleteCompanyComponent {
           error: (error) => {
             console.error('==>Error deleting company:', error);
             this.deleting = false;
-            const errorMessage = error.error?.message || error.message || 'Failed to delete company. Please try again.';
+            const errorMessage =
+              error.error?.message ||
+              error.message ||
+              this.translate.instant('toast.failedDeleteCompanyDetail');
             this.msgService.add({
               severity: 'error',
-              summary: 'Error',
+              summary: this.translate.instant('common.error'),
               detail: errorMessage,
               life: 3000
             });

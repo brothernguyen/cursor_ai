@@ -14,6 +14,9 @@ import { LoadingService } from '../../services/loading.service';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { finalize } from 'rxjs/operators';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageSelectComponent } from '../language-select/language-select.component';
+
 @Component({
   selector: 'app-login',
   imports: [
@@ -26,7 +29,9 @@ import { finalize } from 'rxjs/operators';
     CheckboxModule,
     PasswordModule,
     RippleModule,
-    Toast
+    Toast,
+    TranslatePipe,
+    LanguageSelectComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -35,6 +40,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   authSer = inject(AuthService);
   loading = inject(LoadingService);
+  private readonly translate = inject(TranslateService);
 
   console = console;
 
@@ -79,7 +85,12 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         console.log('==>Login error: ', error);
-        this.msgService.add({ severity: 'error', summary: 'Error', detail: 'Credential invalid!', life: 3000 });
+        this.msgService.add({
+          severity: 'error',
+          summary: this.translate.instant('common.error'),
+          detail: this.translate.instant('login.invalidCredentials'),
+          life: 3000
+        });
       }
     });
     this.loginForm.reset();

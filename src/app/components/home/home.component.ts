@@ -26,6 +26,8 @@ import { CompDeleteCompanyComponent } from "./comp-delete-company/comp-delete-co
 import { CompUpdateAdminComponent } from "./comp-update-admin/comp-update-admin.component";
 import { User } from '../../interfaces/auth';
 import { LoadingService } from '../../services/loading.service';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LanguageSelectComponent } from '../language-select/language-select.component';
 
 // Extended interface for table display with additional fields from API
 interface CompanyWithDetails extends Company {
@@ -85,12 +87,17 @@ interface SettingsDraft {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, PopoverModule, ButtonModule, ToastModule, ConfirmDialogModule, CardModule, GalleriaModule, DrawerModule, CompDetailComponent, CompCreateAdminComponent, CompDeleteAdminComponent, CompDeleteCompanyComponent, CompUpdateAdminComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, PopoverModule, ButtonModule, ToastModule, ConfirmDialogModule, CardModule, GalleriaModule, DrawerModule, CompDetailComponent, CompCreateAdminComponent, CompDeleteAdminComponent, CompDeleteCompanyComponent, CompUpdateAdminComponent, TranslatePipe, LanguageSelectComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   providers: [MessageService, ConfirmationService]
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  /** Runtime i18n helper — use keys under assets/i18n */
+  private t(key: string, params?: Record<string, unknown>): string {
+    return this.translate.instant(key, params as Record<string, string>);
+  }
+
   private readonly homeViewStorageKey = 'home:selectedView';
   private readonly settingsStorageKey = 'home:settingsDraft';
   role = signal<'system' | 'company'>('system');
@@ -98,6 +105,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   modal = signal<string>('');
   search = signal<string>('');
   authSer = inject(AuthService);
+  private readonly translate = inject(TranslateService);
   layoutService = inject(LayoutService);
   roomSer = inject(RoomService);
   employeeSer = inject(EmployeeService);
@@ -117,13 +125,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   sidebarOpen = signal<boolean>(true);
   sidebarCollapsed = signal<boolean>(false);
   selectedKpiCard = signal<string>('Total company');
-  selectedPeriod = signal<string>('This week');
+  selectedPeriod = signal<'thisWeek' | 'thisMonth'>('thisWeek');
   showPeriodDropdown = signal<boolean>(false);
   currentUser = signal<{ firstName?: string; lastName?: string; companyName?: string; email?: string }>({});
   settingsDraft = signal<SettingsDraft>(this.getDefaultSettingsDraft());
   settingsSavedAt = signal<string | null>(null);
   settingsSaveMessage = signal<string>('');
-  selectedCompanyPeriod = signal<string>('This week');
+  selectedCompanyPeriod = signal<'thisWeek' | 'thisMonth'>('thisWeek');
   showCompanyPeriodDropdown = signal<boolean>(false);
   selectedUtilizationPeriod = signal<string>('Week');
   roomViewMode = signal<'card' | 'list'>('card'); // Default to card view (right button)
@@ -140,10 +148,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   companyFilterStatus = signal<'active' | 'inactive' | null>(null); // For company filter: active, inactive, or null (all)
   showEditEmployeeStatusMenu = false;
   companyNameSortDirection = signal<'asc' | 'desc' | null>(null); // For company name sorting
-  employeeStatusOptions: Array<{ label: string; value: 'active' | 'pending' | 'inactive' }> = [
-    { label: 'Active', value: 'active' },
-    { label: 'Pending', value: 'pending' },
-    { label: 'Inactive', value: 'inactive' }
+  readonly employeeStatusOptions: Array<'active' | 'pending' | 'inactive'> = [
+    'active',
+    'pending',
+    'inactive'
   ];
 
   /**
@@ -409,8 +417,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!companyData.name || !companyData.address || !companyData.industry) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Please fill in all required fields',
+        summary: this.t('common.error'),
+        detail: this.t('toast.fillRequiredFields'),
         life: 3000
       });
       return;
@@ -430,8 +438,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.log('Company updated successfully:', res);
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Company updated successfully!',
+          summary: this.t('common.success'),
+          detail: this.t('toast.companyUpdated'),
           life: 3000
         });
         // Reload companies list
@@ -441,10 +449,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error updating company:', error);
-        const errorMessage = error.error?.message || error.message || 'Failed to update company. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.companyUpdateFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -885,7 +893,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   get reportBuildingOptions(): { value: string; label: string }[] {
-    const opts: { value: string; label: string }[] = [{ value: 'all', label: 'All buildings' }];
+    const opts: { value: string; label: string }[] = [{ value: 'all', label: '' }];
     const seen = new Set<string>();
     for (const r of this.rooms) {
       const first = (r.location || '').split(',')[0]?.trim();
@@ -895,6 +903,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     }
     return opts;
+  }
+
+  /** For segments like "Building A", returns "A" for `report.buildingNamed`; otherwise null. */
+  reportBuildingNameSuffix(locationSegment: string): string | null {
+    const m = (locationSegment || '').trim().match(/^Building\s+(.+)$/i);
+    return m ? m[1].trim() : null;
   }
 
   get reportSummaryKpis(): {
@@ -1009,15 +1023,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
-  onCompanyPeriodSelect(periodLabel: 'This week' | 'This month'): void {
+  onCompanyPeriodSelect(periodLabel: 'thisWeek' | 'thisMonth'): void {
     this.selectedCompanyPeriod.set(periodLabel);
-    this.reportPeriod.set(periodLabel === 'This week' ? 'thisWeek' : 'thisMonth');
+    this.reportPeriod.set(periodLabel);
     this.showCompanyPeriodDropdown.set(false);
   }
 
-  onSystemPeriodSelect(periodLabel: 'This week' | 'This month'): void {
+  onSystemPeriodSelect(periodLabel: 'thisWeek' | 'thisMonth'): void {
     this.selectedPeriod.set(periodLabel);
-    this.reportPeriod.set(periodLabel === 'This week' ? 'thisWeek' : 'thisMonth');
+    this.reportPeriod.set(periodLabel);
     this.showPeriodDropdown.set(false);
   }
 
@@ -1025,11 +1039,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.selectedUtilizationPeriod.set(period);
     if (period === 'Today' || period === 'Week') {
       this.reportPeriod.set('thisWeek');
-      this.selectedCompanyPeriod.set('This week');
+      this.selectedCompanyPeriod.set('thisWeek');
       return;
     }
     this.reportPeriod.set('thisMonth');
-    this.selectedCompanyPeriod.set('This month');
+    this.selectedCompanyPeriod.set('thisMonth');
   }
 
   get companyDashboardKpis(): Array<{
@@ -1663,15 +1677,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     try {
       localStorage.setItem(this.settingsStorageKey, JSON.stringify(this.settingsDraft()));
       this.settingsSavedAt.set(new Date().toLocaleTimeString());
-      this.settingsSaveMessage.set('Preferences saved on this device.');
+      this.settingsSaveMessage.set(this.t('home.preferencesSaved'));
 
       if (this.role() === 'company') {
         this.roomViewMode.set(this.settingsDraft().defaultRoomView);
         this.reportPeriod.set(this.settingsDraft().defaultReportPeriod);
+        const rp = this.settingsDraft().defaultReportPeriod;
+        this.selectedCompanyPeriod.set(rp === 'thisWeek' ? 'thisWeek' : 'thisMonth');
       }
     } catch (err) {
       console.error('Failed to save settings draft:', err);
-      this.settingsSaveMessage.set('Could not save preferences. Please try again.');
+      this.settingsSaveMessage.set(this.t('home.preferencesSaveFailed'));
     }
   }
 
@@ -1695,7 +1711,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       if (this.role() === 'company') {
         this.roomViewMode.set(this.settingsDraft().defaultRoomView);
-        this.reportPeriod.set(this.settingsDraft().defaultReportPeriod);
+        const rp = this.settingsDraft().defaultReportPeriod;
+        this.reportPeriod.set(rp);
+        this.selectedCompanyPeriod.set(rp === 'thisWeek' ? 'thisWeek' : 'thisMonth');
       }
     } catch (err) {
       console.error('Failed to load settings draft:', err);
@@ -1899,8 +1917,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.newCompany.name || !this.newCompany.address || !this.newCompany.industry) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Please fill in all required fields',
+        summary: this.t('common.error'),
+        detail: this.t('toast.fillRequiredFields'),
         sticky: true
       });
       return;
@@ -1910,8 +1928,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.logoFileSizeError()) {
       this.msgService.add({
         severity: 'warn',
-        summary: 'File Too Large',
-        detail: 'Please choose a file smaller than 50MB',
+        summary: this.t('toast.fileTooLargeSummary'),
+        detail: this.t('toast.fileSmallerThan50'),
         sticky: true
       });
       return;
@@ -1921,11 +1939,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.newCompany.phone && !this.validatePhone(this.newCompany.phone)) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Phone number must contain only numbers',
+        summary: this.t('common.error'),
+        detail: this.t('toast.phoneNumbersOnly'),
         sticky: true
       });
-      this.phoneError.set('Phone number must contain only numbers');
+      this.phoneError.set(this.t('toast.phoneNumbersOnly'));
       return;
     }
 
@@ -1933,8 +1951,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.newCompany.logoUrl && !this.logoPreview && !this.isValidUrl(this.newCompany.logoUrl as string)) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Please enter a valid URL for the logo (e.g., https://example.com/logo.png) or leave it empty',
+        summary: this.t('common.error'),
+        detail: this.t('toast.invalidLogoUrl'),
         sticky: true
       });
       return;
@@ -1985,8 +2003,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           // Don't move to step 2 if companyId is not found
           this.msgService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'Company created but ID not found in response. Please check console for details.',
+            summary: this.t('common.error'),
+            detail: this.t('toast.companyCreatedNoId'),
             sticky: true
           });
           return;
@@ -1994,8 +2012,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Show success toast - will move to step 2 when user closes it
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Company created successfully!',
+          summary: this.t('common.success'),
+          detail: this.t('toast.companyCreated'),
           sticky: true,
           life: 0,
           closable: true
@@ -2019,10 +2037,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error creating company:', error);
-        const errorMessage = error.error?.message || error.message || 'Failed to create company. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.companyCreateFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           sticky: true
         });
@@ -2051,8 +2069,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Show warning message
         this.msgService.add({
           severity: 'warn',
-          summary: 'File Too Large',
-          detail: 'The selected file exceeds 50MB. Please choose a smaller file.',
+          summary: this.t('toast.fileTooLargeSummary'),
+          detail: this.t('toast.fileExceeds50Detail'),
           life: 5000
         });
         return;
@@ -2084,8 +2102,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Show warning message
         this.msgService.add({
           severity: 'warn',
-          summary: 'File Too Large',
-          detail: 'The selected file exceeds 50MB. Please choose a smaller file.',
+          summary: this.t('toast.fileTooLargeSummary'),
+          detail: this.t('toast.fileExceeds50Detail'),
           life: 5000
         });
         return;
@@ -2239,8 +2257,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.newRoom.name || !this.newRoom.location || !this.newRoom.availableFrom || !this.newRoom.availableTo || !this.newRoom.capacity || this.newRoom.capacity <= 0) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Validation Error',
-        detail: 'Please fill in all required fields',
+        summary: this.t('common.validationError'),
+        detail: this.t('toast.fillRequiredFields'),
         life: 3000
       });
       return;
@@ -2276,17 +2294,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Show success toast
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Room created successfully!',
+          summary: this.t('common.success'),
+          detail: this.t('toast.roomCreated'),
           life: 3000
         });
       },
       error: (error) => {
         console.error('Error creating room:', error);
-        const errorMessage = error.error?.message || error.message || 'Failed to create room. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.roomCreateFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -2299,8 +2317,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!room.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Room ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.roomIdMissing'),
         life: 3000
       });
       return;
@@ -2326,8 +2344,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.editRoom.name || !this.editRoom.location || !this.editRoom.availableFrom || !this.editRoom.availableTo || !this.editRoom.capacity || this.editRoom.capacity <= 0) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Please fill in all required fields',
+        summary: this.t('common.error'),
+        detail: this.t('toast.fillRequiredFields'),
         life: 3000
       });
       return;
@@ -2336,8 +2354,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.editRoom.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Room ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.roomIdMissing'),
         life: 3000
       });
       return;
@@ -2374,17 +2392,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Show success toast
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Room updated successfully!',
+          summary: this.t('common.success'),
+          detail: this.t('toast.roomUpdated'),
           life: 3000
         });
       },
       error: (error) => {
         console.error('Error updating room:', error);
-        const errorMessage = error.error?.message || error.message || 'Failed to update room. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.roomUpdateFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -2456,8 +2474,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (emails.length === 0) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Please add at least one email address',
+        summary: this.t('common.error'),
+        detail: this.t('toast.addOneEmail'),
         life: 3000
       });
       return;
@@ -2480,8 +2498,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           // Show success toast for each employee
           this.msgService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: `Successfully invited ${email}`,
+            summary: this.t('common.success'),
+            detail: this.t('toast.invitedEmail', { email }),
             life: 3000
           });
 
@@ -2490,15 +2508,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             if (failed === 0) {
               this.msgService.add({
                 severity: 'success',
-                summary: 'All Employees Invited',
-                detail: `Successfully invited all ${completed} employee(s)!`,
+                summary: this.t('toast.allInvitedSummary'),
+                detail: this.t('toast.allInvitedDetail', { count: completed }),
                 sticky: true
               });
             } else {
               this.msgService.add({
                 severity: 'warn',
-                summary: 'Partial Success',
-                detail: `Invited ${completed} employee(s), ${failed} failed`,
+                summary: this.t('toast.partialSuccessSummary'),
+                detail: this.t('toast.partialInvitedDetail', { completed, failed }),
                 sticky: true
               });
             }
@@ -2511,13 +2529,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         error: (error) => {
           failed++;
           console.error(`Error inviting employee ${email}:`, error);
-          const errorMessage = error.error?.message || error.message || 'Failed to send invitation';
+          const errorMessage = error.error?.message || error.message || this.t('toast.invitationSendFailed');
 
           // Show error toast for each failed employee
           this.msgService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: `Failed to invite ${email}: ${errorMessage}`,
+            summary: this.t('common.error'),
+            detail: this.t('toast.failedInviteEmail', { email, message: errorMessage }),
             life: 3000
           });
 
@@ -2526,15 +2544,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             if (failed === total) {
               this.msgService.add({
                 severity: 'error',
-                summary: 'All Invitations Failed',
-                detail: 'Failed to invite all employees',
+                summary: this.t('toast.allInvitationsFailedSummary'),
+                detail: this.t('toast.allInvitationsFailedDetail'),
                 sticky: true
               });
             } else {
               this.msgService.add({
                 severity: 'warn',
-                summary: 'Partial Success',
-                detail: `Invited ${completed} employee(s), ${failed} failed`,
+                summary: this.t('toast.partialSuccessSummary'),
+                detail: this.t('toast.partialInvitedDetail', { completed, failed }),
                 sticky: true
               });
             }
@@ -2557,8 +2575,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!room.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Room ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.roomIdMissing'),
         life: 3000
       });
       return;
@@ -2574,8 +2592,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.roomToDelete || !this.roomToDelete.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Room ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.roomIdMissing'),
         life: 3000
       });
       return;
@@ -2598,17 +2616,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Show success toast
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Room deleted successfully!',
+          summary: this.t('common.success'),
+          detail: this.t('toast.roomDeleted'),
           life: 3000
         });
       },
       error: (error) => {
         console.error('Error deleting room:', error);
-        const errorMessage = error.error?.message || error.message || 'Failed to delete room. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.roomDeleteFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -2714,8 +2732,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.warn('Email is not valid:', email);
       this.msgService.add({
         severity: 'error',
-        summary: 'Invalid Email',
-        detail: 'Please enter a valid email address',
+        summary: this.t('toast.invalidEmailSummary'),
+        detail: this.t('toast.validEmailDetail'),
         life: 3000
       });
       return;
@@ -2725,8 +2743,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.warn('Maximum 5 emails allowed');
       this.msgService.add({
         severity: 'warn',
-        summary: 'Limit Reached',
-        detail: 'Maximum 5 admin emails allowed',
+        summary: this.t('toast.limitReachedSummary'),
+        detail: this.t('toast.maxAdminEmails'),
         life: 3000
       });
       return;
@@ -2736,8 +2754,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.warn('Email already exists:', email);
       this.msgService.add({
         severity: 'warn',
-        summary: 'Duplicate Email',
-        detail: 'This email is already in the list',
+        summary: this.t('toast.duplicateEmailSummary'),
+        detail: this.t('toast.duplicateEmailDetail'),
         life: 3000
       });
       return;
@@ -2781,8 +2799,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.isValidEmail(email)) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Invalid Email',
-        detail: 'Please enter a valid email address',
+        summary: this.t('toast.invalidEmailSummary'),
+        detail: this.t('toast.validEmailDetail'),
         life: 3000
       });
       return;
@@ -2791,8 +2809,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.employeeEmails().length >= 5) {
       this.msgService.add({
         severity: 'warn',
-        summary: 'Limit Reached',
-        detail: 'Maximum 5 employee emails allowed',
+        summary: this.t('toast.limitReachedSummary'),
+        detail: this.t('toast.maxEmployeeEmails'),
         life: 3000
       });
       return;
@@ -2801,8 +2819,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.employeeEmails().includes(email)) {
       this.msgService.add({
         severity: 'warn',
-        summary: 'Duplicate Email',
-        detail: 'This email is already in the list',
+        summary: this.t('toast.duplicateEmailSummary'),
+        detail: this.t('toast.duplicateEmailDetail'),
         life: 3000
       });
       return;
@@ -2833,8 +2851,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.error('Company ID is null or undefined. Cannot invite admins.');
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Company ID not found. Please go back and create the company again.',
+        summary: this.t('common.error'),
+        detail: this.t('toast.companyIdMissing'),
         sticky: true
       });
       return;
@@ -2876,16 +2894,19 @@ export class HomeComponent implements OnInit, OnDestroy {
             completed++;
             this.msgService.add({
               severity: 'success',
-              summary: 'Success',
-              detail: `Successfully invited ${email}`,
+              summary: this.t('common.success'),
+              detail: this.t('toast.invitedEmail', { email }),
               life: 3000
             });
           } else {
             failed++;
             this.msgService.add({
               severity: 'warn',
-              summary: 'Invite saved — email failed',
-              detail: `${email}: ${res.emailError ?? 'Email could not be sent.'}`,
+              summary: this.t('toast.inviteSavedEmailFailed'),
+              detail: this.t('toast.inviteEmailFailedDetail', {
+                email,
+                error: res.emailError ?? this.t('toast.emailCouldNotSend')
+              }),
               life: 10000
             });
           }
@@ -2895,15 +2916,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             if (failed === 0) {
               this.msgService.add({
                 severity: 'success',
-                summary: 'All Admins Invited',
-                detail: `Successfully invited all ${completed} admin(s)!`,
+                summary: this.t('toast.allAdminsInvitedSummary'),
+                detail: this.t('toast.allAdminsInvitedDetail', { count: completed }),
                 sticky: true
               });
             } else {
               this.msgService.add({
                 severity: 'warn',
-                summary: 'Partial Success',
-                detail: `Invited ${completed} admin(s), ${failed} failed`,
+                summary: this.t('toast.partialSuccessSummary'),
+                detail: this.t('toast.partialInvitedDetail', { completed, failed }),
                 sticky: true
               });
             }
@@ -2913,14 +2934,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           failed++;
-          const errorMessage = error.error?.message || error.message || 'Failed to invite admin';
+          const errorMessage = error.error?.message || error.message || this.t('toast.inviteAdminFailedRaw');
           console.error('==>Error inviting admin:', error);
 
           // Show error toast for each failed admin
           this.msgService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: `Failed to invite ${email}: ${errorMessage}`,
+            summary: this.t('common.error'),
+            detail: this.t('toast.failedInviteAdmin', { email, message: errorMessage }),
             life: 3000
           });
 
@@ -2929,15 +2950,15 @@ export class HomeComponent implements OnInit, OnDestroy {
             if (failed === total) {
               this.msgService.add({
                 severity: 'error',
-                summary: 'All Invitations Failed',
-                detail: 'Failed to invite all admins',
+                summary: this.t('toast.allAdminInvitesFailedSummary'),
+                detail: this.t('toast.allAdminInvitesFailedDetail'),
                 sticky: true
               });
             } else {
               this.msgService.add({
                 severity: 'warn',
-                summary: 'Partial Success',
-                detail: `Invited ${completed} admin(s), ${failed} failed`,
+                summary: this.t('toast.partialSuccessSummary'),
+                detail: this.t('toast.partialInvitedDetail', { completed, failed }),
                 sticky: true
               });
             }
@@ -3034,8 +3055,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!employee.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Employee ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.employeeIdMissing'),
         life: 3000
       });
       return;
@@ -3104,8 +3125,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Employee status updated successfully',
+          summary: this.t('common.success'),
+          detail: this.t('toast.employeeStatusUpdated'),
           life: 2000
         });
       },
@@ -3114,10 +3135,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.updatingEmployeeStatus = false;
         // Revert to previous status on error
         this.editEmployee.status = this.previousEmployeeStatus;
-        const errorMessage = error.error?.message || error.message || 'Failed to update employee status. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.employeeStatusUpdateFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -3131,8 +3152,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.editEmployee.firstName?.trim() || !this.editEmployee.lastName?.trim()) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'First name and last name are required',
+        summary: this.t('common.error'),
+        detail: this.t('toast.nameRequired'),
         life: 3000
       });
       return;
@@ -3141,8 +3162,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (!this.editEmployee.id) {
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Employee ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.employeeIdMissing'),
         life: 3000
       });
       return;
@@ -3173,17 +3194,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.loadEmployees();
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Employee updated successfully!',
+          summary: this.t('common.success'),
+          detail: this.t('toast.employeeUpdated'),
           life: 3000
         });
       },
       error: (error) => {
         console.error('Error updating employee:', error);
-        const errorMessage = error.error?.message || error.message || 'Failed to update employee. Please try again.';
+        const errorMessage = error.error?.message || error.message || this.t('toast.employeeUpdateFailed');
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 3000
         });
@@ -3370,8 +3391,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.adminToDelete = null;
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Admin ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.adminIdMissing'),
         life: 3000
       });
       return;
@@ -3385,22 +3406,22 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.allAdmins = this.allAdmins.filter(a => a.id !== admin.id);
         this.msgService.add({
           severity: 'success',
-          summary: 'Success',
-          detail: 'Company admin deleted successfully',
+          summary: this.t('common.success'),
+          detail: this.t('toast.companyAdminDeleted'),
           life: 3000
         });
       },
       error: (error) => {
         console.error('Error deleting admin:', error);
-        let errorMessage = error.error?.message || error.message || 'Failed to delete admin. Please try again.';
+        let errorMessage = error.error?.message || error.message || this.t('toast.deleteAdminFailed');
         if (errorMessage.includes('send a request')) {
-          errorMessage = 'Could not reach the delete service. Deploy the Edge Function: run "npx supabase functions deploy delete-company-admin" from the project root, then try again.';
+          errorMessage = this.t('toast.deleteServiceUnreachable');
         } else if (errorMessage.includes('non-2xx status code')) {
-          errorMessage = 'Delete failed (server error). Open DevTools (F12) → Network tab, click the "delete-company-admin" request, and check the Response body for the exact error.';
+          errorMessage = this.t('toast.deleteServerErrorHint');
         }
         this.msgService.add({
           severity: 'error',
-          summary: 'Error',
+          summary: this.t('common.error'),
           detail: errorMessage,
           life: 5000
         });
@@ -3416,8 +3437,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.error('Employee or employee ID is missing');
       this.msgService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Employee ID is missing',
+        summary: this.t('common.error'),
+        detail: this.t('toast.employeeIdMissing'),
         life: 3000
       });
       return;
@@ -3427,12 +3448,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     
     console.log('Showing confirmation dialog for:', employeeName);
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${employeeName}?`,
-      header: 'Delete Employee',
+      message: this.t('employee.deleteConfirm', { name: employeeName }),
+      header: this.t('employee.deleteTitle'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
-      acceptLabel: 'OK',
-      rejectLabel: 'Cancel',
+      acceptLabel: this.t('common.ok'),
+      rejectLabel: this.t('common.cancel'),
       accept: () => {
         this.employeeSer.deleteEmployee(employee.id!).subscribe({
           next: (res: any) => {
@@ -3441,17 +3462,17 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.employees = this.employees.filter(e => e.id !== employee.id);
             this.msgService.add({
               severity: 'success',
-              summary: 'Success',
-              detail: 'Employee deleted successfully',
+              summary: this.t('common.success'),
+              detail: this.t('toast.employeeDeleted'),
               life: 3000
             });
           },
           error: (error) => {
             console.error('==>Error deleting employee:', error);
-            const errorMessage = error.error?.message || error.message || 'Failed to delete employee. Please try again.';
+            const errorMessage = error.error?.message || error.message || this.t('toast.employeeDeleteFailed');
             this.msgService.add({
               severity: 'error',
-              summary: 'Error',
+              summary: this.t('common.error'),
               detail: errorMessage,
               life: 3000
             });

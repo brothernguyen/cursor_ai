@@ -1,27 +1,38 @@
 <div
   class="home-root-shell h-screen flex overflow-hidden"
 >
-  <button
-    type="button"
-    class="global-theme-toggle"
-    [class.global-theme-toggle--dark]="isDarkThemeEnabled"
-    [class.global-theme-toggle--dimmed]="shouldDimGlobalThemeToggle"
-    (click)="toggleAppThemeMode()"
-    (keydown)="onThemeToggleKeydown($event)"
-    role="switch"
-    [attr.aria-checked]="isDarkThemeEnabled"
-    [attr.aria-label]="isDarkThemeEnabled ? 'Switch to light mode' : 'Switch to dark mode'"
-    [attr.title]="isDarkThemeEnabled ? 'Dark mode is on' : 'Light mode is on'"
-  >
-    <span class="global-theme-toggle-track"></span>
-    <span class="global-theme-toggle-thumb">
-      @if (isDarkThemeEnabled) {
-      <i class="pi pi-moon"></i>
-      } @else {
-      <i class="pi pi-sun"></i>
-      }
-    </span>
-  </button>
+  <div class="global-shell-controls">
+    <app-language-select />
+    <button
+      type="button"
+      class="global-theme-toggle"
+      [class.global-theme-toggle--dark]="isDarkThemeEnabled"
+      [class.global-theme-toggle--dimmed]="shouldDimGlobalThemeToggle"
+      (click)="toggleAppThemeMode()"
+      (keydown)="onThemeToggleKeydown($event)"
+      role="switch"
+      [attr.aria-checked]="isDarkThemeEnabled"
+      [attr.aria-label]="
+        isDarkThemeEnabled
+          ? ('theme.switchToLightAria' | translate)
+          : ('theme.switchToDarkAria' | translate)
+      "
+      [attr.title]="
+        isDarkThemeEnabled
+          ? ('theme.darkModeOnTitle' | translate)
+          : ('theme.lightModeOnTitle' | translate)
+      "
+    >
+      <span class="global-theme-toggle-track"></span>
+      <span class="global-theme-toggle-thumb">
+        @if (isDarkThemeEnabled) {
+        <i class="pi pi-moon"></i>
+        } @else {
+        <i class="pi pi-sun"></i>
+        }
+      </span>
+    </button>
+  </div>
 
   <!-- PrimeNG Drawer - Figma Design -->
   <p-drawer
@@ -100,7 +111,7 @@
         >
           <img src="/dashboard-Icon.svg" alt="Dashboard" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span class="flex-1">Dashboard</span>
+          <span class="flex-1">{{ 'nav.dashboard' | translate }}</span>
           @if (view() === 'dashboard') {
           <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
           } }
@@ -117,7 +128,7 @@
         >
           <img src="/company-icon.svg" alt="TERRALOGIC" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span class="flex-1">Companies</span>
+          <span class="flex-1">{{ 'nav.companies' | translate }}</span>
           @if (view() === 'companies') {
           <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
           } }
@@ -137,7 +148,7 @@
             class="logo-image"
           />
           @if (!sidebarCollapsed()) {
-          <span class="flex-1">Company Admins</span>
+          <span class="flex-1">{{ 'nav.companyAdmins' | translate }}</span>
           @if (view() === 'admins') {
           <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
           } }
@@ -157,7 +168,7 @@
             class="logo-image"
           />
           @if (!sidebarCollapsed()) {
-          <span class="flex-1">Meeting Rooms</span>
+          <span class="flex-1">{{ 'nav.meetingRooms' | translate }}</span>
           @if (view() === 'rooms') {
           <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
           } }
@@ -173,7 +184,7 @@
         >
           <img src="/employee-icon.svg" alt="TERRALOGIC" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span class="flex-1">Employees</span>
+          <span class="flex-1">{{ 'nav.employees' | translate }}</span>
           @if (view() === 'employees') {
           <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
           } }
@@ -189,7 +200,7 @@
         >
           <img src="/report-icon.svg" alt="TERRALOGIC" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span class="flex-1">Report</span>
+          <span class="flex-1">{{ 'nav.report' | translate }}</span>
           @if (view() === 'report') {
           <img src="/menu-arrow.png" alt="Arrow" class="drawer-chevron" />
           } }
@@ -209,7 +220,7 @@
         >
           <img src="/settings-icon.png" alt="Settings" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span>Settings</span>
+          <span>{{ 'nav.settings' | translate }}</span>
           }
         </button>
 
@@ -217,7 +228,7 @@
         <button (click)="onLogout()" class="drawer-footer-item">
           <img src="/logout-icon.png" alt="TERRALOGIC" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span>Log out</span>
+          <span>{{ 'nav.logOut' | translate }}</span>
           }
         </button>
 
@@ -231,7 +242,7 @@
           <span class="text-sm drawer-user-name">
             @if (currentUser().firstName || currentUser().lastName) {
             {{ currentUser().firstName }} {{ currentUser().lastName }}
-            } @else { Super Admin }
+            } @else { {{ 'nav.superAdmin' | translate }} }
           </span>
           }
         </div>
@@ -254,8 +265,8 @@
       (click)="toggleSidebar()"
       class="fixed top-4 left-4 z-30 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-all duration-300 border border-gray-200 dark:border-slate-600"
       type="button"
-      aria-label="Open sidebar"
-      title="Open sidebar (Ctrl+B or Cmd+B)"
+      [attr.aria-label]="'nav.openSidebar' | translate"
+      [attr.title]="'nav.openSidebarTitle' | translate"
     >
       <img src="/menu-button.png" alt="Menu" class="w-6 h-6" />
     </button>
@@ -265,14 +276,14 @@
       <div class="system-dashboard-container">
         <!-- Header Section -->
         <div class="system-dashboard-header">
-          <h1 class="system-dashboard-title">Running the System</h1>
+          <h1 class="system-dashboard-title">{{ 'home.runningTheSystem' | translate }}</h1>
           <div class="system-period-select-container" #periodDropdown>
             <button
               (click)="showPeriodDropdown.set(!showPeriodDropdown())"
               class="system-period-select-button"
             >
               <span class="system-period-select-text">{{
-                selectedPeriod()
+                ('period.' + selectedPeriod()) | translate
               }}</span>
               <svg
                 class="system-period-select-icon"
@@ -293,24 +304,26 @@
             @if (showPeriodDropdown()) {
             <div class="system-period-dropdown-menu">
               <button
-                (click)="onSystemPeriodSelect('This week')"
+                type="button"
+                (click)="onSystemPeriodSelect('thisWeek')"
                 [ngClass]="{
                   'system-period-option-selected':
-                    selectedPeriod() === 'This week'
+                    selectedPeriod() === 'thisWeek'
                 }"
                 class="system-period-dropdown-option"
               >
-                This week
+                {{ 'period.thisWeek' | translate }}
               </button>
               <button
-                (click)="onSystemPeriodSelect('This month')"
+                type="button"
+                (click)="onSystemPeriodSelect('thisMonth')"
                 [ngClass]="{
                   'system-period-option-selected':
-                    selectedPeriod() === 'This month'
+                    selectedPeriod() === 'thisMonth'
                 }"
                 class="system-period-dropdown-option"
               >
-                This month
+                {{ 'period.thisMonth' | translate }}
               </button>
             </div>
             }
@@ -414,15 +427,15 @@
         <div class="dashboard-insights-grid">
           <div class="dashboard-info-card">
             <div class="dashboard-info-header">
-              <h3 class="dashboard-info-title">Peak Booking Slots</h3>
-              <span class="dashboard-info-subtitle">{{ selectedPeriod() }}</span>
+              <h3 class="dashboard-info-title">{{ 'home.peakBookingSlots' | translate }}</h3>
+              <span class="dashboard-info-subtitle">{{ ('period.' + selectedPeriod()) | translate }}</span>
             </div>
             <div class="booking-slot-list">
               @for (slot of systemDashboardBookingsByHourPreview; track slot.label) {
               <div class="booking-slot-row">
                 <div class="booking-slot-meta">
                   <span class="booking-slot-label">{{ slot.label }}</span>
-                  <span class="booking-slot-value">{{ slot.count }} bookings</span>
+                  <span class="booking-slot-value">{{ 'home.bookingsCount' | translate: { count: slot.count } }}</span>
                 </div>
                 <div class="booking-slot-track">
                   <div class="booking-slot-fill" [style.width.%]="slot.pct"></div>
@@ -436,7 +449,7 @@
                 <div class="insight-copy">
                   <p class="insight-label">{{ company.name }}</p>
                   <p class="insight-value">
-                    {{ company.users }} users, {{ company.admins }} admins
+                    {{ 'home.usersAndAdmins' | translate: { users: company.users, admins: company.admins } }}
                   </p>
                 </div>
                 <span class="insight-tone insight-tone-good">{{ company.healthPct }}%</span>
@@ -447,8 +460,8 @@
 
           <div class="dashboard-info-card">
             <div class="dashboard-info-header">
-              <h3 class="dashboard-info-title">Operational Insights</h3>
-              <span class="dashboard-info-subtitle">System health</span>
+              <h3 class="dashboard-info-title">{{ 'home.operationalInsights' | translate }}</h3>
+              <span class="dashboard-info-subtitle">{{ 'home.systemHealthSubtitle' | translate }}</span>
             </div>
             <div class="insight-list">
               @for (insight of systemDashboardOperationalInsights; track insight.label) {
@@ -472,7 +485,7 @@
         [ngClass]="{ 'companies-page-overlay': showDetail() }"
       >
         <div class="companies-page-header">
-          <h1 class="companies-page-title">Who's Using the Platform</h1>
+          <h1 class="companies-page-title">{{ 'home.whosUsingPlatform' | translate }}</h1>
           <div class="companies-page-header-actions">
             <button
               class="filter-btn"
@@ -482,7 +495,7 @@
               (click)="toggleFilter($event)"
               (mousedown)="$event.preventDefault()"
             >
-              <span class="filter-text">Filter</span>
+              <span class="filter-text">{{ 'home.filter' | translate }}</span>
               <div class="filter-icon-wrapper">
                 <svg
                   class="filter-icon"
@@ -510,7 +523,7 @@
                   (click)="onFilterStatusChange('active')"
                   (mousedown)="$event.preventDefault()"
                 >
-                  Active
+                  {{ 'common.active' | translate }}
                 </button>
                 <button
                   type="button"
@@ -521,7 +534,7 @@
                   (click)="onFilterStatusChange('inactive')"
                   (mousedown)="$event.preventDefault()"
                 >
-                  Inactive
+                  {{ 'common.inactive' | translate }}
                 </button>
                 <button
                   type="button"
@@ -532,7 +545,7 @@
                   (click)="onFilterStatusChange(null)"
                   (mousedown)="$event.preventDefault()"
                 >
-                  All
+                  {{ 'home.all' | translate }}
                 </button>
               </div>
             </p-popover>
@@ -540,7 +553,7 @@
               (click)="setModal('createCompany')"
               class="create-company-btn"
             >
-              <span class="create-company-text">Create Company</span>
+              <span class="create-company-text">{{ 'home.createCompany' | translate }}</span>
               <div class="create-company-icon-wrapper">
                 <svg
                   class="create-company-icon"
@@ -577,7 +590,7 @@
             </svg>
             <input
               type="text"
-              placeholder="Search companies..."
+              [attr.placeholder]="'home.searchCompanies' | translate"
               [value]="search()"
               (input)="onSearchChange($any($event.target).value)"
               class="w-full pl-10 pr-4 py-2 companies-search-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -597,7 +610,7 @@
                   (click)="toggleCompanyNameSort()"
                 >
                   <div class="companies-header-sort-container">
-                    <span>COMPANY</span>
+                    <span>{{ 'home.colCompany' | translate }}</span>
                     <div class="companies-sort-icon-wrapper">
                       @if (companyNameSortDirection() === 'asc') {
                       <svg
@@ -638,7 +651,7 @@
                   (click)="toggleIndustrySort()"
                 >
                   <div class="companies-header-sort-container">
-                    <span>INDUSTRY</span>
+                    <span>{{ 'home.colIndustry' | translate }}</span>
                     <div class="companies-sort-icon-wrapper">
                       @if (companyIndustrySortDirection() === 'asc') {
                       <svg
@@ -675,14 +688,14 @@
                   </div>
                 </th>
                 <th class="companies-table-header companies-admin-header">
-                  <span>ADMIN</span>
+                  <span>{{ 'home.colAdmin' | translate }}</span>
                 </th>
                 <th
                   class="companies-table-header companies-table-header-sortable"
                   (click)="toggleCompanyStatusSort()"
                 >
                   <div class="companies-header-sort-container">
-                    <span>STATUS</span>
+                    <span>{{ 'home.colStatus' | translate }}</span>
                     <div class="companies-sort-icon-wrapper">
                       @if (companyStatusSortDirection() === 'asc') {
                       <svg
@@ -719,7 +732,7 @@
                   </div>
                 </th>
                 <th class="companies-table-header">
-                  <span>ACTION</span>
+                  <span>{{ 'home.colAction' | translate }}</span>
                 </th>
               </tr>
             </thead>
@@ -773,7 +786,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="companies-status-text">Active</span>
+                    <span class="companies-status-text">{{ 'common.active' | translate }}</span>
                   </div>
                   } @else if (company.status === 'pending') {
                   <div class="companies-status-badge companies-status-pending">
@@ -799,7 +812,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="companies-status-text">Pending</span>
+                    <span class="companies-status-text">{{ 'common.pending' | translate }}</span>
                   </div>
                   } @else {
                   <div class="companies-status-badge companies-status-inactive">
@@ -824,7 +837,7 @@
                         stroke-linecap="round"
                       />
                     </svg>
-                    <span class="companies-status-text">Inactive</span>
+                    <span class="companies-status-text">{{ 'common.inactive' | translate }}</span>
                   </div>
                   }
                 </td>
@@ -928,7 +941,7 @@
                           "
                           (mousedown)="$event.preventDefault()"
                         >
-                          Invite Company Admin
+                          {{ 'modals.inviteCompanyAdmin' | translate }}
                         </button>
                       </div>
                       <div style="display: none">
@@ -940,7 +953,7 @@
                           "
                           (mousedown)="$event.preventDefault()"
                         >
-                          Delete Admin
+                          {{ 'toast.confirmDeleteAdminHeader' | translate }}
                         </button>
                       </div>
                     </div>
@@ -966,17 +979,17 @@
       } @if (role() === 'system' && view() === 'admins') {
       <div class="admins-page-container">
         <div class="admins-page-header">
-          <h1 class="admins-page-title">Company Admins</h1>
+          <h1 class="admins-page-title">{{ 'home.companyAdminsTitle' | translate }}</h1>
         </div>
 
         <div class="admins-table-container">
           @if (loadingAdmins) {
           <div class="admins-loading">
-            <p>Loading admins...</p>
+            <p>{{ 'home.loadingCompanyAdmins' | translate }}</p>
           </div>
           } @else if (allAdmins.length === 0) {
           <div class="admins-empty">
-            <p>No company admins found.</p>
+            <p>{{ 'home.noCompanyAdminsFound' | translate }}</p>
           </div>
           } @else {
           <table class="admins-table">
@@ -990,7 +1003,7 @@
                   (click)="toggleAdminNameSort()"
                 >
                   <div class="admins-header-sort-container">
-                    <span>NAME</span>
+                    <span>{{ 'home.colName' | translate }}</span>
                     <div class="admins-sort-icon-wrapper">
                       @if (adminNameSortDirection() === 'asc') {
                       <svg
@@ -1031,7 +1044,7 @@
                   (click)="toggleAdminEmailSort()"
                 >
                   <div class="admins-header-sort-container">
-                    <span>EMAIL</span>
+                    <span>{{ 'home.colEmail' | translate }}</span>
                     <div class="admins-sort-icon-wrapper">
                       @if (adminEmailSortDirection() === 'asc') {
                       <svg
@@ -1072,7 +1085,7 @@
                   (click)="toggleAdminCompanySort()"
                 >
                   <div class="admins-header-sort-container">
-                    <span>COMPANY</span>
+                    <span>{{ 'home.colCompany' | translate }}</span>
                     <div class="admins-sort-icon-wrapper">
                       @if (adminCompanySortDirection() === 'asc') {
                       <svg
@@ -1113,7 +1126,7 @@
                   (click)="toggleAdminStatusSort()"
                 >
                   <div class="admins-header-sort-container">
-                    <span>STATUS</span>
+                    <span>{{ 'home.colStatus' | translate }}</span>
                     <div class="admins-sort-icon-wrapper">
                       @if (adminStatusSortDirection() === 'asc') {
                       <svg
@@ -1150,7 +1163,7 @@
                   </div>
                 </th>
                 <th class="admins-table-header admins-actions-header">
-                  <span>ACTIONS</span>
+                  <span>{{ 'home.colActions' | translate }}</span>
                 </th>
               </tr>
             </thead>
@@ -1194,7 +1207,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="admins-status-text">Active</span>
+                    <span class="admins-status-text">{{ 'common.active' | translate }}</span>
                   </div>
                   } @else if (admin.status === 'pending') {
                   <div class="admins-status-badge admins-status-pending">
@@ -1220,7 +1233,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="admins-status-text">Pending</span>
+                    <span class="admins-status-text">{{ 'common.pending' | translate }}</span>
                   </div>
                   } @else {
                   <div class="admins-status-badge admins-status-inactive">
@@ -1246,7 +1259,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="admins-status-text">Inactive</span>
+                    <span class="admins-status-text">{{ 'common.inactive' | translate }}</span>
                   </div>
                   }
                 </td>
@@ -1333,9 +1346,9 @@
         <div class="dashboard-header">
           <div class="header-content-left">
             <h1 class="welcome-title">
-              Welcome back, {{ currentUser().firstName || "John" }}!
+              {{ 'home.welcomeBack' | translate: { name: currentUser().firstName || 'John' } }}
             </h1>
-            <p class="company-subtitle">Company Admin</p>
+            <p class="company-subtitle">{{ 'home.companySubtitle' | translate }}</p>
           </div>
           <div class="period-select-container" #companyPeriodDropdown>
             <button
@@ -1345,7 +1358,7 @@
               class="period-select-button"
             >
               <span class="period-select-text">{{
-                selectedCompanyPeriod()
+                ('period.' + selectedCompanyPeriod()) | translate
               }}</span>
               <div class="period-select-icon">
                 <svg
@@ -1366,24 +1379,26 @@
             @if (showCompanyPeriodDropdown()) {
             <div class="period-dropdown-menu">
               <button
-                (click)="onCompanyPeriodSelect('This week')"
+                type="button"
+                (click)="onCompanyPeriodSelect('thisWeek')"
                 [ngClass]="{
                   'period-option-selected':
-                    selectedCompanyPeriod() === 'This week'
+                    selectedCompanyPeriod() === 'thisWeek'
                 }"
                 class="period-dropdown-option"
               >
-                This week
+                {{ 'period.thisWeek' | translate }}
               </button>
               <button
-                (click)="onCompanyPeriodSelect('This month')"
+                type="button"
+                (click)="onCompanyPeriodSelect('thisMonth')"
                 [ngClass]="{
                   'period-option-selected':
-                    selectedCompanyPeriod() === 'This month'
+                    selectedCompanyPeriod() === 'thisMonth'
                 }"
                 class="period-dropdown-option"
               >
-                This month
+                {{ 'period.thisMonth' | translate }}
               </button>
             </div>
             }
@@ -1435,7 +1450,7 @@
                 </div>
               </div>
               <div class="kpi-last-month">
-                <span>Context:</span>
+                <span>{{ 'home.context' | translate }}</span>
                 <span>{{ kpi.lastMonth }}</span>
               </div>
             </div>
@@ -1470,7 +1485,7 @@
         <!-- Room Utilization Section -->
         <div class="room-utilization-card">
           <div class="utilization-header">
-            <p class="utilization-title">Room Utilization</p>
+            <p class="utilization-title">{{ 'home.roomUtilization' | translate }}</p>
             <div class="utilization-tabs">
               <button
                 class="utilization-tab"
@@ -1537,9 +1552,9 @@
         <div class="dashboard-insights-grid">
           <div class="dashboard-info-card">
             <div class="dashboard-info-header">
-              <h3 class="dashboard-info-title">Bookings by Hour (Top Slots)</h3>
+              <h3 class="dashboard-info-title">{{ 'home.bookingsByHour' | translate }}</h3>
               <span class="dashboard-info-subtitle"
-                >Avg utilization: {{ companyDashboardTrendSummary.avgUtilization }}%</span
+                >{{ 'home.avgUtilizationPct' | translate: { pct: companyDashboardTrendSummary.avgUtilization } }}</span
               >
             </div>
             <div class="booking-slot-list">
@@ -1547,7 +1562,7 @@
               <div class="booking-slot-row">
                 <div class="booking-slot-meta">
                   <span class="booking-slot-label">{{ slot.label }}</span>
-                  <span class="booking-slot-value">{{ slot.count }} bookings</span>
+                  <span class="booking-slot-value">{{ 'home.bookingsCount' | translate: { count: slot.count } }}</span>
                 </div>
                 <div class="booking-slot-track">
                   <div class="booking-slot-fill" [style.width.%]="slot.pct"></div>
@@ -1559,9 +1574,9 @@
 
           <div class="dashboard-info-card">
             <div class="dashboard-info-header">
-              <h3 class="dashboard-info-title">Operational Insights</h3>
+              <h3 class="dashboard-info-title">{{ 'home.operationalInsights' | translate }}</h3>
               <span class="dashboard-info-subtitle"
-                >Peak day: {{ reportSummaryKpis.peakDayLabel }}</span
+                >{{ 'home.peakDayWithLabel' | translate: { label: reportSummaryKpis.peakDayLabel } }}</span
               >
             </div>
             <div class="insight-list">
@@ -1593,7 +1608,7 @@
         <!-- Header Section -->
         <div class="rooms-header">
           <div class="rooms-header-left">
-            <h1 class="rooms-title">Where Meetings Begin</h1>
+            <h1 class="rooms-title">{{ 'home.whereMeetingsBegin' | translate }}</h1>
           </div>
           <div class="rooms-header-right">
             <!-- View Toggle Switch -->
@@ -1717,7 +1732,7 @@
             </div>
             <!-- Add Room Button -->
             <button (click)="setModal('addRoom')" class="add-room-button">
-              <span class="add-room-text">Add Room</span>
+              <span class="add-room-text">{{ 'home.addRoom' | translate }}</span>
               <div class="add-room-icon-wrapper">
                 <svg
                   class="add-room-icon"
@@ -1782,7 +1797,7 @@
                       stroke-linejoin="round"
                     />
                   </svg>
-                  <span class="status-text">Active</span>
+                  <span class="status-text">{{ 'common.active' | translate }}</span>
                 </div>
                 } @else {
                 <div class="status-badge-inactive">
@@ -1807,7 +1822,7 @@
                       stroke-linecap="round"
                     />
                   </svg>
-                  <span class="status-text">Inactive</span>
+                  <span class="status-text">{{ 'common.inactive' | translate }}</span>
                 </div>
                 }
               </div>
@@ -1897,7 +1912,7 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                <span class="action-text">Edit</span>
+                <span class="action-text">{{ 'common.edit' | translate }}</span>
               </button>
               <button class="room-delete-button" (click)="onDeleteRoom(room)">
                 <svg
@@ -1922,7 +1937,7 @@
                     stroke-linejoin="round"
                   />
                 </svg>
-                <span class="action-text">Delete</span>
+                <span class="action-text">{{ 'common.delete' | translate }}</span>
               </button>
             </div>
           </div>
@@ -1936,16 +1951,16 @@
           <table class="rooms-table">
             <thead>
               <tr>
-                <th class="table-header">NAME</th>
-                <th class="table-header">LOCATION</th>
-                <th class="table-header">CAPACITY</th>
-                <th class="table-header">ACTIVE TIME</th>
+                <th class="table-header">{{ 'home.colName' | translate }}</th>
+                <th class="table-header">{{ 'home.colLocation' | translate }}</th>
+                <th class="table-header">{{ 'home.colCapacity' | translate }}</th>
+                <th class="table-header">{{ 'home.colActiveTime' | translate }}</th>
                 <th
                   class="table-header table-header-sortable"
                   (click)="toggleStatusSort()"
                 >
                   <div class="header-sort-container">
-                    <span>STATUS</span>
+                    <span>{{ 'home.colStatus' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (statusSortDirection() === 'asc') {
                       <svg
@@ -1981,7 +1996,7 @@
                     </div>
                   </div>
                 </th>
-                <th class="table-header">ACTION</th>
+                <th class="table-header">{{ 'home.colAction' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -1994,7 +2009,7 @@
                   <span class="location-text-table">{{ room.location }}</span>
                 </td>
                 <td class="table-cell capacity-cell">
-                  <span class="capacity-text">{{ room.capacity }} people</span>
+                  <span class="capacity-text">{{ 'home.roomCapacityPeople' | translate:{ count: room.capacity } }}</span>
                 </td>
                 <td class="table-cell time-cell">
                   <div class="time-cell-content">
@@ -2039,7 +2054,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="status-text-table">Active</span>
+                    <span class="status-text-table">{{ 'common.active' | translate }}</span>
                   </div>
                   } @else {
                   <div class="status-badge-table status-badge-inactive-table">
@@ -2064,7 +2079,7 @@
                         stroke-linecap="round"
                       />
                     </svg>
-                    <span class="status-text-table">Inactive</span>
+                    <span class="status-text-table">{{ 'common.inactive' | translate }}</span>
                   </div>
                   }
                 </td>
@@ -2143,12 +2158,12 @@
       >
         <!-- Header Section -->
         <div class="employees-header">
-          <h1 class="employees-title">Meet the Team</h1>
+          <h1 class="employees-title">{{ 'home.meetTheTeam' | translate }}</h1>
           <button
             (click)="setModal('inviteEmployee')"
             class="invite-employee-button"
           >
-            <span class="invite-text">Invite</span>
+            <span class="invite-text">{{ 'common.invite' | translate }}</span>
             <div class="invite-icon-wrapper">
               <svg
                 class="invite-icon"
@@ -2175,7 +2190,7 @@
               <tr>
                 <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeFirstNameSort()">
                   <div class="header-sort-container">
-                    <span>FIRST NAME</span>
+                    <span>{{ 'home.colFirstName' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (employeeFirstNameSortDirection() === 'asc') {
                       <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
@@ -2189,7 +2204,7 @@
                 </th>
                 <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeLastNameSort()">
                   <div class="header-sort-container">
-                    <span>LAST NAME</span>
+                    <span>{{ 'home.colLastName' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (employeeLastNameSortDirection() === 'asc') {
                       <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
@@ -2203,7 +2218,7 @@
                 </th>
                 <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeEmailSort()">
                   <div class="header-sort-container">
-                    <span>EMAIL</span>
+                    <span>{{ 'home.colEmail' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (employeeEmailSortDirection() === 'asc') {
                       <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
@@ -2217,7 +2232,7 @@
                 </th>
                 <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeDepartmentSort()">
                   <div class="header-sort-container">
-                    <span>DEPARTMENT</span>
+                    <span>{{ 'home.colDepartment' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (employeeDepartmentSortDirection() === 'asc') {
                       <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
@@ -2231,7 +2246,7 @@
                 </th>
                 <th class="employee-table-header employee-table-header-sortable" (click)="toggleEmployeeRoleSort()">
                   <div class="header-sort-container">
-                    <span>ROLE</span>
+                    <span>{{ 'home.colRole' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (employeeRoleSortDirection() === 'asc') {
                       <svg class="sort-icon sort-icon-active" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M4 0L0 6H8L4 0Z" fill="#364152" /></svg>
@@ -2248,7 +2263,7 @@
                   (click)="toggleEmployeeStatusSort()"
                 >
                   <div class="header-sort-container">
-                    <span>STATUS</span>
+                    <span>{{ 'home.colStatus' | translate }}</span>
                     <div class="sort-icon-wrapper">
                       @if (employeeStatusSortDirection() === 'asc') {
                       <svg
@@ -2284,7 +2299,7 @@
                     </div>
                   </div>
                 </th>
-                <th class="employee-table-header">ACTION</th>
+                <th class="employee-table-header">{{ 'home.colAction' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -2322,7 +2337,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="employee-status-text">Active</span>
+                    <span class="employee-status-text">{{ 'common.active' | translate }}</span>
                   </div>
                   } @else if (employee.status === 'pending') {
                   <div class="employee-status-badge employee-status-pending">
@@ -2348,7 +2363,7 @@
                         stroke-linejoin="round"
                       />
                     </svg>
-                    <span class="employee-status-text">Pending</span>
+                    <span class="employee-status-text">{{ 'common.pending' | translate }}</span>
                   </div>
                   } @else {
                   <div class="employee-status-badge employee-status-inactive">
@@ -2373,7 +2388,7 @@
                         stroke-linecap="round"
                       />
                     </svg>
-                    <span class="employee-status-text">Inactive</span>
+                    <span class="employee-status-text">{{ 'common.inactive' | translate }}</span>
                   </div>
                   }
                 </td>
@@ -2462,7 +2477,7 @@
         @if (invitationResponse) {
         <div class="bg-white dark:bg-slate-900 dark:border-slate-700 p-6 rounded-xl border border-gray-200 dark:border-slate-700">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100">Invitation Details</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100">{{ 'home.invitationDetails' | translate }}</h3>
             <button
               (click)="onCloseInvitationResponse()"
               class="modal-close-button"
@@ -2486,7 +2501,7 @@
             @if (invitationResponse.message) {
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Message</label
+                >{{ 'modals.invitationMessage' | translate }}</label
               >
               <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm">
                 {{ invitationResponse.message }}
@@ -2495,7 +2510,7 @@
             } @if (invitationResponse.invitationLink) {
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Invitation Link</label
+                >{{ 'modals.invitationLink' | translate }}</label
               >
               <div class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all">
                 {{ invitationResponse.invitationLink }}
@@ -2504,7 +2519,7 @@
             } @if (invitationResponse.token) {
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2"
-                >Token</label
+                >{{ 'modals.invitationToken' | translate }}</label
               >
               <div
                 class="px-4 py-2 bg-gray-50 rounded-lg text-sm break-all font-mono"
@@ -2521,9 +2536,9 @@
       <div class="report-container">
         <div class="report-header report-header-row">
           <div class="report-header-left">
-            <h1 class="report-title">Report</h1>
+            <h1 class="report-title">{{ 'home.reportTitle' | translate }}</h1>
             <p class="report-subtitle">
-              Meeting room utilization and booking activity for the selected period.
+              {{ 'home.reportSubtitle' | translate }}
             </p>
           </div>
           <div class="report-header-controls">
@@ -2534,7 +2549,7 @@
                 [class.report-period-tab-active]="reportPeriod() === 'thisWeek'"
                 (click)="reportPeriod.set('thisWeek')"
               >
-                This week
+                {{ 'period.thisWeek' | translate }}
               </button>
               <button
                 type="button"
@@ -2542,7 +2557,7 @@
                 [class.report-period-tab-active]="reportPeriod() === 'thisMonth'"
                 (click)="reportPeriod.set('thisMonth')"
               >
-                This month
+                {{ 'period.thisMonth' | translate }}
               </button>
               <button
                 type="button"
@@ -2550,18 +2565,28 @@
                 [class.report-period-tab-active]="reportPeriod() === 'last30Days'"
                 (click)="reportPeriod.set('last30Days')"
               >
-                Last 30 days
+                {{ 'home.reportLast30Days' | translate }}
               </button>
             </div>
             <label class="report-filter-label">
-              <span class="report-filter-text">Building</span>
+              <span class="report-filter-text">{{ 'home.reportBuilding' | translate }}</span>
               <select
                 class="report-building-select"
                 [value]="reportBuildingFilter()"
                 (change)="reportBuildingFilter.set($any($event.target).value)"
               >
                 @for (opt of reportBuildingOptions; track opt.value) {
-                <option [value]="opt.value">{{ opt.label }}</option>
+                <option [value]="opt.value">
+                  @if (opt.value === 'all') {
+                    {{ 'report.allBuildings' | translate }}
+                  } @else {
+                    @if (reportBuildingNameSuffix(opt.label); as bName) {
+                      {{ 'report.buildingNamed' | translate: { name: bName } }}
+                    } @else {
+                      {{ opt.label }}
+                    }
+                  }
+                </option>
                 }
               </select>
             </label>
@@ -2569,36 +2594,36 @@
         </div>
 
         <p class="report-data-note">
-          Sample booking metrics below are for layout preview; connect a reporting API to replace mock data. Active employee count uses live data.
+          {{ 'home.reportDataNote' | translate }}
         </p>
 
         <div class="report-kpi-grid">
           <div class="report-kpi-card">
-            <span class="report-kpi-label">Total bookings</span>
+            <span class="report-kpi-label">{{ 'home.reportTotalBookings' | translate }}</span>
             <span class="report-kpi-value">{{ reportSummaryKpis.totalBookings }}</span>
-            <span class="report-kpi-hint">in selected period</span>
+            <span class="report-kpi-hint">{{ 'home.reportInSelectedPeriod' | translate }}</span>
           </div>
           <div class="report-kpi-card report-kpi-card-accent">
-            <span class="report-kpi-label">Avg. utilization</span>
+            <span class="report-kpi-label">{{ 'home.reportAvgUtilization' | translate }}</span>
             <span class="report-kpi-value">{{ reportSummaryKpis.utilizationPct }}%</span>
-            <span class="report-kpi-hint">mock — replace with API</span>
+            <span class="report-kpi-hint">{{ 'home.reportMockHint' | translate }}</span>
           </div>
           <div class="report-kpi-card">
-            <span class="report-kpi-label">Peak day</span>
+            <span class="report-kpi-label">{{ 'home.reportPeakDay' | translate }}</span>
             <span class="report-kpi-value report-kpi-value-sm">{{ reportSummaryKpis.peakDayLabel }}</span>
-            <span class="report-kpi-hint">by booking volume</span>
+            <span class="report-kpi-hint">{{ 'report.byBookingVolume' | translate }}</span>
           </div>
           <div class="report-kpi-card">
-            <span class="report-kpi-label">Active employees</span>
+            <span class="report-kpi-label">{{ 'report.activeEmployees' | translate }}</span>
             <span class="report-kpi-value">{{ reportSummaryKpis.activeEmployees }}</span>
-            <span class="report-kpi-hint">live from directory</span>
+            <span class="report-kpi-hint">{{ 'report.liveFromDirectory' | translate }}</span>
           </div>
         </div>
 
         <div class="report-panels">
           <div class="report-panel">
-            <h2 class="report-panel-title">Utilization trend</h2>
-            <p class="report-panel-desc">Mock % utilization by segment — swap for time-series from API.</p>
+            <h2 class="report-panel-title">{{ 'home.reportPanelUtilizationTrend' | translate }}</h2>
+            <p class="report-panel-desc">{{ 'report.mockUtilDesc' | translate }}</p>
             <div class="report-utilization-chart">
               <div class="report-chart-bars">
                 @for (row of reportUtilizationTrend; track row.label) {
@@ -2615,8 +2640,8 @@
           </div>
 
           <div class="report-panel">
-            <h2 class="report-panel-title">Bookings by hour</h2>
-            <p class="report-panel-desc">Mock counts 8:00–18:00 — peak staffing / cleaning window.</p>
+            <h2 class="report-panel-title">{{ 'home.reportPanelBookingsByHour' | translate }}</h2>
+            <p class="report-panel-desc">{{ 'report.mockHourDesc' | translate }}</p>
             <div class="report-hour-chart">
               @for (h of reportBookingsByHour; track h.hour) {
               <div class="report-hour-col">
@@ -2634,23 +2659,23 @@
 
         <div class="report-table-section">
           <div class="report-table-header-row">
-            <h2 class="report-panel-title">Top rooms by bookings</h2>
+            <h2 class="report-panel-title">{{ 'home.reportPanelTopRooms' | translate }}</h2>
             <button
               type="button"
               class="report-export-btn"
               (click)="downloadReportTopRoomsCsv()"
             >
-              Export CSV
+              {{ 'report.exportCsv' | translate }}
             </button>
           </div>
           <div class="report-table-wrap">
             <table class="report-table">
               <thead>
                 <tr>
-                  <th>Room</th>
-                  <th>Location</th>
-                  <th class="report-num">Bookings</th>
-                  <th class="report-num">Hours booked</th>
+                  <th>{{ 'report.thRoom' | translate }}</th>
+                  <th>{{ 'report.thLocation' | translate }}</th>
+                  <th class="report-num">{{ 'report.thBookings' | translate }}</th>
+                  <th class="report-num">{{ 'report.thHoursBooked' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -2671,61 +2696,63 @@
       @if (view() === 'settings') {
       <div class="settings-page-container">
         <div class="settings-header">
-          <h1 class="settings-title">Settings</h1>
+          <h1 class="settings-title">{{ 'home.settingsTitle' | translate }}</h1>
           <p class="settings-subtitle">
-            Manage your profile and how the app looks on this device.
+            {{ 'home.settingsSubtitle' | translate }}
           </p>
         </div>
 
         <div class="settings-sections">
           <section class="settings-section">
-            <h2 class="settings-section-title">Profile</h2>
+            <h2 class="settings-section-title">{{ 'home.settingsProfile' | translate }}</h2>
             <div class="settings-card">
               <div class="settings-row">
-                <span class="settings-label">Name</span>
+                <span class="settings-label">{{ 'settings.profileName' | translate }}</span>
                 <span class="settings-value">
                   @if (currentUser().firstName || currentUser().lastName) {
                   {{ currentUser().firstName }} {{ currentUser().lastName }}
                   } @else {
-                  —
+                  {{ 'settings.emDash' | translate }}
                   }
                 </span>
               </div>
               @if (currentUser().companyName) {
               <div class="settings-row">
-                <span class="settings-label">Company</span>
+                <span class="settings-label">{{ 'settings.profileCompany' | translate }}</span>
                 <span class="settings-value">{{ currentUser().companyName }}</span>
               </div>
               }
               <div class="settings-row">
-                <span class="settings-label">Role</span>
+                <span class="settings-label">{{ 'settings.profileRole' | translate }}</span>
                 <span class="settings-value">{{
-                  role() === "system" ? "System admin" : "Company user"
+                  role() === "system"
+                    ? ('settings.roleSystemAdmin' | translate)
+                    : ('settings.roleCompanyUser' | translate)
                 }}</span>
               </div>
               <div class="settings-row">
-                <span class="settings-label">Email</span>
-                <span class="settings-value">{{ currentUser().email || "—" }}</span>
+                <span class="settings-label">{{ 'settings.profileEmail' | translate }}</span>
+                <span class="settings-value">{{ currentUser().email || ('settings.emDash' | translate) }}</span>
               </div>
             </div>
           </section>
 
           <section class="settings-section">
-            <h2 class="settings-section-title">Preferences</h2>
+            <h2 class="settings-section-title">{{ 'home.settingsPreferences' | translate }}</h2>
             <p class="settings-section-desc">
-              Device-specific preferences are saved in this browser.
+              {{ 'settings.preferencesBrowserNote' | translate }}
             </p>
             <div class="settings-card">
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-theme-mode">Theme</label>
+                <label class="settings-label" for="settings-theme-mode">{{ 'settings.theme' | translate }}</label>
                 <div class="settings-control">
                   <span class="settings-value">
-                    {{ isDarkThemeEnabled ? "Dark mode (global toggle)" : "Light mode (global toggle)" }}
+                    {{ isDarkThemeEnabled ? ('home.appearanceDarkGlobal' | translate) : ('theme.modeGlobal' | translate) }}
                   </span>
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-timezone">Time zone</label>
+                <label class="settings-label" for="settings-timezone">{{ 'settings.timeZone' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-timezone"
@@ -2742,7 +2769,7 @@
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-date-format">Date format</label>
+                <label class="settings-label" for="settings-date-format">{{ 'settings.dateFormat' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-date-format"
@@ -2757,7 +2784,7 @@
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <span class="settings-label">Start of week</span>
+                <span class="settings-label">{{ 'home.startOfWeek' | translate }}</span>
                 <div class="settings-control settings-button-group">
                   <button
                     type="button"
@@ -2765,7 +2792,7 @@
                     [class.settings-choice-btn-active]="settingsDraft().weekStart === 'monday'"
                     (click)="updateSettingsDraft('weekStart', 'monday')"
                   >
-                    Monday
+                    {{ 'home.monday' | translate }}
                   </button>
                   <button
                     type="button"
@@ -2773,23 +2800,23 @@
                     [class.settings-choice-btn-active]="settingsDraft().weekStart === 'sunday'"
                     (click)="updateSettingsDraft('weekStart', 'sunday')"
                   >
-                    Sunday
+                    {{ 'home.sunday' | translate }}
                   </button>
                 </div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
-                  Cancel
+                  {{ 'common.cancel' | translate }}
                 </button>
                 <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
-                  Save changes
+                  {{ 'home.saveChanges' | translate }}
                 </button>
               </div>
               @if (settingsSaveMessage()) {
               <p class="settings-save-hint">
                 {{ settingsSaveMessage() }}
                 @if (settingsSavedAt()) {
-                <span> Last saved at {{ settingsSavedAt() }}.</span>
+                <span>{{ 'home.lastSavedAt' | translate:{ time: settingsSavedAt() } }}</span>
                 }
               </p>
               }
@@ -2797,13 +2824,13 @@
           </section>
 
           <section class="settings-section">
-            <h2 class="settings-section-title">Notifications</h2>
+            <h2 class="settings-section-title">{{ 'home.settingsNotifications' | translate }}</h2>
             <p class="settings-section-desc">
-              Control reminders and notification frequency for this account.
+              {{ 'home.settingsSectionDescNotifications' | translate }}
             </p>
             <div class="settings-card">
               <div class="settings-row settings-row--control">
-                <span class="settings-label">Email notifications</span>
+                <span class="settings-label">{{ 'settings.emailNotifications' | translate }}</span>
                 <div class="settings-control settings-button-group">
                   <button
                     type="button"
@@ -2811,7 +2838,7 @@
                     [class.settings-choice-btn-active]="settingsDraft().emailNotifications"
                     (click)="updateSettingsDraft('emailNotifications', true)"
                   >
-                    On
+                    {{ 'home.on' | translate }}
                   </button>
                   <button
                     type="button"
@@ -2819,12 +2846,12 @@
                     [class.settings-choice-btn-active]="!settingsDraft().emailNotifications"
                     (click)="updateSettingsDraft('emailNotifications', false)"
                   >
-                    Off
+                    {{ 'home.off' | translate }}
                   </button>
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <span class="settings-label">Booking reminders</span>
+                <span class="settings-label">{{ 'settings.bookingReminders' | translate }}</span>
                 <div class="settings-control settings-button-group">
                   <button
                     type="button"
@@ -2832,7 +2859,7 @@
                     [class.settings-choice-btn-active]="settingsDraft().bookingReminders"
                     (click)="updateSettingsDraft('bookingReminders', true)"
                   >
-                    On
+                    {{ 'home.on' | translate }}
                   </button>
                   <button
                     type="button"
@@ -2840,12 +2867,12 @@
                     [class.settings-choice-btn-active]="!settingsDraft().bookingReminders"
                     (click)="updateSettingsDraft('bookingReminders', false)"
                   >
-                    Off
+                    {{ 'home.off' | translate }}
                   </button>
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-reminder-time">Reminder lead time</label>
+                <label class="settings-label" for="settings-reminder-time">{{ 'home.reminderLeadTime' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-reminder-time"
@@ -2853,15 +2880,15 @@
                     [ngModel]="settingsDraft().reminderLeadTime"
                     (ngModelChange)="updateSettingsDraft('reminderLeadTime', $event)"
                   >
-                    <option value="5">5 minutes</option>
-                    <option value="10">10 minutes</option>
-                    <option value="15">15 minutes</option>
-                    <option value="30">30 minutes</option>
+                    <option value="5">{{ 'home.minutes5' | translate }}</option>
+                    <option value="10">{{ 'home.minutes10' | translate }}</option>
+                    <option value="15">{{ 'home.minutes15' | translate }}</option>
+                    <option value="30">{{ 'home.minutes30' | translate }}</option>
                   </select>
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-digest">Digest frequency</label>
+                <label class="settings-label" for="settings-digest">{{ 'settings.digestFrequency' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-digest"
@@ -2869,18 +2896,18 @@
                     [ngModel]="settingsDraft().digestFrequency"
                     (ngModelChange)="updateSettingsDraft('digestFrequency', $event)"
                   >
-                    <option value="off">Off</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
+                    <option value="off">{{ 'settings.digestOff' | translate }}</option>
+                    <option value="daily">{{ 'settings.digestDaily' | translate }}</option>
+                    <option value="weekly">{{ 'settings.digestWeekly' | translate }}</option>
                   </select>
                 </div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
-                  Cancel
+                  {{ 'common.cancel' | translate }}
                 </button>
                 <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
-                  Save changes
+                  {{ 'home.saveChanges' | translate }}
                 </button>
               </div>
             </div>
@@ -2888,13 +2915,13 @@
 
           @if (role() === "company") {
           <section class="settings-section">
-            <h2 class="settings-section-title">Workspace Defaults</h2>
+            <h2 class="settings-section-title">{{ 'home.settingsWorkspaceDefaults' | translate }}</h2>
             <p class="settings-section-desc">
-              Set default views for company workflows.
+              {{ 'settings.workspaceCompanyDesc' | translate }}
             </p>
             <div class="settings-card">
               <div class="settings-row settings-row--control">
-                <span class="settings-label">Default room view</span>
+                <span class="settings-label">{{ 'settings.defaultRoomView' | translate }}</span>
                 <div class="settings-control settings-button-group">
                   <button
                     type="button"
@@ -2902,7 +2929,7 @@
                     [class.settings-choice-btn-active]="settingsDraft().defaultRoomView === 'card'"
                     (click)="updateSettingsDraft('defaultRoomView', 'card')"
                   >
-                    Card
+                    {{ 'settings.viewCard' | translate }}
                   </button>
                   <button
                     type="button"
@@ -2910,12 +2937,12 @@
                     [class.settings-choice-btn-active]="settingsDraft().defaultRoomView === 'list'"
                     (click)="updateSettingsDraft('defaultRoomView', 'list')"
                   >
-                    List
+                    {{ 'settings.viewList' | translate }}
                   </button>
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-report-period">Default report period</label>
+                <label class="settings-label" for="settings-report-period">{{ 'settings.defaultReportPeriod' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-report-period"
@@ -2923,31 +2950,31 @@
                     [ngModel]="settingsDraft().defaultReportPeriod"
                     (ngModelChange)="updateSettingsDraft('defaultReportPeriod', $event)"
                   >
-                    <option value="thisWeek">This week</option>
-                    <option value="thisMonth">This month</option>
-                    <option value="last30Days">Last 30 days</option>
+                    <option value="thisWeek">{{ 'period.thisWeek' | translate }}</option>
+                    <option value="thisMonth">{{ 'period.thisMonth' | translate }}</option>
+                    <option value="last30Days">{{ 'home.reportLast30Days' | translate }}</option>
                   </select>
                 </div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
-                  Cancel
+                  {{ 'common.cancel' | translate }}
                 </button>
                 <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
-                  Save changes
+                  {{ 'home.saveChanges' | translate }}
                 </button>
               </div>
             </div>
           </section>
           } @else {
           <section class="settings-section">
-            <h2 class="settings-section-title">Platform Admin Preferences</h2>
+            <h2 class="settings-section-title">{{ 'home.settingsPlatformAdmin' | translate }}</h2>
             <p class="settings-section-desc">
-              Configure default list behavior for the admin workspace.
+              {{ 'settings.platformAdminDesc' | translate }}
             </p>
             <div class="settings-card">
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-company-filter">Company filter default</label>
+                <label class="settings-label" for="settings-company-filter">{{ 'settings.companyFilterDefaultLabel' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-company-filter"
@@ -2955,13 +2982,13 @@
                     [ngModel]="settingsDraft().defaultCompanyStatusFilter"
                     (ngModelChange)="updateSettingsDraft('defaultCompanyStatusFilter', $event)"
                   >
-                    <option value="all">All companies</option>
-                    <option value="active">Active only</option>
+                    <option value="all">{{ 'settings.filterAllCompanies' | translate }}</option>
+                    <option value="active">{{ 'settings.filterActiveOnly' | translate }}</option>
                   </select>
                 </div>
               </div>
               <div class="settings-row settings-row--control">
-                <label class="settings-label" for="settings-admin-sort">Admin sort default</label>
+                <label class="settings-label" for="settings-admin-sort">{{ 'settings.adminSortDefaultLabel' | translate }}</label>
                 <div class="settings-control">
                   <select
                     id="settings-admin-sort"
@@ -2969,18 +2996,18 @@
                     [ngModel]="settingsDraft().adminSortDefault"
                     (ngModelChange)="updateSettingsDraft('adminSortDefault', $event)"
                   >
-                    <option value="name">Name</option>
-                    <option value="email">Email</option>
-                    <option value="company">Company</option>
+                    <option value="name">{{ 'settings.sortByName' | translate }}</option>
+                    <option value="email">{{ 'settings.sortByEmail' | translate }}</option>
+                    <option value="company">{{ 'settings.sortByCompany' | translate }}</option>
                   </select>
                 </div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
-                  Cancel
+                  {{ 'common.cancel' | translate }}
                 </button>
                 <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
-                  Save changes
+                  {{ 'home.saveChanges' | translate }}
                 </button>
               </div>
             </div>
@@ -2988,21 +3015,21 @@
           }
 
           <section class="settings-section">
-            <h2 class="settings-section-title">Session &amp; Security</h2>
+            <h2 class="settings-section-title">{{ 'home.settingsSessionSecurity' | translate }}</h2>
             <p class="settings-section-desc">
-              Manage your current session and sign-out behavior.
+              {{ 'settings.sessionSecurityDesc' | translate }}
             </p>
             <div class="settings-card">
               <div class="settings-row">
-                <span class="settings-label">Current session</span>
-                <span class="settings-value">This browser session is active</span>
+                <span class="settings-label">{{ 'settings.currentSession' | translate }}</span>
+                <span class="settings-value">{{ 'settings.sessionActive' | translate }}</span>
               </div>
               <div class="settings-actions">
                 <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="onLogout()">
-                  Sign out of this device
+                  {{ 'settings.signOutThisDevice' | translate }}
                 </button>
                 <button type="button" class="settings-action-btn settings-action-btn--disabled" disabled>
-                  Sign out all devices (coming soon)
+                  {{ 'settings.signOutAllDevicesSoon' | translate }}
                 </button>
               </div>
             </div>
@@ -3078,7 +3105,7 @@
     <div class="min-h-full home-main-inner">
       <!-- Page Title - Left Aligned -->
       <h1 class="text-3xl font-semibold text-gray-900 mb-8 flex justify-center create-company-modal-title">
-        Create Company
+        {{ 'home.createCompanyTitle' | translate }}
       </h1>
 
       <!-- Form Container - Centered -->
@@ -3102,7 +3129,7 @@
             <div class="flex flex-col items-center w-4">
               <img
                 src="/stepper-left.png"
-                alt="Arrow"
+                [attr.alt]="'modals.stepperArrowAlt' | translate"
                 class="drawer-chevron"
                 width="32"
               />
@@ -3112,7 +3139,7 @@
                   'text-purple-600': createCompanyStep() >= 1,
                   'text-gray-400': createCompanyStep() < 1
                 }"
-                >Company Information</span
+                >{{ 'modals.stepCompanyInformation' | translate }}</span
               >
             </div>
 
@@ -3130,7 +3157,7 @@
             <div class="flex flex-col items-center w-4">
               <img
                 src="/stepper-left.png"
-                alt="Arrow"
+                [attr.alt]="'modals.stepperArrowAlt' | translate"
                 class="drawer-chevron"
                 width="32"
               />
@@ -3140,7 +3167,7 @@
                   'text-purple-600': createCompanyStep() >= 2,
                   'text-gray-400': createCompanyStep() < 2
                 }"
-                >Invite Admins</span
+                >{{ 'modals.stepInviteAdmins' | translate }}</span
               >
             </div>
           </div>
@@ -3161,7 +3188,7 @@
                   font-weight: 400;
                   line-height: 24px;
                 "
-                >Logo</label
+                >{{ 'modals.logoLabel' | translate }}</label
               >
               <div
                 class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer"
@@ -3170,17 +3197,17 @@
                 (drop)="onLogoDrop($event)"
               >
                 <p class="text-gray-400 mb-4">
-                  Choose a file or drag & drop it here.
+                  {{ 'modals.dropLogoHere' | translate }}
                 </p>
                 <button
                   type="button"
                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                   (click)="triggerLogoUpload(); $event.stopPropagation()"
                 >
-                  Upload Image
+                  {{ 'modals.uploadImage' | translate }}
                 </button>
                 <p class="text-gray-400 text-sm mt-2 text-center">
-                  Max file size 50MB
+                  {{ 'modals.maxFileSize50' | translate }}
                 </p>
                 @if (logoFileSizeError()) {
                 <p class="text-red-500 text-sm mt-2 text-center font-medium">
@@ -3199,7 +3226,7 @@
                 <div class="mt-4">
                   <img
                     [src]="logoPreview"
-                    alt="Logo preview"
+                    [attr.alt]="'modals.logoPreviewAlt' | translate"
                     class="max-h-32 mx-auto rounded"
                   />
                 </div>
@@ -3219,13 +3246,13 @@
                   font-weight: 400;
                   line-height: 24px;
                 "
-                >Company name</label
+                >{{ 'modals.companyNameField' | translate }}</label
               >
               <input
                 type="text"
                 [(ngModel)]="newCompany.name"
                 class="w-full px-0 py-2 border-0 border-b-2 border-gray-300 focus:outline-none focus:border-purple-600 bg-transparent"
-                placeholder="Your company name"
+                [attr.placeholder]="'modals.companyNamePlaceholder' | translate"
               />
             </div>
 
@@ -3241,13 +3268,13 @@
                   font-weight: 400;
                   line-height: 24px;
                 "
-                >Address</label
+                >{{ 'modals.address' | translate }}</label
               >
               <input
                 type="text"
                 [(ngModel)]="newCompany.address"
                 class="w-full px-0 py-2 border-0 border-b-2 border-gray-300 focus:outline-none focus:border-purple-600 bg-transparent"
-                placeholder="Your company address"
+                [attr.placeholder]="'modals.addressPlaceholder' | translate"
               />
             </div>
 
@@ -3263,7 +3290,7 @@
                   font-weight: 400;
                   line-height: 24px;
                 "
-                >Industry</label
+                >{{ 'modals.industry' | translate }}</label
               >
               <div class="relative" #industryDropdown>
                 <button
@@ -3274,7 +3301,7 @@
                   [class.text-gray-900]="newCompany.industry"
                 >
                   <span>{{
-                    newCompany.industry || "Choose your industry"
+                    newCompany.industry || ('modals.chooseIndustry' | translate)
                   }}</span>
                   <svg
                     class="h-5 text-gray-400 pointer-events-none"
@@ -3323,7 +3350,7 @@
                         d="M12 4v16m8-8H4"
                       />
                     </svg>
-                    <span>Add</span>
+                    <span>{{ 'modals.addIndustry' | translate }}</span>
                   </button>
                   } @else {
                   <div class="industry-add-input-container">
@@ -3333,7 +3360,7 @@
                       (input)="onNewIndustryInputChange($event)"
                       (keyup.enter)="addNewIndustry()"
                       (keyup.escape)="cancelAddIndustry()"
-                      placeholder="Enter industry name"
+                      [attr.placeholder]="'modals.enterIndustryName' | translate"
                       class="industry-add-input"
                       autofocus
                     />
@@ -3344,14 +3371,14 @@
                         class="industry-add-confirm"
                         [disabled]="!newIndustryNameInput.trim()"
                       >
-                        Add
+                        {{ 'modals.addIndustry' | translate }}
                       </button>
                       <button
                         type="button"
                         (click)="cancelAddIndustry()"
                         class="industry-add-cancel"
                       >
-                        Cancel
+                        {{ 'common.cancel' | translate }}
                       </button>
                     </div>
                   </div>
@@ -3373,7 +3400,7 @@
                   font-weight: 400;
                   line-height: 24px;
                 "
-                >Phone</label
+                >{{ 'modals.phoneField' | translate }}</label
               >
               <input
                 type="tel"
@@ -3384,7 +3411,7 @@
                   'border-gray-300 focus:border-purple-600': !phoneError()
                 }"
                 class="w-full px-0 py-2 border-0 border-b-2 bg-transparent focus:outline-none transition-colors"
-                placeholder="Your company phone number"
+                [attr.placeholder]="'modals.phonePlaceholderCompany' | translate"
               />
               @if (phoneError()) {
               <p
@@ -3402,7 +3429,7 @@
                 (click)="setModal('')"
                 class="py-2 border rounded-lg hover:bg-gray-50 transition-colors w-[100px] flex-shrink-0"
               >
-                Cancel
+                {{ 'common.cancel' | translate }}
               </button>
               <button
                 (click)="onCreateCompany()"
@@ -3415,7 +3442,7 @@
                     !isCompanyFormValid()
                 }"
               >
-                Next
+                {{ 'common.next' | translate }}
               </button>
             </div>
           </div>
@@ -3426,13 +3453,13 @@
           <div class="space-y-6">
             <div>
               <h2 class="text-2xl font-semibold text-gray-900 mb-2">
-                Add admin
+                {{ 'modals.addAdminHeading' | translate }}
               </h2>
               <p
                 class="text-gray-600 mb-6"
                 style="font-family: Roboto; font-size: 16px"
               >
-                Please input admin emails (up to 5)
+                {{ 'modals.addAdminEmailsHint' | translate }}
               </p>
 
               <!-- Email Input -->
@@ -3453,7 +3480,7 @@
                   "
                   class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
-                  Add
+                  {{ 'modals.addEmailAction' | translate }}
                 </button>
               </div>
 
@@ -3497,14 +3524,14 @@
                 (click)="goBackToStep1()"
                 class="px-6 py-2 border rounded-lg hover:bg-gray-50 transition-colors w-[100px] flex-shrink-0 flex items-center justify-center"
               >
-                Back
+                {{ 'modals.back' | translate }}
               </button>
               <button
                 type="button"
                 (click)="onFinishInviteAdmins()"
                 class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors w-[100px] flex-shrink-0 flex items-center justify-center"
               >
-                Finish
+                {{ 'modals.finish' | translate }}
               </button>
             </div>
           </div>
@@ -3517,7 +3544,7 @@
   <div class="room-modal-backdrop">
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
-        <h2 class="room-modal-title">Add Meeting Room</h2>
+        <h2 class="room-modal-title">{{ 'home.addMeetingRoom' | translate }}</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3537,26 +3564,26 @@
       <div class="room-modal-body">
         <div class="room-modal-form">
           <div>
-            <label class="room-modal-label">Room Name *</label>
+            <label class="room-modal-label">{{ 'modals.roomNameRequired' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="newRoom.name"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter room name"
+              [attr.placeholder]="'modals.enterRoomName' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Capacity *</label>
+            <label class="room-modal-label">{{ 'modals.capacityRequired' | translate }}</label>
             <input
               type="number"
               [(ngModel)]="newRoom.capacity"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter capacity"
+              [attr.placeholder]="'modals.enterCapacity' | translate"
               min="1"
             />
           </div>
           <div>
-            <label class="room-modal-label">Available From *</label>
+            <label class="room-modal-label">{{ 'modals.availableFromRequired' | translate }}</label>
             <input
               type="time"
               [(ngModel)]="newRoom.availableFrom"
@@ -3564,7 +3591,7 @@
             />
           </div>
           <div>
-            <label class="room-modal-label">Available To *</label>
+            <label class="room-modal-label">{{ 'modals.availableToRequired' | translate }}</label>
             <input
               type="time"
               [(ngModel)]="newRoom.availableTo"
@@ -3572,12 +3599,12 @@
             />
           </div>
           <div>
-            <label class="room-modal-label">Location *</label>
+            <label class="room-modal-label">{{ 'modals.locationRequired' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="newRoom.location"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter location"
+              [attr.placeholder]="'modals.enterLocation' | translate"
             />
           </div>
           <div class="room-modal-actions">
@@ -3585,13 +3612,13 @@
               (click)="setModal('')"
               class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button
               (click)="onCreateRoom()"
               class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700"
             >
-              Save
+              {{ 'common.save' | translate }}
             </button>
           </div>
         </div>
@@ -3602,7 +3629,7 @@
   <div class="room-modal-backdrop">
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
-        <h2 class="room-modal-title">Edit Meeting Room</h2>
+        <h2 class="room-modal-title">{{ 'home.editMeetingRoom' | translate }}</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3622,26 +3649,26 @@
       <div class="room-modal-body">
         <div class="room-modal-form">
           <div>
-            <label class="room-modal-label">Room Name *</label>
+            <label class="room-modal-label">{{ 'modals.roomNameRequired' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="editRoom.name"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter room name"
+              [attr.placeholder]="'modals.enterRoomName' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Capacity *</label>
+            <label class="room-modal-label">{{ 'modals.capacityRequired' | translate }}</label>
             <input
               type="number"
               [(ngModel)]="editRoom.capacity"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter capacity"
+              [attr.placeholder]="'modals.enterCapacity' | translate"
               min="1"
             />
           </div>
           <div>
-            <label class="room-modal-label">Available From *</label>
+            <label class="room-modal-label">{{ 'modals.availableFromRequired' | translate }}</label>
             <input
               type="time"
               [(ngModel)]="editRoom.availableFrom"
@@ -3649,7 +3676,7 @@
             />
           </div>
           <div>
-            <label class="room-modal-label">Available To *</label>
+            <label class="room-modal-label">{{ 'modals.availableToRequired' | translate }}</label>
             <input
               type="time"
               [(ngModel)]="editRoom.availableTo"
@@ -3657,12 +3684,12 @@
             />
           </div>
           <div>
-            <label class="room-modal-label">Location *</label>
+            <label class="room-modal-label">{{ 'modals.locationRequired' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="editRoom.location"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter location"
+              [attr.placeholder]="'modals.enterLocation' | translate"
             />
           </div>
           <div class="room-modal-actions">
@@ -3670,13 +3697,13 @@
               (click)="setModal('')"
               class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button
               (click)="onSaveEditRoom()"
               class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700"
             >
-              Save
+              {{ 'common.save' | translate }}
             </button>
           </div>
         </div>
@@ -3688,7 +3715,7 @@
     <div class="room-modal-panel admin-delete-modal-panel bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl w-full mx-4 !max-w-[500px]">
       <div class="room-modal-header room-modal-header--sticky">
         <h2 class="room-modal-title">
-          Delete Company Admin
+          {{ 'home.deleteCompanyAdminTitle' | translate }}
         </h2>
         <button (click)="onCancelDeleteAdmin()" class="modal-close-button">
           <svg
@@ -3709,7 +3736,7 @@
 
       <div class="room-modal-body admin-delete-modal-body">
         <p class="room-modal-message admin-delete-modal-message">
-          Are you sure you want to delete {{ adminToDelete.firstName }} {{ adminToDelete.lastName }}?
+          {{ 'home.deleteCompanyAdminConfirm' | translate: { firstName: adminToDelete.firstName, lastName: adminToDelete.lastName } }}
         </p>
 
         <div class="room-modal-actions admin-delete-modal-actions">
@@ -3718,14 +3745,14 @@
             (click)="onCancelDeleteAdmin()"
             class="room-modal-footer-btn admin-delete-modal-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
           >
-            Cancel
+            {{ 'common.cancel' | translate }}
           </button>
           <button
             type="button"
             (click)="onConfirmDeleteAdmin()"
             class="room-modal-footer-btn admin-delete-modal-btn bg-purple-600 text-white hover:bg-purple-700"
           >
-            Delete
+            {{ 'common.delete' | translate }}
           </button>
         </div>
       </div>
@@ -3735,7 +3762,7 @@
   <div class="room-modal-backdrop">
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
-        <h2 class="room-modal-title">Delete Room</h2>
+        <h2 class="room-modal-title">{{ 'home.deleteRoomTitle' | translate }}</h2>
         <button (click)="onCancelDeleteRoom()" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3755,22 +3782,20 @@
       <div class="room-modal-body">
         <div class="room-modal-form">
           <p class="room-modal-message">
-            Are you sure you want to delete
-            <strong>"{{ roomToDelete.name }}"</strong>? This action cannot be
-            undone.
+            {{ 'home.deleteRoomBody' | translate: { name: roomToDelete.name } }}
           </p>
           <div class="room-modal-actions">
             <button
               (click)="onCancelDeleteRoom()"
               class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button
               (click)="onConfirmDeleteRoom()"
               class="room-modal-footer-btn bg-red-600 text-white hover:bg-red-700"
             >
-              Delete
+              {{ 'common.delete' | translate }}
             </button>
           </div>
         </div>
@@ -3790,7 +3815,7 @@
       class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4 invite-employee-modal"
     >
       <div class="room-modal-header room-modal-header--sticky">
-        <h2 class="room-modal-title">Invite Employee</h2>
+        <h2 class="room-modal-title">{{ 'home.inviteEmployee' | translate }}</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3810,9 +3835,9 @@
       <div class="room-modal-body">
         <div class="room-modal-form">
           <div>
-            <label class="room-modal-label">Email Address *</label>
+            <label class="room-modal-label">{{ 'modals.employeeEmailRequired' | translate }}</label>
             <p class="room-modal-invite-hint">
-              Please input employee emails
+              {{ 'modals.inviteEmployeeEmailsHint' | translate }}
             </p>
 
             <div class="room-modal-invite-email-row">
@@ -3831,7 +3856,7 @@
                 "
                 class="room-modal-invite-add-btn"
               >
-                Add
+                {{ 'modals.addEmailAction' | translate }}
               </button>
             </div>
 
@@ -3875,7 +3900,7 @@
               "
               class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button
               type="button"
@@ -3883,7 +3908,7 @@
               [disabled]="employeeEmails().length === 0"
               class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Invite
+              {{ 'common.invite' | translate }}
             </button>
           </div>
         </div>
@@ -3892,21 +3917,21 @@
           <div class="room-modal-form">
             @if (invitationResponse.message) {
             <div>
-              <label class="room-modal-label">Message</label>
+              <label class="room-modal-label">{{ 'modals.invitationMessage' | translate }}</label>
               <div class="room-modal-response-box">
                 {{ invitationResponse.message }}
               </div>
             </div>
             } @if (invitationResponse.invitationLink) {
             <div>
-              <label class="room-modal-label">Invitation Link</label>
+              <label class="room-modal-label">{{ 'modals.invitationLink' | translate }}</label>
               <div class="room-modal-response-box break-all">
                 {{ invitationResponse.invitationLink }}
               </div>
             </div>
             } @if (invitationResponse.token) {
             <div>
-              <label class="room-modal-label">Token</label>
+              <label class="room-modal-label">{{ 'modals.invitationToken' | translate }}</label>
               <div class="room-modal-response-box break-all font-mono">
                 {{ invitationResponse.token }}
               </div>
@@ -3922,7 +3947,7 @@
   <div class="room-modal-backdrop">
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl room-modal-panel w-full mx-4">
       <div class="room-modal-header">
-        <h2 class="room-modal-title">Edit Employee</h2>
+        <h2 class="room-modal-title">{{ 'home.editEmployee' | translate }}</h2>
         <button (click)="setModal('')" class="modal-close-button">
           <svg
             class="modal-close-icon"
@@ -3942,53 +3967,53 @@
       <div class="room-modal-body">
         <div class="room-modal-form">
           <div>
-            <label class="room-modal-label">First Name *</label>
+            <label class="room-modal-label">{{ 'modals.firstNameRequired' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.firstName"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter first name"
+              [attr.placeholder]="'modals.enterFirstName' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Last Name *</label>
+            <label class="room-modal-label">{{ 'modals.lastNameRequired' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.lastName"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter last name"
+              [attr.placeholder]="'modals.enterLastName' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Email</label>
+            <label class="room-modal-label">{{ 'modals.emailField' | translate }}</label>
             <input
               type="email"
               [value]="editEmployee.email"
               disabled
               class="room-modal-input w-full border rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-500 cursor-not-allowed dark:border-slate-600"
-              placeholder="Email (read-only)"
+              [attr.placeholder]="'modals.emailReadOnlyHint' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Department</label>
+            <label class="room-modal-label">{{ 'modals.department' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.department"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter department"
+              [attr.placeholder]="'modals.enterDepartment' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Role</label>
+            <label class="room-modal-label">{{ 'modals.roleField' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="editEmployee.role"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="Enter role"
+              [attr.placeholder]="'modals.enterRole' | translate"
             />
           </div>
           <div>
-            <label class="room-modal-label">Status *</label>
+            <label class="room-modal-label">{{ 'modals.statusRequired' | translate }}</label>
             <div class="status-select-wrap">
               <button
                 type="button"
@@ -4000,29 +4025,29 @@
                 [attr.aria-expanded]="showEditEmployeeStatusMenu"
                 aria-haspopup="listbox"
               >
-                <span>{{ editEmployee.status | titlecase }}</span>
+                <span>{{ ('common.' + editEmployee.status) | translate }}</span>
                 <i class="pi pi-chevron-down status-select-chevron"></i>
               </button>
 
               @if (showEditEmployeeStatusMenu && !updatingEmployeeStatus) {
               <div class="status-select-menu" role="listbox">
-                @for (status of employeeStatusOptions; track status.value) {
+                @for (status of employeeStatusOptions; track status) {
                 <button
                   type="button"
                   class="status-select-option"
-                  [class.status-select-option-active]="editEmployee.status === status.value"
-                  (click)="setEditEmployeeStatus(status.value)"
+                  [class.status-select-option-active]="editEmployee.status === status"
+                  (click)="setEditEmployeeStatus(status)"
                   role="option"
-                  [attr.aria-selected]="editEmployee.status === status.value"
+                  [attr.aria-selected]="editEmployee.status === status"
                 >
-                  {{ status.label }}
+                  {{ ('common.' + status) | translate }}
                 </button>
                 }
               </div>
               }
             </div>
             @if (updatingEmployeeStatus) {
-            <p class="text-gray-500 text-xs mt-1">Updating status...</p>
+            <p class="text-gray-500 text-xs mt-1">{{ 'modals.updatingStatus' | translate }}</p>
             }
           </div>
           <div class="room-modal-actions">
@@ -4030,13 +4055,13 @@
               (click)="setModal('')"
               class="room-modal-footer-btn border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </button>
             <button
               (click)="onSaveEditEmployee()"
               class="room-modal-footer-btn bg-purple-600 text-white hover:bg-purple-700"
             >
-              Save
+              {{ 'common.save' | translate }}
             </button>
           </div>
         </div>

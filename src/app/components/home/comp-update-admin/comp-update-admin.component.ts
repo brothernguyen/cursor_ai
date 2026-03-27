@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, Output, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Company, User } from '../../../interfaces/auth';
 import { AuthService } from '../../../services/auth.service';
 import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-comp-update-admin',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './comp-update-admin.component.html',
   styleUrl: './comp-update-admin.component.scss'
 })
@@ -20,6 +22,7 @@ export class CompUpdateAdminComponent implements OnInit {
   adminForm!: FormGroup;
   authService = inject(AuthService);
   msgService = inject(MessageService);
+  private translate = inject(TranslateService);
   isSubmitting = false;
 
   constructor(private fb: FormBuilder) { }
@@ -53,8 +56,8 @@ export class CompUpdateAdminComponent implements OnInit {
           this.isSubmitting = false;
           this.msgService.add({
             severity: 'success',
-            summary: 'Success',
-            detail: 'Admin updated successfully',
+            summary: this.translate.instant('common.success'),
+            detail: this.translate.instant('toast.adminUpdatedDetail'),
             life: 3000
           });
           this.updated.emit();
@@ -63,10 +66,13 @@ export class CompUpdateAdminComponent implements OnInit {
         error: (error) => {
           console.error('==>Error updating admin:', error);
           this.isSubmitting = false;
-          const errorMessage = error.error?.message || error.message || 'Failed to update admin. Please try again.';
+          const errorMessage =
+            error.error?.message ||
+            error.message ||
+            this.translate.instant('toast.failedUpdateAdminDetail');
           this.msgService.add({
             severity: 'error',
-            summary: 'Error',
+            summary: this.translate.instant('common.error'),
             detail: errorMessage,
             life: 3000
           });
