@@ -97,7 +97,7 @@
 }
 
 .home-root-shell {
-  background-color: #f8fafc;
+  background-color: var(--app-bg);
 }
 
 // Main column offset — uses :host --drawer-* (keeps PrimeNG drawer width and margin in sync)
@@ -111,13 +111,13 @@
 
 .main-shell {
   transition: margin-left 0.3s ease-in-out;
-  background-color: #f8fafc;
+  background-color: var(--app-bg);
   position: relative;
   contain: paint;
 }
 
 .home-main-inner {
-  background-color: #f8fafc;
+  background-color: var(--app-bg);
   position: relative;
   z-index: 1;
 }
@@ -208,6 +208,138 @@
     &:active {
       background-color: rgba(17, 24, 39, 1);
     }
+  }
+
+  /* Company dashboard — base styles hardcode light surfaces; align with global dark tokens */
+  .welcome-title {
+    color: #60a5fa;
+  }
+
+  .company-subtitle {
+    color: #94a3b8;
+  }
+
+  .company-kpi-card {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+  }
+
+  .kpi-label,
+  .kpi-last-month {
+    color: #94a3b8;
+  }
+
+  .kpi-value {
+    color: var(--app-fg);
+  }
+
+  .change-increase {
+    background: rgba(16, 185, 129, 0.2);
+  }
+
+  .change-decrease {
+    background: rgba(248, 113, 113, 0.15);
+  }
+
+  .room-utilization-card {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+  }
+
+  .utilization-title {
+    color: #94a3b8;
+  }
+
+  .utilization-tabs {
+    background: var(--app-surface-alt);
+    border-color: var(--app-border);
+  }
+
+  .utilization-tab {
+    color: #cbd5e1;
+
+    &.tab-active {
+      color: #ffffff;
+    }
+  }
+
+  .chart-bars::before {
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(9.09% - 0.5px),
+      #475569 calc(9.09% - 0.5px),
+      #475569 calc(9.09% + 0.5px),
+      transparent calc(9.09% + 0.5px),
+      transparent 9.09%
+    );
+  }
+
+  .room-name-label {
+    color: var(--app-fg);
+  }
+
+  .axis-labels {
+    color: #64748b;
+  }
+
+  /* System admin dashboard surfaces */
+  .system-dashboard-title {
+    color: #e2e8f0;
+  }
+
+  .system-period-select-button {
+    background: var(--app-surface-alt);
+    border-color: var(--app-border);
+    color: #e2e8f0;
+
+    &:hover {
+      background: #1e293b;
+      border-color: #64748b;
+    }
+  }
+
+  .system-period-select-icon {
+    color: #94a3b8;
+  }
+
+  .system-period-dropdown-menu {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .system-period-dropdown-option {
+    color: #e2e8f0;
+
+    &:hover {
+      background-color: #1e293b;
+    }
+
+    &.system-period-option-selected {
+      background-color: #334155;
+    }
+  }
+
+  .system-kpi-card-white {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+  }
+
+  .system-kpi-title-white {
+    color: #94a3b8;
+  }
+
+  .system-kpi-value-white {
+    color: #f1f5f9;
+  }
+
+  .system-kpi-subtext-white {
+    color: #94a3b8;
+  }
+
+  .system-kpi-card-white .system-kpi-icon {
+    stroke: #94a3b8;
   }
 }
 

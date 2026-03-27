@@ -35,7 +35,7 @@ export class LayoutService {
         preset: 'Aura',
         primary: 'emerald',
         surface: null,
-        darkTheme: false,
+        darkTheme: true,
         menuMode: 'static'
     };
 
@@ -67,11 +67,13 @@ export class LayoutService {
 
     overlayOpen$ = this.overlayOpen.asObservable();
 
-    theme = computed(() => (this.layoutConfig()?.darkTheme ? 'light' : 'dark'));
+    /** Inverted label for legacy Prime preset hookup: when our `darkTheme` is on (`!== false`), value is `'light'`. */
+    theme = computed(() => (this.layoutConfig().darkTheme !== false ? 'light' : 'dark'));
 
     isSidebarActive = computed(() => this.layoutState().overlayMenuActive || this.layoutState().staticMenuMobileActive);
 
-    isDarkTheme = computed(() => this.layoutConfig().darkTheme);
+    /** Dark UI is default; only an explicit `darkTheme: false` (e.g. saved preference) turns it off. */
+    isDarkTheme = computed(() => this.layoutConfig().darkTheme !== false);
 
     getPrimary = computed(() => this.layoutConfig().primary);
 
@@ -90,10 +92,16 @@ export class LayoutService {
                 if (raw) {
                     const parsed = JSON.parse(raw) as Partial<layoutConfig>;
                     Object.assign(this._config, parsed);
+                    if (parsed.darkTheme !== true && parsed.darkTheme !== false) {
+                        this._config.darkTheme = true;
+                    }
+                    this.layoutConfig.set({ ...this._config });
+                } else {
                     this.layoutConfig.set({ ...this._config });
                 }
             } catch {
                 /* ignore corrupt storage */
+                this.layoutConfig.set({ ...this._config });
             }
         }
 
@@ -155,7 +163,7 @@ export class LayoutService {
             return;
         }
         const _config = config || this.layoutConfig();
-        if (_config.darkTheme) {
+        if (_config.darkTheme !== false) {
             document.documentElement.classList.add('app-dark');
         } else {
             document.documentElement.classList.remove('app-dark');

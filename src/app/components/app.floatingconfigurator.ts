@@ -23,10 +23,13 @@ export class AppFloatingConfigurator {
 
     float = input<boolean>(true);
 
-    isDarkTheme = computed(() => this.LayoutService.layoutConfig().darkTheme);
+    isDarkTheme = computed(() => this.LayoutService.layoutConfig().darkTheme !== false);
 
     toggleDarkMode() {
-        this.LayoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+        this.LayoutService.layoutConfig.update((state) => ({
+            ...state,
+            darkTheme: state.darkTheme === false,
+        }));
     }
 
 }

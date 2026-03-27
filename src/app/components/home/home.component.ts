@@ -1665,7 +1665,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   toggleAppThemeMode(): void {
-    this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: !s.darkTheme }));
+    this.layoutService.layoutConfig.update((s) => ({
+      ...s,
+      darkTheme: s.darkTheme === false,
+    }));
   }
 
   updateSettingsDraft<K extends keyof SettingsDraft>(key: K, value: SettingsDraft[K]): void {
@@ -1744,7 +1747,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   get isDarkThemeEnabled(): boolean {
-    return !!this.layoutService.layoutConfig().darkTheme;
+    return this.layoutService.layoutConfig().darkTheme !== false;
   }
 
   get shouldDimGlobalThemeToggle(): boolean {
