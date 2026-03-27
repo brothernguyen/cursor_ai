@@ -1628,6 +1628,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: mode === 'dark' }));
   }
 
+  toggleAppThemeMode(): void {
+    this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: !s.darkTheme }));
+  }
+
+  onThemeToggleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.toggleAppThemeMode();
+    }
+  }
+
+  get isDarkThemeEnabled(): boolean {
+    return !!this.layoutService.layoutConfig().darkTheme;
+  }
+
+  get shouldDimGlobalThemeToggle(): boolean {
+    return (
+      !!this.modal() ||
+      this.showDetail() ||
+      this.showCreateAdmin() ||
+      this.showDeleteAdmin() ||
+      this.showUpdateAdmin() ||
+      this.showDeleteCompany() ||
+      !!this.adminToDelete ||
+      !!this.roomToDelete ||
+      this.modal() === 'editEmployee'
+    );
+  }
+
   setModal(modal: string) {
     this.modal.set(modal);
     if (modal !== 'editEmployee') {

@@ -1,6 +1,28 @@
 <div
   class="home-root-shell h-screen flex overflow-hidden"
 >
+  <button
+    type="button"
+    class="global-theme-toggle"
+    [class.global-theme-toggle--dark]="isDarkThemeEnabled"
+    [class.global-theme-toggle--dimmed]="shouldDimGlobalThemeToggle"
+    (click)="toggleAppThemeMode()"
+    (keydown)="onThemeToggleKeydown($event)"
+    role="switch"
+    [attr.aria-checked]="isDarkThemeEnabled"
+    [attr.aria-label]="isDarkThemeEnabled ? 'Switch to light mode' : 'Switch to dark mode'"
+    [attr.title]="isDarkThemeEnabled ? 'Dark mode is on' : 'Light mode is on'"
+  >
+    <span class="global-theme-toggle-track"></span>
+    <span class="global-theme-toggle-thumb">
+      @if (isDarkThemeEnabled) {
+      <i class="pi pi-moon"></i>
+      } @else {
+      <i class="pi pi-sun"></i>
+      }
+    </span>
+  </button>
+
   <!-- PrimeNG Drawer - Figma Design -->
   <p-drawer
     [(visible)]="sidebarOpen"

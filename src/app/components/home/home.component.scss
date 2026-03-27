@@ -7,6 +7,81 @@
   --drawer-collapsed: 80px;
 }
 
+.global-theme-toggle {
+  position: fixed;
+  top: 18px;
+  right: 56px;
+  width: 64px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #8b5cf6;
+  background: #eef2ff;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  cursor: pointer;
+  z-index: 1300;
+  transition: border-color 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease, opacity 0.2s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.global-theme-toggle-track {
+  position: absolute;
+  inset: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e0e7ff 0%, #ede9fe 100%);
+  transition: background 0.2s ease;
+}
+
+.global-theme-toggle-thumb {
+  position: relative;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #c4b5fd;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f59e0b;
+  transform: translateX(0);
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    background-color 0.2s ease;
+
+  i {
+    font-size: 12px;
+    line-height: 1;
+  }
+}
+
+.global-theme-toggle--dark {
+  border-color: #a78bfa;
+  background: #111827;
+
+  .global-theme-toggle-track {
+    background: linear-gradient(90deg, #1f2937 0%, #312e81 100%);
+  }
+
+  .global-theme-toggle-thumb {
+    transform: translateX(30px);
+    background: #312e81;
+    border-color: #a78bfa;
+    color: #e9d5ff;
+  }
+}
+
+.global-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.35), 0 8px 20px rgba(0, 0, 0, 0.16);
+}
+
+.global-theme-toggle--dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .home-root-shell {
   background-color: #f8fafc;
 }
@@ -42,6 +117,13 @@
 
   @media (min-width: 1024px) and (max-width: 1279px) {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .global-theme-toggle {
+    right: 40px;
+    top: 14px;
   }
 }
 
@@ -97,6 +179,12 @@
 
 /* Ensure popover menu "details-btn" stays readable in dark mode. */
 :host-context(html.app-dark) {
+  .global-theme-toggle {
+    border-color: #a78bfa;
+    background: #111827;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
   .details-btn {
     &:hover {
       background-color: rgba(30, 41, 59, 0.95);
