@@ -1624,10 +1624,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  setAppThemeMode(mode: 'light' | 'dark'): void {
-    this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: mode === 'dark' }));
-  }
-
   toggleAppThemeMode(): void {
     this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: !s.darkTheme }));
   }

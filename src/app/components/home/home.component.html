@@ -2706,31 +2706,6 @@
             </div>
           </section>
 
-          <section class="settings-section">
-            <h2 class="settings-section-title">Appearance</h2>
-            <p class="settings-section-desc">
-              Light or dark theme. Your choice is saved in this browser (same as
-              the theme toggle in the layout configurator, if you use it).
-            </p>
-            <div class="settings-theme-toggle" role="group" aria-label="Theme">
-              <button
-                type="button"
-                class="settings-theme-btn"
-                [class.settings-theme-btn-active]="!layoutService.isDarkTheme()"
-                (click)="setAppThemeMode('light')"
-              >
-                Light
-              </button>
-              <button
-                type="button"
-                class="settings-theme-btn"
-                [class.settings-theme-btn-active]="layoutService.isDarkTheme()"
-                (click)="setAppThemeMode('dark')"
-              >
-                Dark
-              </button>
-            </div>
-          </section>
         </div>
       </div>
       }
