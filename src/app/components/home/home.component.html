@@ -271,9 +271,7 @@
             @if (showPeriodDropdown()) {
             <div class="system-period-dropdown-menu">
               <button
-                (click)="
-                  selectedPeriod.set('This week'); showPeriodDropdown.set(false)
-                "
+                (click)="onSystemPeriodSelect('This week')"
                 [ngClass]="{
                   'system-period-option-selected':
                     selectedPeriod() === 'This week'
@@ -283,10 +281,7 @@
                 This week
               </button>
               <button
-                (click)="
-                  selectedPeriod.set('This month');
-                  showPeriodDropdown.set(false)
-                "
+                (click)="onSystemPeriodSelect('This month')"
                 [ngClass]="{
                   'system-period-option-selected':
                     selectedPeriod() === 'This month'
@@ -392,6 +387,61 @@
             </div>
           </div>
           }
+        </div>
+
+        <div class="dashboard-insights-grid">
+          <div class="dashboard-info-card">
+            <div class="dashboard-info-header">
+              <h3 class="dashboard-info-title">Peak Booking Slots</h3>
+              <span class="dashboard-info-subtitle">{{ selectedPeriod() }}</span>
+            </div>
+            <div class="booking-slot-list">
+              @for (slot of systemDashboardBookingsByHourPreview; track slot.label) {
+              <div class="booking-slot-row">
+                <div class="booking-slot-meta">
+                  <span class="booking-slot-label">{{ slot.label }}</span>
+                  <span class="booking-slot-value">{{ slot.count }} bookings</span>
+                </div>
+                <div class="booking-slot-track">
+                  <div class="booking-slot-fill" [style.width.%]="slot.pct"></div>
+                </div>
+              </div>
+              }
+            </div>
+            <div class="insight-list">
+              @for (company of systemDashboardTopCompanies; track company.name) {
+              <div class="insight-row">
+                <div class="insight-copy">
+                  <p class="insight-label">{{ company.name }}</p>
+                  <p class="insight-value">
+                    {{ company.users }} users, {{ company.admins }} admins
+                  </p>
+                </div>
+                <span class="insight-tone insight-tone-good">{{ company.healthPct }}%</span>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="dashboard-info-card">
+            <div class="dashboard-info-header">
+              <h3 class="dashboard-info-title">Operational Insights</h3>
+              <span class="dashboard-info-subtitle">System health</span>
+            </div>
+            <div class="insight-list">
+              @for (insight of systemDashboardOperationalInsights; track insight.label) {
+              <div class="insight-row">
+                <div class="insight-copy">
+                  <p class="insight-label">{{ insight.label }}</p>
+                  <p class="insight-value">{{ insight.value }}</p>
+                </div>
+                <span class="insight-tone" [ngClass]="'insight-tone-' + insight.tone">{{
+                  insight.tone
+                }}</span>
+              </div>
+              }
+            </div>
+          </div>
         </div>
       </div>
       } @if (role() === 'system' && view() === 'companies') {
@@ -1269,10 +1319,7 @@
             @if (showCompanyPeriodDropdown()) {
             <div class="period-dropdown-menu">
               <button
-                (click)="
-                  selectedCompanyPeriod.set('This week');
-                  showCompanyPeriodDropdown.set(false)
-                "
+                (click)="onCompanyPeriodSelect('This week')"
                 [ngClass]="{
                   'period-option-selected':
                     selectedCompanyPeriod() === 'This week'
@@ -1282,10 +1329,7 @@
                 This week
               </button>
               <button
-                (click)="
-                  selectedCompanyPeriod.set('This month');
-                  showCompanyPeriodDropdown.set(false)
-                "
+                (click)="onCompanyPeriodSelect('This month')"
                 [ngClass]="{
                   'period-option-selected':
                     selectedCompanyPeriod() === 'This month'
@@ -1301,12 +1345,7 @@
 
         <!-- KPI Cards Section -->
         <div class="kpi-cards-row">
-          @for (kpi of [ { label: 'Meeting Room', value: '12', change: '2.0',
-          changeType: 'increase', lastMonth: '1234' }, { label: 'Active ' +
-          'Employees', value: '12', change: '2.0', changeType: 'decrease',
-          lastMonth: '1234' }, { label: 'Active Meetings', value: '12', change:
-          '2.0', changeType: 'increase', lastMonth: '1234' } ]; track kpi.label)
-          {
+          @for (kpi of companyDashboardKpis; track kpi.label) {
           <div class="company-kpi-card">
             <div class="kpi-card-content">
               <p class="kpi-label">{{ kpi.label }}</p>
@@ -1345,11 +1384,11 @@
                     ></path>
                     }
                   </svg>
-                  <span class="change-text">{{ kpi.change }} %</span>
+                  <span class="change-text">{{ kpi.change }}</span>
                 </div>
               </div>
               <div class="kpi-last-month">
-                <span>Last month:</span>
+                <span>Context:</span>
                 <span>{{ kpi.lastMonth }}</span>
               </div>
             </div>
@@ -1391,7 +1430,7 @@
                 [ngClass]="{
                   'tab-active': selectedUtilizationPeriod() === 'Today'
                 }"
-                (click)="selectedUtilizationPeriod.set('Today')"
+                (click)="onUtilizationPeriodChange('Today')"
               >
                 Today
               </button>
@@ -1400,7 +1439,7 @@
                 [ngClass]="{
                   'tab-active': selectedUtilizationPeriod() === 'Week'
                 }"
-                (click)="selectedUtilizationPeriod.set('Week')"
+                (click)="onUtilizationPeriodChange('Week')"
               >
                 Week
               </button>
@@ -1409,7 +1448,7 @@
                 [ngClass]="{
                   'tab-active': selectedUtilizationPeriod() === 'Month'
                 }"
-                (click)="selectedUtilizationPeriod.set('Month')"
+                (click)="onUtilizationPeriodChange('Month')"
               >
                 Month
               </button>
@@ -1418,15 +1457,12 @@
 
           <div class="utilization-chart-container">
             <div class="chart-bars">
-              @for (room of [ { name: 'Conference Room A', usage: 39 }, { name:
-              'Conference Room A', usage: 50 }, { name: 'Conference Room A',
-              usage: 90 }, { name: 'Conference Room A', usage: 62 }, { name:
-              'Conference Room A', usage: 25 } ]; track $index) {
+              @for (room of companyDashboardTopRooms; track room.roomName + '-' + $index) {
               <div class="chart-row">
-                <div class="room-name-label">{{ room.name }}</div>
+                <div class="room-name-label">{{ room.roomName }}</div>
                 <div class="chart-bar-wrapper">
-                  <div class="chart-bar" [style.width.%]="room.usage">
-                    <span class="bar-value">{{ room.usage }}</span>
+                  <div class="chart-bar" [style.width.%]="room.usagePct">
+                    <span class="bar-value">{{ room.usagePct }}%</span>
                   </div>
                 </div>
               </div>
@@ -1446,6 +1482,53 @@
                 <span>90</span>
                 <span>100</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trends + Operational Insights -->
+        <div class="dashboard-insights-grid">
+          <div class="dashboard-info-card">
+            <div class="dashboard-info-header">
+              <h3 class="dashboard-info-title">Bookings by Hour (Top Slots)</h3>
+              <span class="dashboard-info-subtitle"
+                >Avg utilization: {{ companyDashboardTrendSummary.avgUtilization }}%</span
+              >
+            </div>
+            <div class="booking-slot-list">
+              @for (slot of companyDashboardBookingsByHourPreview; track slot.label) {
+              <div class="booking-slot-row">
+                <div class="booking-slot-meta">
+                  <span class="booking-slot-label">{{ slot.label }}</span>
+                  <span class="booking-slot-value">{{ slot.count }} bookings</span>
+                </div>
+                <div class="booking-slot-track">
+                  <div class="booking-slot-fill" [style.width.%]="slot.pct"></div>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="dashboard-info-card">
+            <div class="dashboard-info-header">
+              <h3 class="dashboard-info-title">Operational Insights</h3>
+              <span class="dashboard-info-subtitle"
+                >Peak day: {{ reportSummaryKpis.peakDayLabel }}</span
+              >
+            </div>
+            <div class="insight-list">
+              @for (insight of companyDashboardOperationalInsights; track insight.label) {
+              <div class="insight-row">
+                <div class="insight-copy">
+                  <p class="insight-label">{{ insight.label }}</p>
+                  <p class="insight-value">{{ insight.value }}</p>
+                </div>
+                <span class="insight-tone" [ngClass]="'insight-tone-' + insight.tone">{{
+                  insight.tone
+                }}</span>
+              </div>
+              }
             </div>
           </div>
         </div>

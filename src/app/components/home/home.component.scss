@@ -1370,6 +1370,165 @@
   flex-shrink: 0;
 }
 
+.dashboard-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.dashboard-info-card {
+  background: #ffffff;
+  border: 1px solid #cdd5df;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dashboard-info-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-info-title {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #364152;
+}
+
+.dashboard-info-subtitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #697586;
+  white-space: nowrap;
+}
+
+.booking-slot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-slot-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.booking-slot-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.booking-slot-label {
+  font-family: "Roboto", sans-serif;
+  color: #4b5565;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.booking-slot-value {
+  font-family: "Roboto", sans-serif;
+  color: #697586;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.booking-slot-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  overflow: hidden;
+}
+
+.booking-slot-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7c3aed 0%, #9333ea 100%);
+}
+
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.insight-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.insight-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.insight-label {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  color: #364152;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.insight-value {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  color: #697586;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.insight-tone {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  text-transform: capitalize;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.insight-tone-good {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.insight-tone-warn {
+  color: #a16207;
+  background: #fef9c3;
+}
+
+.insight-tone-danger {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 // Meeting Rooms Layout Styles
 .rooms-container {
   display: flex;
@@ -4943,6 +5102,54 @@ select.room-modal-input {
   .kpi-value,
   .kpi-last-month {
     color: #e2e8f0;
+  }
+
+  .dashboard-info-card {
+    background: #0f172a;
+    border-color: #334155;
+  }
+
+  .dashboard-info-title {
+    color: #e2e8f0;
+  }
+
+  .dashboard-info-subtitle,
+  .booking-slot-value,
+  .insight-value {
+    color: #94a3b8;
+  }
+
+  .booking-slot-label,
+  .insight-label {
+    color: #e2e8f0;
+  }
+
+  .booking-slot-track {
+    background: #1e293b;
+  }
+
+  .booking-slot-fill {
+    background: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
+  }
+
+  .insight-row {
+    background: #111827;
+    border-color: #334155;
+  }
+
+  .insight-tone-good {
+    color: #86efac;
+    background: rgba(22, 163, 74, 0.2);
+  }
+
+  .insight-tone-warn {
+    color: #fcd34d;
+    background: rgba(161, 98, 7, 0.25);
+  }
+
+  .insight-tone-danger {
+    color: #fca5a5;
+    background: rgba(185, 28, 28, 0.25);
   }
 
   .report-kpi-hint,

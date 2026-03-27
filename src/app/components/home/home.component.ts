@@ -826,13 +826,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private reportMockSeed(): number {
-    const p = this.reportPeriod();
-    const b = this.reportBuildingFilter();
-    return this.simpleHash(`${p}|${b}|${this.rooms.length}`);
+    return this.reportMockSeedFor(this.reportPeriod(), this.reportBuildingFilter());
+  }
+
+  private reportMockSeedFor(period: 'thisWeek' | 'thisMonth' | 'last30Days', building: string): number {
+    return this.simpleHash(`${period}|${building}|${this.rooms.length}`);
   }
 
   private reportPeriodDayCount(): number {
-    switch (this.reportPeriod()) {
+    return this.reportPeriodDayCountFor(this.reportPeriod());
+  }
+
+  private reportPeriodDayCountFor(period: 'thisWeek' | 'thisMonth' | 'last30Days'): number {
+    switch (period) {
       case 'thisWeek':
         return 7;
       case 'thisMonth':
@@ -870,8 +876,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     peakDayLabel: string;
     activeEmployees: number;
   } {
-    const seed = this.reportMockSeed();
-    const days = this.reportPeriodDayCount();
+    return this.reportSummaryKpisFor(this.reportPeriod());
+  }
+
+  private reportSummaryKpisFor(period: 'thisWeek' | 'thisMonth' | 'last30Days'): {
+    totalBookings: number;
+    utilizationPct: number;
+    peakDayLabel: string;
+    activeEmployees: number;
+  } {
+    const seed = this.reportMockSeedFor(period, this.reportBuildingFilter());
+    const days = this.reportPeriodDayCountFor(period);
     const base = 10 + (Math.abs(seed) % 35);
     const totalBookings = Math.max(0, base * Math.min(days, 14) + (Math.abs(seed) % 20));
     const utilizationPct = 32 + (Math.abs(seed) % 58);
@@ -966,6 +981,223 @@ export class HomeComponent implements OnInit, OnDestroy {
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  onCompanyPeriodSelect(periodLabel: 'This week' | 'This month'): void {
+    this.selectedCompanyPeriod.set(periodLabel);
+    this.reportPeriod.set(periodLabel === 'This week' ? 'thisWeek' : 'thisMonth');
+    this.showCompanyPeriodDropdown.set(false);
+  }
+
+  onSystemPeriodSelect(periodLabel: 'This week' | 'This month'): void {
+    this.selectedPeriod.set(periodLabel);
+    this.reportPeriod.set(periodLabel === 'This week' ? 'thisWeek' : 'thisMonth');
+    this.showPeriodDropdown.set(false);
+  }
+
+  onUtilizationPeriodChange(period: 'Today' | 'Week' | 'Month'): void {
+    this.selectedUtilizationPeriod.set(period);
+    if (period === 'Today' || period === 'Week') {
+      this.reportPeriod.set('thisWeek');
+      this.selectedCompanyPeriod.set('This week');
+      return;
+    }
+    this.reportPeriod.set('thisMonth');
+    this.selectedCompanyPeriod.set('This month');
+  }
+
+  get companyDashboardKpis(): Array<{
+    label: string;
+    value: string;
+    change: string;
+    changeType: 'increase' | 'decrease';
+    lastMonth: string;
+  }> {
+    const summary = this.reportSummaryKpis;
+    const previousPeriod = this.reportPeriod() === 'thisWeek' ? 'thisMonth' : 'thisWeek';
+    const previousSummary = this.reportSummaryKpisFor(previousPeriod);
+    const totalRooms = this.rooms.length;
+    const activeRooms = this.rooms.filter((r) => (r.status || '').toLowerCase() === 'active').length;
+    const inactiveRooms = Math.max(0, totalRooms - activeRooms);
+    const totalEmployees = this.employees.length;
+    const activeEmployees = summary.activeEmployees;
+    const previousBookings = Math.max(1, previousSummary.totalBookings);
+    const bookingDeltaPct = Math.round(((summary.totalBookings - previousBookings) / previousBookings) * 100);
+
+    return [
+      {
+        label: 'Meeting Rooms',
+        value: `${totalRooms}`,
+        change: `${Math.round((activeRooms / Math.max(1, totalRooms)) * 100)}% active`,
+        changeType: inactiveRooms <= activeRooms ? 'increase' : 'decrease',
+        lastMonth: `${inactiveRooms} inactive`
+      },
+      {
+        label: 'Active Employees',
+        value: `${activeEmployees}`,
+        change: `${Math.round((activeEmployees / Math.max(1, totalEmployees)) * 100)}% of employees`,
+        changeType: activeEmployees >= Math.ceil(totalEmployees * 0.65) ? 'increase' : 'decrease',
+        lastMonth: `${Math.max(0, totalEmployees - activeEmployees)} not active`
+      },
+      {
+        label: 'Bookings',
+        value: `${summary.totalBookings}`,
+        change: `${Math.abs(bookingDeltaPct)}%`,
+        changeType: bookingDeltaPct >= 0 ? 'increase' : 'decrease',
+        lastMonth: `Peak day: ${summary.peakDayLabel}`
+      }
+    ];
+  }
+
+  get companyDashboardTopRooms(): Array<{
+    roomName: string;
+    location: string;
+    bookings: number;
+    hours: number;
+    usagePct: number;
+  }> {
+    const top = this.reportTopRooms.slice(0, 5);
+    const maxHours = Math.max(1, ...top.map((r) => r.hours));
+    return top.map((r) => ({
+      ...r,
+      usagePct: Math.max(8, Math.min(100, Math.round((r.hours / maxHours) * 100)))
+    }));
+  }
+
+  get companyDashboardBookingsByHourPreview(): Array<{
+    label: string;
+    count: number;
+    pct: number;
+  }> {
+    const rows = this.reportBookingsByHour;
+    const max = this.reportBookingsByHourMax;
+    return rows
+      .map((r) => ({
+        label: `${String(r.hour).padStart(2, '0')}:00`,
+        count: r.count,
+        pct: Math.round((r.count / max) * 100)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  }
+
+  get companyDashboardTrendSummary(): {
+    avgUtilization: number;
+    maxUtilization: number;
+    minUtilization: number;
+  } {
+    const rows = this.reportUtilizationTrend;
+    const pcts = rows.map((r) => r.pct);
+    const avgUtilization = Math.round(pcts.reduce((sum, x) => sum + x, 0) / Math.max(1, pcts.length));
+    return {
+      avgUtilization,
+      maxUtilization: Math.max(...pcts),
+      minUtilization: Math.min(...pcts)
+    };
+  }
+
+  get companyDashboardOperationalInsights(): Array<{ label: string; value: string; tone: 'good' | 'warn' | 'danger' }> {
+    const topRooms = this.companyDashboardTopRooms;
+    const overused = topRooms.filter((r) => r.usagePct >= 80).length;
+    const underused = topRooms.filter((r) => r.usagePct <= 25).length;
+    const activeEmployees = this.reportSummaryKpis.activeEmployees;
+    const employeeCount = Math.max(1, this.employees.length);
+    const activeEmployeeRatio = Math.round((activeEmployees / employeeCount) * 100);
+    const totalRooms = Math.max(1, this.rooms.length);
+    const activeRooms = this.rooms.filter((r) => (r.status || '').toLowerCase() === 'active').length;
+    const activeRoomRatio = Math.round((activeRooms / totalRooms) * 100);
+
+    return [
+      {
+        label: 'Overused rooms',
+        value: `${overused} room${overused === 1 ? '' : 's'} above 80%`,
+        tone: overused > 1 ? 'warn' : 'good'
+      },
+      {
+        label: 'Underused rooms',
+        value: `${underused} room${underused === 1 ? '' : 's'} below 25%`,
+        tone: underused > 1 ? 'danger' : 'good'
+      },
+      {
+        label: 'Active employee ratio',
+        value: `${activeEmployeeRatio}% currently active`,
+        tone: activeEmployeeRatio >= 65 ? 'good' : 'warn'
+      },
+      {
+        label: 'Active room ratio',
+        value: `${activeRoomRatio}% rooms available`,
+        tone: activeRoomRatio >= 70 ? 'good' : 'warn'
+      }
+    ];
+  }
+
+  get systemDashboardBookingsByHourPreview(): Array<{ label: string; count: number; pct: number }> {
+    const rows = this.reportBookingsByHour;
+    const max = this.reportBookingsByHourMax;
+    return rows
+      .map((r) => ({
+        label: `${String(r.hour).padStart(2, '0')}:00`,
+        count: r.count,
+        pct: Math.round((r.count / max) * 100)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  }
+
+  get systemDashboardTopCompanies(): Array<{ name: string; admins: number; users: number; healthPct: number }> {
+    const rows = (this.companies || []).map((company) => {
+      const admins = company.admins ?? 0;
+      const users = company.total ?? 0;
+      const healthPct = Math.max(8, Math.min(100, Math.round(((admins + users) / Math.max(1, users + 2)) * 100)));
+      return {
+        name: company.name || 'Unknown company',
+        admins,
+        users,
+        healthPct
+      };
+    });
+    return rows.sort((a, b) => b.users - a.users).slice(0, 5);
+  }
+
+  get systemDashboardOperationalInsights(): Array<{ label: string; value: string; tone: 'good' | 'warn' | 'danger' }> {
+    const total = this.companies.length;
+    const active = this.companies.filter((c) => c.status === 'active').length;
+    const inactive = this.companies.filter((c) => c.status === 'inactive').length;
+    const pending = this.companies.filter((c) => c.status === 'pending').length;
+    const noAdmin = this.companies.filter((c) => (c.admins ?? 0) === 0).length;
+    const activeRatio = Math.round((active / Math.max(1, total)) * 100);
+
+    return [
+      {
+        label: 'Active company ratio',
+        value: `${activeRatio}% (${active}/${Math.max(1, total)})`,
+        tone: activeRatio >= 70 ? 'good' : 'warn'
+      },
+      {
+        label: 'Inactive companies',
+        value: `${inactive} company${inactive === 1 ? '' : 'ies'} need reactivation`,
+        tone: inactive > 2 ? 'warn' : 'good'
+      },
+      {
+        label: 'Pending onboarding',
+        value: `${pending} waiting setup`,
+        tone: pending > 0 ? 'warn' : 'good'
+      },
+      {
+        label: 'No admin assigned',
+        value: `${noAdmin} company${noAdmin === 1 ? '' : 'ies'} without admin`,
+        tone: noAdmin > 0 ? 'danger' : 'good'
+      }
+    ];
+  }
+
+  readonly dashboardMetricDataSourceMap: Record<string, string> = {
+    meetingRooms: 'real:this.rooms (replace with /api/rooms/summary)',
+    activeEmployees: 'real:this.employees status (replace with /api/employees/summary)',
+    bookings: 'mock:reportSummaryKpis.totalBookings (replace with /api/report/summary.totalBookings)',
+    utilization: 'mock:reportSummaryKpis.utilizationPct (replace with /api/report/summary.utilizationPct)',
+    bookingsByHour: 'mock:reportBookingsByHour (replace with /api/report/bookings-by-hour)',
+    topRooms: 'mock:reportTopRooms (replace with /api/report/top-rooms)'
+  };
 
   /** Cycles through asc -> desc -> null; resets all other employee sort columns. */
   private cycleEmployeeSort(

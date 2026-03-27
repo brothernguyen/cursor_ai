@@ -311,6 +311,73 @@ html.app-dark .p-popover .filter-option-btn.filter-option-active:hover {
   color: #ddd6fe !important;
 }
 
+/*
+ * Dialog buttons in dark mode: keep a consistent secondary/primary/disabled
+ * palette across room modals and form modals.
+ */
+html.app-dark .room-modal-footer-btn,
+html.app-dark .modal-container .flex.gap-3.pt-4 > button {
+  color: #e2e8f0 !important;
+}
+
+/* Secondary (Cancel) */
+html.app-dark .room-modal-footer-btn.border,
+html.app-dark .modal-container .flex.gap-3.pt-4 > button[type="button"] {
+  background: transparent !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .room-modal-footer-btn.border:hover:not(:disabled),
+html.app-dark
+  .modal-container
+  .flex.gap-3.pt-4
+  > button[type="button"]:hover:not(:disabled) {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* Primary */
+html.app-dark .room-modal-footer-btn.bg-purple-600,
+html.app-dark .modal-container .flex.gap-3.pt-4 > button[type="submit"] {
+  background: #9333ea !important;
+  border-color: #9333ea !important;
+  color: #ffffff !important;
+}
+
+html.app-dark .room-modal-footer-btn.bg-purple-600:hover:not(:disabled),
+html.app-dark
+  .modal-container
+  .flex.gap-3.pt-4
+  > button[type="submit"]:hover:not(:disabled) {
+  background: #7e22ce !important;
+  border-color: #7e22ce !important;
+  color: #ffffff !important;
+}
+
+/* Danger */
+html.app-dark .room-modal-footer-btn.bg-red-600 {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+html.app-dark .room-modal-footer-btn.bg-red-600:hover:not(:disabled) {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/* Disabled (readable, but clearly inactive) */
+html.app-dark .room-modal-footer-btn:disabled,
+html.app-dark .modal-container .flex.gap-3.pt-4 > button:disabled {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed;
+}
+
 /* ─── Dark mode: PrimeNG Drawer (sidebar) ─────────────────────────────────── */
 html.app-dark .p-drawer.drawer-figma,
 html.app-dark .p-drawer.drawer-figma .p-drawer-header,
