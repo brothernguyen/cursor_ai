@@ -63,6 +63,26 @@ interface AdminDisplay {
   companyId?: string;
 }
 
+type SettingsDateFormat = 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
+type SettingsWeekStart = 'monday' | 'sunday';
+type SettingsReminderLead = '5' | '10' | '15' | '30';
+type SettingsDigestFrequency = 'off' | 'daily' | 'weekly';
+type SettingsAdminSort = 'name' | 'email' | 'company';
+
+interface SettingsDraft {
+  timezone: string;
+  dateFormat: SettingsDateFormat;
+  weekStart: SettingsWeekStart;
+  emailNotifications: boolean;
+  bookingReminders: boolean;
+  reminderLeadTime: SettingsReminderLead;
+  digestFrequency: SettingsDigestFrequency;
+  defaultRoomView: 'card' | 'list';
+  defaultReportPeriod: 'thisWeek' | 'thisMonth' | 'last30Days';
+  defaultCompanyStatusFilter: 'all' | 'active';
+  adminSortDefault: SettingsAdminSort;
+}
+
 @Component({
   selector: 'app-home',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, PaginatorModule, PopoverModule, ButtonModule, ToastModule, ConfirmDialogModule, CardModule, GalleriaModule, DrawerModule, CompDetailComponent, CompCreateAdminComponent, CompDeleteAdminComponent, CompDeleteCompanyComponent, CompUpdateAdminComponent],
@@ -72,6 +92,7 @@ interface AdminDisplay {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private readonly homeViewStorageKey = 'home:selectedView';
+  private readonly settingsStorageKey = 'home:settingsDraft';
   role = signal<'system' | 'company'>('system');
   view = signal<'dashboard' | 'companies' | 'admins' | 'rooms' | 'employees' | 'report' | 'settings'>('dashboard');
   modal = signal<string>('');
@@ -98,7 +119,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedKpiCard = signal<string>('Total company');
   selectedPeriod = signal<string>('This week');
   showPeriodDropdown = signal<boolean>(false);
-  currentUser = signal<{ firstName?: string; lastName?: string; companyName?: string }>({});
+  currentUser = signal<{ firstName?: string; lastName?: string; companyName?: string; email?: string }>({});
+  settingsDraft = signal<SettingsDraft>(this.getDefaultSettingsDraft());
+  settingsSavedAt = signal<string | null>(null);
+  settingsSaveMessage = signal<string>('');
   selectedCompanyPeriod = signal<string>('This week');
   showCompanyPeriodDropdown = signal<boolean>(false);
   selectedUtilizationPeriod = signal<string>('Week');
@@ -648,6 +672,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Then fetch current user to update role and get user info
     this.checkCurrentRole();
+    this.loadSettingsDraft();
 
     // Setup debounced employee status change handler
     this.employeeStatusChangeSubject.pipe(
@@ -678,7 +703,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.currentUser.set({
           firstName: userData?.firstName,
           lastName: userData?.lastName,
-          companyName: userData?.company?.name || userData?.companyName
+          companyName: userData?.company?.name || userData?.companyName,
+          email: userData?.email
         });
 
         // Extract role from response and save to localStorage
@@ -1626,6 +1652,70 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   toggleAppThemeMode(): void {
     this.layoutService.layoutConfig.update((s) => ({ ...s, darkTheme: !s.darkTheme }));
+  }
+
+  updateSettingsDraft<K extends keyof SettingsDraft>(key: K, value: SettingsDraft[K]): void {
+    this.settingsDraft.update((draft) => ({ ...draft, [key]: value }));
+    this.settingsSaveMessage.set('');
+  }
+
+  saveSettingsDraft(): void {
+    try {
+      localStorage.setItem(this.settingsStorageKey, JSON.stringify(this.settingsDraft()));
+      this.settingsSavedAt.set(new Date().toLocaleTimeString());
+      this.settingsSaveMessage.set('Preferences saved on this device.');
+
+      if (this.role() === 'company') {
+        this.roomViewMode.set(this.settingsDraft().defaultRoomView);
+        this.reportPeriod.set(this.settingsDraft().defaultReportPeriod);
+      }
+    } catch (err) {
+      console.error('Failed to save settings draft:', err);
+      this.settingsSaveMessage.set('Could not save preferences. Please try again.');
+    }
+  }
+
+  resetSettingsDraft(): void {
+    this.settingsDraft.set(this.getDefaultSettingsDraft());
+    this.settingsSaveMessage.set('');
+  }
+
+  private loadSettingsDraft(): void {
+    try {
+      const raw = localStorage.getItem(this.settingsStorageKey);
+      if (!raw) {
+        return;
+      }
+
+      const parsed = JSON.parse(raw) as Partial<SettingsDraft>;
+      this.settingsDraft.set({
+        ...this.getDefaultSettingsDraft(),
+        ...parsed
+      });
+
+      if (this.role() === 'company') {
+        this.roomViewMode.set(this.settingsDraft().defaultRoomView);
+        this.reportPeriod.set(this.settingsDraft().defaultReportPeriod);
+      }
+    } catch (err) {
+      console.error('Failed to load settings draft:', err);
+    }
+  }
+
+  private getDefaultSettingsDraft(): SettingsDraft {
+    return {
+      timezone: 'UTC',
+      dateFormat: 'DD/MM/YYYY',
+      weekStart: 'monday',
+      emailNotifications: true,
+      bookingReminders: true,
+      reminderLeadTime: '10',
+      digestFrequency: 'weekly',
+      defaultRoomView: 'card',
+      defaultReportPeriod: 'thisMonth',
+      defaultCompanyStatusFilter: 'all',
+      adminSortDefault: 'name'
+    };
   }
 
   onThemeToggleKeydown(event: KeyboardEvent): void {

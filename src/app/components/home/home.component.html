@@ -228,7 +228,7 @@
           </div> -->
           <img src="/user-icon.png" alt="TERRALOGIC" class="logo-image" />
           @if (!sidebarCollapsed()) {
-          <span class="text-sm">
+          <span class="text-sm drawer-user-name">
             @if (currentUser().firstName || currentUser().lastName) {
             {{ currentUser().firstName }} {{ currentUser().lastName }}
             } @else { Super Admin }
@@ -2703,9 +2703,310 @@
                   role() === "system" ? "System admin" : "Company user"
                 }}</span>
               </div>
+              <div class="settings-row">
+                <span class="settings-label">Email</span>
+                <span class="settings-value">{{ currentUser().email || "—" }}</span>
+              </div>
             </div>
           </section>
 
+          <section class="settings-section">
+            <h2 class="settings-section-title">Preferences</h2>
+            <p class="settings-section-desc">
+              Device-specific preferences are saved in this browser.
+            </p>
+            <div class="settings-card">
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-theme-mode">Theme</label>
+                <div class="settings-control">
+                  <span class="settings-value">
+                    {{ isDarkThemeEnabled ? "Dark mode (global toggle)" : "Light mode (global toggle)" }}
+                  </span>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-timezone">Time zone</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-timezone"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().timezone"
+                    (ngModelChange)="updateSettingsDraft('timezone', $event)"
+                  >
+                    <option value="UTC">UTC</option>
+                    <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh</option>
+                    <option value="Asia/Singapore">Asia/Singapore</option>
+                    <option value="Europe/London">Europe/London</option>
+                    <option value="America/New_York">America/New_York</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-date-format">Date format</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-date-format"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().dateFormat"
+                    (ngModelChange)="updateSettingsDraft('dateFormat', $event)"
+                  >
+                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <span class="settings-label">Start of week</span>
+                <div class="settings-control settings-button-group">
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="settingsDraft().weekStart === 'monday'"
+                    (click)="updateSettingsDraft('weekStart', 'monday')"
+                  >
+                    Monday
+                  </button>
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="settingsDraft().weekStart === 'sunday'"
+                    (click)="updateSettingsDraft('weekStart', 'sunday')"
+                  >
+                    Sunday
+                  </button>
+                </div>
+              </div>
+              <div class="settings-actions">
+                <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
+                  Cancel
+                </button>
+                <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
+                  Save changes
+                </button>
+              </div>
+              @if (settingsSaveMessage()) {
+              <p class="settings-save-hint">
+                {{ settingsSaveMessage() }}
+                @if (settingsSavedAt()) {
+                <span> Last saved at {{ settingsSavedAt() }}.</span>
+                }
+              </p>
+              }
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <h2 class="settings-section-title">Notifications</h2>
+            <p class="settings-section-desc">
+              Control reminders and notification frequency for this account.
+            </p>
+            <div class="settings-card">
+              <div class="settings-row settings-row--control">
+                <span class="settings-label">Email notifications</span>
+                <div class="settings-control settings-button-group">
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="settingsDraft().emailNotifications"
+                    (click)="updateSettingsDraft('emailNotifications', true)"
+                  >
+                    On
+                  </button>
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="!settingsDraft().emailNotifications"
+                    (click)="updateSettingsDraft('emailNotifications', false)"
+                  >
+                    Off
+                  </button>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <span class="settings-label">Booking reminders</span>
+                <div class="settings-control settings-button-group">
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="settingsDraft().bookingReminders"
+                    (click)="updateSettingsDraft('bookingReminders', true)"
+                  >
+                    On
+                  </button>
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="!settingsDraft().bookingReminders"
+                    (click)="updateSettingsDraft('bookingReminders', false)"
+                  >
+                    Off
+                  </button>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-reminder-time">Reminder lead time</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-reminder-time"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().reminderLeadTime"
+                    (ngModelChange)="updateSettingsDraft('reminderLeadTime', $event)"
+                  >
+                    <option value="5">5 minutes</option>
+                    <option value="10">10 minutes</option>
+                    <option value="15">15 minutes</option>
+                    <option value="30">30 minutes</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-digest">Digest frequency</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-digest"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().digestFrequency"
+                    (ngModelChange)="updateSettingsDraft('digestFrequency', $event)"
+                  >
+                    <option value="off">Off</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-actions">
+                <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
+                  Cancel
+                </button>
+                <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </section>
+
+          @if (role() === "company") {
+          <section class="settings-section">
+            <h2 class="settings-section-title">Workspace Defaults</h2>
+            <p class="settings-section-desc">
+              Set default views for company workflows.
+            </p>
+            <div class="settings-card">
+              <div class="settings-row settings-row--control">
+                <span class="settings-label">Default room view</span>
+                <div class="settings-control settings-button-group">
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="settingsDraft().defaultRoomView === 'card'"
+                    (click)="updateSettingsDraft('defaultRoomView', 'card')"
+                  >
+                    Card
+                  </button>
+                  <button
+                    type="button"
+                    class="settings-choice-btn"
+                    [class.settings-choice-btn-active]="settingsDraft().defaultRoomView === 'list'"
+                    (click)="updateSettingsDraft('defaultRoomView', 'list')"
+                  >
+                    List
+                  </button>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-report-period">Default report period</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-report-period"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().defaultReportPeriod"
+                    (ngModelChange)="updateSettingsDraft('defaultReportPeriod', $event)"
+                  >
+                    <option value="thisWeek">This week</option>
+                    <option value="thisMonth">This month</option>
+                    <option value="last30Days">Last 30 days</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-actions">
+                <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
+                  Cancel
+                </button>
+                <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </section>
+          } @else {
+          <section class="settings-section">
+            <h2 class="settings-section-title">Platform Admin Preferences</h2>
+            <p class="settings-section-desc">
+              Configure default list behavior for the admin workspace.
+            </p>
+            <div class="settings-card">
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-company-filter">Company filter default</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-company-filter"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().defaultCompanyStatusFilter"
+                    (ngModelChange)="updateSettingsDraft('defaultCompanyStatusFilter', $event)"
+                  >
+                    <option value="all">All companies</option>
+                    <option value="active">Active only</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-row settings-row--control">
+                <label class="settings-label" for="settings-admin-sort">Admin sort default</label>
+                <div class="settings-control">
+                  <select
+                    id="settings-admin-sort"
+                    class="settings-select"
+                    [ngModel]="settingsDraft().adminSortDefault"
+                    (ngModelChange)="updateSettingsDraft('adminSortDefault', $event)"
+                  >
+                    <option value="name">Name</option>
+                    <option value="email">Email</option>
+                    <option value="company">Company</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-actions">
+                <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="resetSettingsDraft()">
+                  Cancel
+                </button>
+                <button type="button" class="settings-action-btn settings-action-btn--primary" (click)="saveSettingsDraft()">
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </section>
+          }
+
+          <section class="settings-section">
+            <h2 class="settings-section-title">Session &amp; Security</h2>
+            <p class="settings-section-desc">
+              Manage your current session and sign-out behavior.
+            </p>
+            <div class="settings-card">
+              <div class="settings-row">
+                <span class="settings-label">Current session</span>
+                <span class="settings-value">This browser session is active</span>
+              </div>
+              <div class="settings-actions">
+                <button type="button" class="settings-action-btn settings-action-btn--secondary" (click)="onLogout()">
+                  Sign out of this device
+                </button>
+                <button type="button" class="settings-action-btn settings-action-btn--disabled" disabled>
+                  Sign out all devices (coming soon)
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
       }

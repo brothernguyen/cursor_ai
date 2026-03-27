@@ -625,6 +625,10 @@
     font-weight: 600;
     color: #333333;
   }
+
+  .drawer-user-name {
+    color: #e2e8f0 !important;
+  }
 }
 
 .drawer-footer-item-active {
@@ -3664,6 +3668,10 @@ select.room-modal-input {
   font-size: 15px;
 }
 
+.settings-row--control {
+  align-items: center;
+}
+
 .settings-label {
   min-width: 100px;
   font-weight: 500;
@@ -3676,6 +3684,95 @@ select.room-modal-input {
 .settings-value {
   color: #364152;
   font-weight: 500;
+}
+
+.settings-control {
+  min-width: 240px;
+  flex: 1;
+}
+
+.settings-select {
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid #cdd5df;
+  border-radius: 10px;
+  background: #fff;
+  color: #364152;
+  padding: 10px 12px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.settings-button-group {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-choice-btn {
+  border: 1px solid #cdd5df;
+  border-radius: 999px;
+  background: #fff;
+  color: #697586;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: #94a3b8;
+    color: #364152;
+  }
+}
+
+.settings-choice-btn-active {
+  background: #ede9fe;
+  border-color: #8b5cf6;
+  color: #5b21b6;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.settings-action-btn {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.settings-action-btn--secondary {
+  border-color: #cdd5df;
+  background: #fff;
+  color: #364152;
+}
+
+.settings-action-btn--primary {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.settings-action-btn--disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.settings-save-hint {
+  margin: 0;
+  color: #697586;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
 }
 
 :host-context(html.app-dark) {
@@ -3696,6 +3793,48 @@ select.room-modal-input {
 
   .settings-value {
     color: #e2e8f0;
+  }
+
+  .settings-select {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .settings-choice-btn {
+    background: #0f172a;
+    border-color: #334155;
+    color: #94a3b8;
+
+    &:hover {
+      border-color: #475569;
+      color: #e2e8f0;
+    }
+  }
+
+  .settings-choice-btn-active {
+    background: #312e81;
+    border-color: #a78bfa;
+    color: #ede9fe;
+  }
+
+  .settings-action-btn--secondary {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .settings-action-btn--primary {
+    background: #8b5cf6;
+  }
+
+  .settings-action-btn--disabled {
+    background: #334155;
+    color: #94a3b8;
+  }
+
+  .settings-save-hint {
+    color: #94a3b8;
   }
 
 }
