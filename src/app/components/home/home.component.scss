@@ -45,102 +45,7 @@
   }
 }
 
-// Ensure ConfirmDialog appears above modals
-::ng-deep {
-  .p-confirm-dialog {
-    z-index: 10000 !important;
-  }
-
-  .p-dialog-mask {
-    z-index: 10000 !important;
-  }
-}
-
-:host-context(html.app-dark) {
-  ::ng-deep {
-    .p-confirmdialog,
-    .p-confirm-dialog,
-    .p-dialog.p-confirmdialog {
-      background: #0f172a !important;
-      border: 1px solid #334155 !important;
-      border-radius: 12px !important;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
-      color: #e2e8f0 !important;
-      overflow: hidden;
-    }
-
-    .p-confirmdialog .p-dialog-header,
-    .p-confirm-dialog .p-dialog-header {
-      background: #0f172a !important;
-      border-bottom: 1px solid #334155 !important;
-      color: #e2e8f0 !important;
-      padding: 20px 24px 14px !important;
-    }
-
-    .p-confirmdialog .p-dialog-title,
-    .p-confirm-dialog .p-dialog-title {
-      color: #e2e8f0 !important;
-      font-weight: 700 !important;
-      font-size: 24px !important;
-      line-height: 32px !important;
-    }
-
-    .p-confirmdialog .p-dialog-content,
-    .p-confirm-dialog .p-dialog-content {
-      background: #0f172a !important;
-      color: #cbd5e1 !important;
-      padding: 14px 24px 20px !important;
-      font-size: 16px !important;
-      line-height: 24px !important;
-    }
-
-    .p-confirmdialog .p-dialog-footer,
-    .p-confirm-dialog .p-dialog-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      padding: 0 24px 20px !important;
-      background: #0f172a !important;
-      border-top: 0 !important;
-    }
-
-    .p-confirmdialog .p-dialog-footer .p-button,
-    .p-confirm-dialog .p-dialog-footer .p-button {
-      border-radius: 10px !important;
-      font-weight: 600 !important;
-      padding: 10px 18px !important;
-      transition: background-color 0.2s ease, border-color 0.2s ease,
-        color 0.2s ease;
-    }
-
-    .p-confirmdialog .p-confirm-dialog-reject,
-    .p-confirm-dialog .p-confirm-dialog-reject {
-      background: transparent !important;
-      border: 1px solid #334155 !important;
-      color: #cbd5e1 !important;
-    }
-
-    .p-confirmdialog .p-confirm-dialog-reject:hover,
-    .p-confirm-dialog .p-confirm-dialog-reject:hover {
-      background: #111827 !important;
-      border-color: #475569 !important;
-      color: #e2e8f0 !important;
-    }
-
-    .p-confirmdialog .p-confirm-dialog-accept,
-    .p-confirm-dialog .p-confirm-dialog-accept {
-      background: #2563eb !important;
-      border: 1px solid #2563eb !important;
-      color: #ffffff !important;
-    }
-
-    .p-confirmdialog .p-confirm-dialog-accept:hover,
-    .p-confirm-dialog .p-confirm-dialog-accept:hover {
-      background: #1d4ed8 !important;
-      border-color: #1d4ed8 !important;
-    }
-  }
-}
+// ConfirmDialog styling lives in src/styles.scss (dialog is mounted on body).
 
 // Enhanced hover and click effects for three dots button
 .three-dots-btn {
@@ -4947,6 +4852,51 @@ select.room-modal-input {
 
   .companies-search-input::placeholder {
     color: #64748b;
+  }
+
+  /* Room card action buttons (Edit/Delete) */
+  .room-edit-button {
+    background: #1e293b;
+    border: 1px solid #334155;
+
+    .action-text {
+      color: #c4b5fd;
+    }
+
+    .action-icon path {
+      stroke: #a78bfa !important;
+    }
+
+    &:hover {
+      background: #312e81;
+      border-color: #7c3aed;
+    }
+  }
+
+  .room-delete-button {
+    background: #0f172a;
+    border: 1px solid #334155;
+
+    .action-text {
+      color: #94a3b8;
+    }
+
+    .action-icon path {
+      stroke: #94a3b8 !important;
+    }
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: #f87171;
+
+      .action-text {
+        color: #fca5a5;
+      }
+
+      .action-icon path {
+        stroke: #f87171 !important;
+      }
+    }
   }
 
   .table-row,

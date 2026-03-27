@@ -143,4 +143,13 @@
       color: #e2e8f0;
     }
   }
+
+  /* Cancel is outlined; ensure label contrast (Tailwind dark: on button is unreliable here). */
+  .room-modal-actions > .room-modal-footer-btn:first-child {
+    color: #e2e8f0 !important;
+
+    &:hover:not(:disabled) {
+      color: #f8fafc !important;
+    }
+  }
 }

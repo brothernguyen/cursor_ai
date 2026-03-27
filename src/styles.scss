@@ -77,6 +77,240 @@ html.app-dark .p-password-toggle-icon {
   color: var(--app-muted) !important;
 }
 
+/*
+ * PrimeNG ConfirmDialog is appended to body, outside app-home. Component-scoped
+ * :host-context rules never match it — these overrides must stay global.
+ */
+.p-confirmdialog.p-dialog,
+.p-dialog.p-confirmdialog {
+  z-index: 10000 !important;
+}
+
+.p-dialog-mask {
+  z-index: 10000 !important;
+}
+
+/* ConfirmDialog – light theme (match room / delete-company modals) */
+html:not(.app-dark) .p-confirmdialog.p-dialog,
+html:not(.app-dark) .p-dialog.p-confirmdialog {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+  color: #111827 !important;
+  overflow: hidden;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-dialog-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  color: #111827 !important;
+  padding: 0.875rem 1rem !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-dialog-title {
+  font-family: "Roboto", sans-serif;
+  color: #111827 !important;
+  font-weight: 600 !important;
+  font-size: 1.125rem !important;
+  line-height: 1.5rem !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-dialog-content {
+  background: #ffffff !important;
+  color: #374151 !important;
+  padding: 1rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.375rem !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-confirmdialog-icon {
+  color: #6b7280 !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem !important;
+  background: #ffffff !important;
+  border-top: 0 !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-dialog-footer .p-button {
+  border-radius: 0.5rem !important;
+  font-family: "Roboto", sans-serif;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  min-height: auto !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-confirmdialog-reject-button {
+  background: transparent !important;
+  border: 1px solid #d1d5db !important;
+  color: #1f2937 !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-confirmdialog-reject-button:hover {
+  background: #f9fafb !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-confirmdialog-accept-button.p-button-danger {
+  background: #dc2626 !important;
+  border: 1px solid #dc2626 !important;
+  color: #ffffff !important;
+}
+
+html:not(.app-dark) .p-confirmdialog .p-confirmdialog-accept-button.p-button-danger:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/* ConfirmDialog – dark theme */
+html.app-dark .p-confirmdialog.p-dialog,
+html.app-dark .p-dialog.p-confirmdialog {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+  color: #e2e8f0 !important;
+  overflow: hidden;
+}
+
+html.app-dark .p-confirmdialog .p-dialog-header {
+  background: #0f172a !important;
+  border-bottom: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
+  padding: 0.875rem 1rem !important;
+}
+
+html.app-dark .p-confirmdialog .p-dialog-title {
+  font-family: "Roboto", sans-serif;
+  color: #e2e8f0 !important;
+  font-weight: 600 !important;
+  font-size: 1.125rem !important;
+  line-height: 1.5rem !important;
+}
+
+html.app-dark .p-confirmdialog .p-dialog-content {
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+  padding: 1rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.375rem !important;
+}
+
+html.app-dark .p-confirmdialog .p-confirmdialog-icon {
+  color: #94a3b8 !important;
+}
+
+html.app-dark .p-confirmdialog .p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem !important;
+  background: #0f172a !important;
+  border-top: 0 !important;
+}
+
+html.app-dark .p-confirmdialog .p-dialog-footer .p-button {
+  border-radius: 0.5rem !important;
+  font-family: "Roboto", sans-serif;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  padding: 0.375rem 0.75rem !important;
+  min-height: auto !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+html.app-dark .p-confirmdialog .p-confirmdialog-reject-button {
+  background: transparent !important;
+  border: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .p-confirmdialog .p-confirmdialog-reject-button:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+
+html.app-dark .p-confirmdialog .p-confirmdialog-accept-button.p-button-danger {
+  background: #dc2626 !important;
+  border: 1px solid #dc2626 !important;
+  color: #ffffff !important;
+}
+
+html.app-dark .p-confirmdialog .p-confirmdialog-accept-button.p-button-danger:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+/*
+ * Popovers: match modal / drawer surfaces (#0f172a). Aura tokens can look off;
+ * sync panel, border, shadow, and arrow with the rest of the app.
+ * PrimeFlex .text-gray-700 uses !important — label overrides below beat that.
+ */
+html.app-dark .p-popover.p-component,
+html.app-dark .p-popover {
+  color: #e2e8f0 !important;
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Arrow: outer ring = border, inner fill = panel background */
+html.app-dark .p-popover:before {
+  border-bottom-color: #334155 !important;
+}
+
+html.app-dark .p-popover:after {
+  border-bottom-color: #0f172a !important;
+}
+
+html.app-dark .p-popover.p-popover-flipped:before {
+  border-bottom-color: transparent !important;
+  border-top-color: #334155 !important;
+}
+
+html.app-dark .p-popover.p-popover-flipped:after {
+  border-bottom-color: transparent !important;
+  border-top-color: #0f172a !important;
+}
+
+html.app-dark .p-popover .details-btn,
+html.app-dark .p-popover .filter-option-btn {
+  color: #e2e8f0 !important;
+}
+
+html.app-dark .p-popover .details-btn:hover,
+html.app-dark .p-popover .filter-option-btn:hover {
+  color: #f8fafc !important;
+  background-color: #1e293b !important;
+}
+
+html.app-dark .p-popover .details-btn:active,
+html.app-dark .p-popover .filter-option-btn:active {
+  color: #f1f5f9 !important;
+}
+
+html.app-dark .p-popover .filter-option-btn.filter-option-active {
+  color: #c4b5fd !important;
+  background-color: rgba(91, 33, 182, 0.35) !important;
+}
+
+html.app-dark .p-popover .filter-option-btn.filter-option-active:hover {
+  color: #ddd6fe !important;
+}
+
 /* ─── Dark mode: PrimeNG Drawer (sidebar) ─────────────────────────────────── */
 html.app-dark .p-drawer.drawer-figma,
 html.app-dark .p-drawer.drawer-figma .p-drawer-header,

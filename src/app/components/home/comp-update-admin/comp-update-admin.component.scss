@@ -73,6 +73,15 @@
     color: #94a3b8;
   }
 
+  /* Keep Cancel text readable in dark mode despite utility specificity collisions. */
+  .modal-container .flex.gap-3.pt-4 > button[type="button"] {
+    color: #e2e8f0 !important;
+
+    &:hover {
+      color: #f8fafc !important;
+    }
+  }
+
   input,
   select,
   textarea {
