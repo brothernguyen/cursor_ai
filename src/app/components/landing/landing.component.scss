@@ -198,9 +198,8 @@
     background-size: 110%;
     background-position: center center;
     z-index: 1;
+    opacity: 1;
     animation: heroBackgroundAnimation 25s ease-in-out infinite;
-    opacity: 0;
-    animation-fill-mode: forwards;
 
     &::after {
       content: '';
@@ -509,14 +508,9 @@
 }
 
 // Hero Background Animations
+/* Pan/zoom only — opacity was delayed ~3.75s (15% of 25s) and looked like a flash. */
 @keyframes heroBackgroundAnimation {
   0% {
-    opacity: 0;
-    background-size: 110%;
-    background-position: center center;
-  }
-  15% {
-    opacity: 1;
     background-size: 110%;
     background-position: center center;
   }
@@ -524,12 +518,7 @@
     background-size: 125%;
     background-position: 55% 45%;
   }
-  85% {
-    background-size: 110%;
-    background-position: center center;
-  }
   100% {
-    opacity: 1;
     background-size: 110%;
     background-position: center center;
   }
