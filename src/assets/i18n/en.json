@@ -50,6 +50,9 @@
     "deleteConfirm": "Are you sure you want to delete {{name}}?"
   },
   "period": {
+    "today": "Today",
+    "week": "Week",
+    "month": "Month",
     "thisWeek": "This week",
     "thisMonth": "This month"
   },

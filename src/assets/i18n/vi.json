@@ -50,6 +50,9 @@
     "deleteConfirm": "Bạn có chắc muốn xóa {{name}}?"
   },
   "period": {
+    "today": "Hôm nay",
+    "week": "Tuần",
+    "month": "Tháng",
     "thisWeek": "Tuần này",
     "thisMonth": "Tháng này"
   },

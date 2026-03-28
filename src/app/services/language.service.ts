@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 export type AppLanguage = 'en' | 'vi' | 'hi';
 
@@ -18,6 +19,7 @@ export class LanguageService {
   private readonly translate = inject(TranslateService);
   /** Synced with TranslateService for select binding */
   readonly currentLangSig = signal<AppLanguage>('en');
+  private langChangeSub?: Subscription;
 
   /** Call once after app bootstrap so stored language applies before first paint where possible */
   initialize(): void {
@@ -27,12 +29,33 @@ export class LanguageService {
     this.translate.addLangs(['en', 'vi', 'hi']);
     this.translate.setFallbackLang('en');
     this.currentLangSig.set(normalized);
+
+    if (!this.langChangeSub) {
+      this.langChangeSub = this.translate.onLangChange.subscribe((e) => {
+        this.currentLangSig.set(this.normalize(e.lang));
+      });
+    }
+
     this.translate.use(normalized).subscribe({
+      next: () => this.syncFromTranslate(),
       error: () => {
         this.currentLangSig.set('en');
-        this.translate.use('en').subscribe();
+        this.translate.use('en').subscribe({
+          next: () => this.syncFromTranslate()
+        });
       }
     });
+  }
+
+  /**
+   * Aligns the signal with TranslateService (source of truth for displayed strings).
+   * Call after navigation when the language select remounts, or if anything else touches `translate.use`.
+   */
+  syncFromTranslate(): void {
+    const lang = this.translate.getCurrentLang();
+    if (lang) {
+      this.currentLangSig.set(this.normalize(lang));
+    }
   }
 
   getStoredCode(): AppLanguage | null {
@@ -46,9 +69,12 @@ export class LanguageService {
     localStorage.setItem(APP_LANG_STORAGE_KEY, normalized);
     this.currentLangSig.set(normalized);
     this.translate.use(normalized).subscribe({
+      next: () => this.syncFromTranslate(),
       error: () => {
         this.currentLangSig.set('en');
-        this.translate.use('en').subscribe();
+        this.translate.use('en').subscribe({
+          next: () => this.syncFromTranslate()
+        });
       },
     });
   }

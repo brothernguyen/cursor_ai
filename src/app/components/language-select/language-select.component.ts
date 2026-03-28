@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
   APP_LANGUAGES,
@@ -17,12 +17,16 @@ import {
     <select
       id="app-language-select"
       class="language-select__control"
-      [value]="languageService.currentLangSig()"
       (change)="onNativeChange($event)"
       [attr.aria-label]="'language.label' | translate"
     >
       @for (opt of languages; track opt.code) {
-        <option [value]="opt.code">{{ opt.labelKey | translate }}</option>
+        <option
+          [value]="opt.code"
+          [selected]="opt.code === languageService.currentLangSig()"
+        >
+          {{ opt.labelKey | translate }}
+        </option>
       }
     </select>
   `,
@@ -65,9 +69,14 @@ import {
     `
   ]
 })
-export class LanguageSelectComponent {
+export class LanguageSelectComponent implements OnInit {
   readonly languageService = inject(LanguageService);
   readonly languages = APP_LANGUAGES;
+
+  ngOnInit(): void {
+    // After login, remount can show a stale select state; align with TranslateService.
+    this.languageService.syncFromTranslate();
+  }
 
   onNativeChange(event: Event): void {
     const code = (event.target as HTMLSelectElement).value;

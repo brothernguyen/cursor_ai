@@ -50,6 +50,9 @@
     "deleteConfirm": "क्या आप वाकई {{name}} को हटाना चाहते हैं?"
   },
   "period": {
+    "today": "आज",
+    "week": "सप्ताह",
+    "month": "महीना",
     "thisWeek": "इस सप्ताह",
     "thisMonth": "इस महीने"
   },
