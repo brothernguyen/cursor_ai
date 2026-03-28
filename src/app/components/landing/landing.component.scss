@@ -81,15 +81,67 @@
   }
 
   .header-actions {
+    --landing-action-height: 42px;
+
     display: flex;
     gap: 15px;
     align-items: center;
+    flex-shrink: 0;
+
+    /* Language select: match .btn-signin shape, height, and border */
+    .landing-lang-select {
+      display: inline-block;
+      max-width: 100%;
+      vertical-align: middle;
+
+      ::ng-deep .language-select__control {
+        box-sizing: border-box;
+        width: max-content;
+        max-width: 100%;
+        min-width: 0;
+        height: var(--landing-action-height);
+        min-height: var(--landing-action-height);
+        padding: 0 18px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        background-color: #34495e;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: calc(var(--landing-action-height) - 2px);
+        text-align: center;
+        text-align-last: center;
+        box-shadow: none;
+        appearance: none;
+        -webkit-appearance: none;
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+      }
+
+      ::ng-deep .language-select__control:hover {
+        background-color: #3d566e;
+        border-color: #fff;
+      }
+
+      ::ng-deep .language-select__control:focus,
+      ::ng-deep .language-select__control:focus-visible,
+      ::ng-deep .language-select__control:active {
+        outline: none;
+        box-shadow: none;
+      }
+    }
 
     .btn-register {
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--landing-action-height);
+      min-height: var(--landing-action-height);
+      padding: 0 20px;
       background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.5);
       color: white;
-      padding: 10px 20px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
@@ -103,10 +155,16 @@
     }
 
     .btn-signin {
-      background-color: #34495E;
+      box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--landing-action-height);
+      min-height: var(--landing-action-height);
+      padding: 0 20px;
+      background-color: #34495e;
       border: 1px solid rgba(255, 255, 255, 0.5);
       color: white;
-      padding: 10px 20px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 14px;
@@ -546,9 +604,18 @@
     }
 
     .header-actions {
+      --landing-action-height: 36px;
+
+      .landing-lang-select {
+        ::ng-deep .language-select__control {
+          padding: 0 14px;
+          font-size: 12px;
+        }
+      }
+
       .btn-register,
       .btn-signin {
-        padding: 8px 15px;
+        padding: 0 15px;
         font-size: 12px;
       }
     }

@@ -28,6 +28,7 @@
           <a href="#" class="nav-link">{{ 'landing.navMembership' | translate }}</a>
         </nav>
         <div class="header-actions">
+          <app-language-select class="landing-lang-select" />
           <button class="btn-register" (click)="handleRegister()" style="display: none;">{{ 'landing.register' | translate }}</button>
           <button class="btn-signin" (click)="handleSignin()">{{ 'landing.signIn' | translate }}</button>
         </div>
