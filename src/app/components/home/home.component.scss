@@ -4938,6 +4938,27 @@ $report-control-height: 40px;
       }
     }
   }
+
+  /* Companies table: smaller status pills for laptop width */
+  .companies-status-cell {
+    padding: 10px 14px;
+  }
+
+  .companies-status-badge {
+    gap: 5px;
+    padding: 2px 6px;
+    border-radius: 9999px;
+  }
+
+  .companies-status-icon {
+    width: 9px;
+    height: 9px;
+  }
+
+  .companies-status-text {
+    font-size: 11px;
+    line-height: 13px;
+  }
 }
 
 // Medium desktop (1280px–1440px): slightly smaller page header than full Figma scale
