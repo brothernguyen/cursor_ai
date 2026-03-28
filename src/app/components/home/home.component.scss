@@ -5,13 +5,28 @@
   overflow: hidden;
   --drawer-expanded: 333px;
   --drawer-collapsed: 80px;
+  /* Match .home-main-inner horizontal padding */
+  --home-main-padding-x: 2rem;
+  /* Match .system-dashboard-container / .company-dashboard-container padding-right */
+  --home-dashboard-inline-end: 24px;
+  @media (max-width: 1023px) {
+    --home-main-padding-x: 1rem;
+    --home-dashboard-inline-end: 16px;
+  }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    --home-main-padding-x: 1.5rem;
+  }
 }
 
 .global-shell-controls {
   position: fixed;
   top: 14px;
-  /* Nudge in from the viewport edge so the toggle + language select clear scrollbars / borders */
-  right: max(36px, env(safe-area-inset-right, 0px));
+  /* Same right inset as “This week / month” (main padding + dashboard container padding) */
+  right: calc(
+    var(--home-main-padding-x) + var(--home-dashboard-inline-end) +
+      env(safe-area-inset-right, 0px)
+  );
+  left: auto;
   z-index: 1300;
   display: flex;
   flex-direction: row-reverse;
@@ -20,80 +35,129 @@
   pointer-events: auto;
 }
 
+/* Screenshot-style: black track, white border, plain white knob; moon (yellow) / sun (orange) in track */
 .global-theme-toggle {
+  --gt-w: 68px;
+  --gt-h: 34px;
+  --gt-pad: 3px;
+  --gt-thumb: 26px;
+  --gt-travel: calc(var(--gt-w) - var(--gt-pad) * 2 - var(--gt-thumb));
+
   position: relative;
-  flex-shrink: 0;
-  top: auto;
-  right: auto;
-  width: 64px;
-  height: 30px;
-  border-radius: 999px;
-  border: 1px solid #8b5cf6;
-  background: #eef2ff;
   display: inline-flex;
   align-items: center;
-  padding: 3px;
+  flex-shrink: 0;
+  width: var(--gt-w);
+  height: var(--gt-h);
+  padding: var(--gt-pad);
+  border-radius: 999px;
+  border: 3px solid #ffffff;
+  background: #000000;
   cursor: pointer;
   z-index: 1300;
-  transition: border-color 0.2s ease, background-color 0.2s ease,
-    box-shadow 0.2s ease, opacity 0.2s ease;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.22), 0 8px 20px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease,
+    border-width 0.2s ease;
 }
 
 .global-theme-toggle-track {
   position: absolute;
-  inset: 3px;
+  inset: var(--gt-pad);
   border-radius: 999px;
-  background: linear-gradient(90deg, #e0e7ff 0%, #ede9fe 100%);
-  transition: background 0.2s ease;
+  background: #000000;
+  pointer-events: none;
 }
 
-.global-theme-toggle-thumb {
-  position: relative;
-  z-index: 1;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 1px solid #c4b5fd;
-  display: inline-flex;
+.global-theme-toggle-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
   align-items: center;
   justify-content: center;
-  color: #f59e0b;
-  transform: translateX(0);
-  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease,
-    background-color 0.2s ease;
+  transition: opacity 0.25s ease;
+}
 
-  i {
-    font-size: 12px;
-    line-height: 1;
+.global-theme-toggle-icon--moon {
+  left: 7px;
+  width: 18px;
+  height: 18px;
+  color: #facc15;
+  opacity: 0.22;
+}
+
+.global-theme-toggle-icon--sun {
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  color: #f59e0b;
+  opacity: 0.22;
+}
+
+.global-theme-toggle-moon-svg,
+.global-theme-toggle-sun-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.global-theme-toggle:not(.global-theme-toggle--dark) {
+  .global-theme-toggle-icon--sun {
+    opacity: 1;
+  }
+
+  .global-theme-toggle-icon--moon {
+    opacity: 0.2;
   }
 }
 
 .global-theme-toggle--dark {
-  border-color: #a78bfa;
-  background: #111827;
+  border-width: 2px;
+  border-color: rgba(148, 163, 184, 0.42);
 
-  .global-theme-toggle-track {
-    background: linear-gradient(90deg, #1f2937 0%, #312e81 100%);
+  .global-theme-toggle-icon--moon {
+    opacity: 1;
+  }
+
+  .global-theme-toggle-icon--sun {
+    opacity: 0.2;
   }
 
   .global-theme-toggle-thumb {
-    transform: translateX(30px);
-    background: #312e81;
-    border-color: #a78bfa;
-    color: #e9d5ff;
+    transform: translateX(var(--gt-travel));
   }
+}
+
+.global-theme-toggle-thumb {
+  position: relative;
+  z-index: 2;
+  width: var(--gt-thumb);
+  height: var(--gt-thumb);
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transform: translateX(0);
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
 }
 
 .global-theme-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.35), 0 8px 20px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.55);
 }
 
 .global-theme-toggle--dimmed {
   opacity: 0.35;
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-theme-toggle-thumb,
+  .global-theme-toggle-icon {
+    transition-duration: 0.01ms;
+  }
 }
 
 .home-root-shell {
@@ -136,8 +200,6 @@
 
 @media (max-width: 1023px) {
   .global-shell-controls {
-    right: 10px;
-    top: 10px;
     gap: 8px;
   }
 }
@@ -194,12 +256,6 @@
 
 /* Ensure popover menu "details-btn" stays readable in dark mode. */
 :host-context(html.app-dark) {
-  .global-theme-toggle {
-    border-color: #a78bfa;
-    background: #111827;
-    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.28), 0 8px 20px rgba(0, 0, 0, 0.3);
-  }
-
   .details-btn {
     &:hover {
       background-color: rgba(30, 41, 59, 0.95);
