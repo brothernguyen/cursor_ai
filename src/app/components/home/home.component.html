@@ -2579,10 +2579,10 @@
                 {{ 'home.reportLast30Days' | translate }}
               </button>
             </div>
-            <label class="report-filter-label">
-              <span class="report-filter-text">{{ 'home.reportBuilding' | translate }}</span>
+            <div class="report-filter-label">
               <select
                 class="report-building-select"
+                [attr.aria-label]="'home.reportBuilding' | translate"
                 [value]="reportBuildingFilter()"
                 (change)="reportBuildingFilter.set($any($event.target).value)"
               >
@@ -2600,7 +2600,7 @@
                 </option>
                 }
               </select>
-            </label>
+            </div>
           </div>
         </div>
 

@@ -7,20 +7,27 @@
   --drawer-collapsed: 80px;
   /* Match .home-main-inner horizontal padding */
   --home-main-padding-x: 2rem;
-  /* Match .system-dashboard-container / .company-dashboard-container padding-right */
+  /* Match page shells’ padding-right (fixed theme/lang bar uses same horizontal inset). */
   --home-dashboard-inline-end: 24px;
+  /* Shared page shell padding-top (main content only; fixed bar uses top: 14px + safe area). */
+  --home-page-section-padding-top: 48px;
   @media (max-width: 1023px) {
     --home-main-padding-x: 1rem;
     --home-dashboard-inline-end: 16px;
+    --home-page-section-padding-top: 36px;
   }
   @media (min-width: 1024px) and (max-width: 1279px) {
     --home-main-padding-x: 1.5rem;
+  }
+  @media (max-width: 480px) {
+    --home-page-section-padding-top: 32px;
   }
 }
 
 .global-shell-controls {
   position: fixed;
-  top: 14px;
+  /* Flush to viewport top; horizontal inset matches main column (see right). */
+  top: calc(14px + env(safe-area-inset-top, 0px));
   /* Same right inset as “This week / month” (main padding + dashboard container padding) */
   right: calc(
     var(--home-main-padding-x) + var(--home-dashboard-inline-end) +
@@ -31,7 +38,7 @@
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
   pointer-events: auto;
 }
 
@@ -200,7 +207,7 @@
 
 @media (max-width: 1023px) {
   .global-shell-controls {
-    gap: 8px;
+    gap: 12px;
   }
 }
 
@@ -1297,7 +1304,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
 }
 
@@ -1829,7 +1836,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
   position: relative;
   transition: background-color 0.3s ease;
@@ -2799,7 +2806,7 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
   overflow: hidden; // Prevent container from causing page scroll
   position: relative;
@@ -2807,12 +2814,12 @@ select.room-modal-input {
 
   // Responsive padding for smaller screens
   @media (max-width: 768px) {
-    padding: 24px 16px 0 0;
+    padding: var(--home-page-section-padding-top) 16px 0 0;
     gap: 16px;
   }
 
   @media (max-width: 480px) {
-    padding: 16px 8px 0 0;
+    padding: var(--home-page-section-padding-top) 8px 0 0;
     gap: 12px;
   }
 }
@@ -3143,7 +3150,7 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
 }
 
@@ -3436,7 +3443,7 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
 }
 
@@ -3484,14 +3491,20 @@ select.room-modal-input {
 .report-header-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   gap: 16px;
 }
 
+/* Shared height so period tabs + building select align (see .report-building-select). */
+$report-control-height: 40px;
+
 .report-period-tabs {
   display: flex;
+  align-items: stretch;
   gap: 4px;
-  padding: 4px;
+  box-sizing: border-box;
+  height: $report-control-height;
+  padding: 2px;
   background: #f8fafc;
   border: 1px solid #e3e8ef;
   border-radius: 10px;
@@ -3501,13 +3514,17 @@ select.room-modal-input {
   font-family: "Roboto", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  padding: 8px 14px;
+  line-height: 1.25;
+  padding: 0 14px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: #697586;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     color: #364152;
@@ -3522,25 +3539,18 @@ select.room-modal-input {
 }
 
 .report-filter-label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.report-filter-text {
-  font-family: "Roboto", sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #9aa3b2;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
 }
 
 .report-building-select {
+  box-sizing: border-box;
+  height: $report-control-height;
   min-width: 180px;
-  padding: 10px 12px;
+  padding: 0 12px;
   font-family: "Roboto", sans-serif;
   font-size: 14px;
+  line-height: calc(#{$report-control-height} - 2px);
   color: #364152;
   border: 1px solid #cdd5df;
   border-radius: 8px;
@@ -3803,7 +3813,7 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
   max-width: 720px;
 }
@@ -4047,7 +4057,7 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
 }
 
@@ -4633,7 +4643,7 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 36px 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
   position: relative;
   transition: background-color 0.3s ease;
@@ -4761,7 +4771,7 @@ select.room-modal-input {
   }
 
   .rooms-container {
-    padding: 24px 16px 0 0;
+    padding: var(--home-page-section-padding-top) 16px 0 0;
   }
 
   .rooms-header {
@@ -4973,8 +4983,19 @@ select.room-modal-input {
   }
 
   .company-dashboard-container {
-    padding: 24px 16px 0 0;
+    padding: var(--home-page-section-padding-top) 16px 0 0;
     gap: 16px;
+  }
+
+  .system-dashboard-container {
+    padding: var(--home-page-section-padding-top) 16px 0 0;
+  }
+
+  @media (max-width: 480px) {
+    .company-dashboard-container,
+    .system-dashboard-container {
+      padding: var(--home-page-section-padding-top) 12px 0 0;
+    }
   }
 
   .dashboard-header {
@@ -5080,7 +5101,7 @@ select.room-modal-input {
   // Meeting Rooms: same density as laptop band — base styles only applied at ≥1280px;
   // without this, 768–1023px still used 3-column grid + large title (clipped with drawer open)
   .rooms-container {
-    padding: 24px 16px 0 0;
+    padding: var(--home-page-section-padding-top) 16px 0 0;
     min-width: 0;
   }
 
