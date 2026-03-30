@@ -64,10 +64,34 @@ async function handler(req: Request): Promise<Response> {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
+  // Validate caller JWT + authorize (without relying on platform verify_jwt).
+  // We do this using the anon key so we can call auth.getUser with the provided access token.
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+  if (!anonKey) {
+    return new Response(
+      JSON.stringify({ error: 'Server configuration error (missing SUPABASE_ANON_KEY)' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  const supabaseUser = createClient(supabaseUrl, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data: caller, error: callerErr } = await supabaseUser.auth.getUser(
+    authHeader.replace('Bearer ', '')
+  );
+  if (callerErr || !caller?.user) {
+    return new Response(
+      JSON.stringify({ error: 'Invalid or expired token' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
   // 1) Get company_admin row to read user_id before deleting
   const { data: row, error: fetchError } = await supabaseAdmin
     .from('company_admins')
-    .select('user_id')
+    .select('user_id, company_id')
     .eq('id', companyAdminId)
     .single();
 
@@ -79,6 +103,35 @@ async function handler(req: Request): Promise<Response> {
   }
 
   const userId = row.user_id as string | null;
+  const targetCompanyId = row.company_id as string | null;
+
+  // Determine caller role/company and enforce:
+  // - sys_admin can delete any company admin
+  // - company_admin can delete only within the same company
+  const { data: callerProfile, error: callerProfileErr } = await supabaseAdmin
+    .from('profiles')
+    .select('role, company_id')
+    .eq('id', caller.user.id)
+    .single();
+
+  if (callerProfileErr || !callerProfile) {
+    return new Response(
+      JSON.stringify({ error: 'Caller profile not found' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const callerRole = String(callerProfile.role ?? '');
+  const callerCompanyId = callerProfile.company_id as string | null;
+
+  const isSysAdmin = callerRole === 'system_admin' || callerRole === 'sys_admin' || callerRole === 'system';
+  const canDelete = isSysAdmin || (callerRole === 'company_admin' && callerCompanyId && targetCompanyId && callerCompanyId === targetCompanyId);
+  if (!canDelete) {
+    return new Response(
+      JSON.stringify({ error: 'Forbidden' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
 
   // 2) Delete the company_admins row
   const { error: deleteRowError } = await supabaseAdmin

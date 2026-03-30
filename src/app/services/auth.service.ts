@@ -375,6 +375,17 @@ export class AuthService {
             ).pipe(
               switchMap(({ error: upsertErr }) => {
                 if (upsertErr) console.warn('Profiles upsert warning (trigger may have created row):', upsertErr);
+                const invRole = String(inv['role'] ?? '');
+                if (invRole === 'employee') {
+                  return from(
+                    this.sb.client.from('employees').update({
+                      user_id: userId,
+                      first_name: registerData.firstName,
+                      last_name: registerData.lastName,
+                      status: 'active',
+                    }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
+                  );
+                }
                 return from(
                   this.sb.client.from('company_admins').update({
                     user_id: userId,
@@ -443,28 +454,36 @@ export class AuthService {
    * so they can no longer log in. Uses the delete-company-admin Edge Function.
    */
   deleteCompanyAdmin(adminId: string): Observable<void> {
-    const token = this.getToken();
     const url = `${environment.supabaseUrl}/functions/v1/delete-company-admin`;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    });
+    return from(this.sb.client.auth.getSession()).pipe(
+      switchMap(({ data: { session } }) => {
+        // Use fresh Supabase session token. LocalStorage can become stale if Supabase refreshes internally.
+        const token = session?.access_token ?? this.getToken();
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+          // Some Edge Function setups expect apikey alongside Authorization when verify_jwt is enabled.
+          'apikey': environment.supabaseAnonKey,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        });
 
-    return this.http
-      .post<{ success?: boolean; error?: string; details?: string }>(url, { company_admin_id: adminId }, { headers })
-      .pipe(
-        map(() => undefined),
-        catchError((err) => {
-          const body = err.error as { error?: string; details?: string } | undefined;
-          const msg =
-            body?.error && typeof body.error === 'string'
-              ? body.details
-                ? `${body.error}: ${body.details}`
-                : body.error
-              : err.message || 'Failed to delete admin.';
-          return throwError(() => new Error(msg));
-        })
-      );
+        return this.http.post<{ success?: boolean; error?: string; details?: string }>(
+          url,
+          { company_admin_id: adminId },
+          { headers }
+        );
+      }),
+      map(() => undefined),
+      catchError((err) => {
+        const body = err.error as { error?: string; details?: string } | undefined;
+        const msg =
+          body?.error && typeof body.error === 'string'
+            ? body.details
+              ? `${body.error}: ${body.details}`
+              : body.error
+            : err.message || 'Failed to delete admin.';
+        return throwError(() => new Error(msg));
+      })
+    );
   }
 
   // --- Legacy CRUD API (commented) ---

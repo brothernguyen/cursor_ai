@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable, from, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 // import { BASE_URL } from '../config/constants'; // kept for commented HTTP API
 import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
@@ -70,7 +70,18 @@ export class EmployeeService {
     };
   }
 
-  inviteEmployee(email: string): Observable<unknown> {
+  /**
+   * Creates pending employee row, invitation token, and sends the same register link email
+   * as company admins (Edge Function `send-company-admin-invite` with employee copy).
+   */
+  inviteEmployee(
+    email: string,
+    companyName?: string
+  ): Observable<{
+    employee: Record<string, unknown> | null;
+    emailSent: boolean;
+    emailError?: string;
+  }> {
     const companyId = this.getCompanyId();
     if (!companyId) throw new Error('Company context required');
     return from(
@@ -81,10 +92,76 @@ export class EmployeeService {
         status: 'pending',
       }).select().single()
     ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data ? this.employeeRowToApp(data) : null;
-      })
+      switchMap(({ data: employeeRow, error: insertError }) => {
+        if (insertError) throw insertError;
+        const employee = employeeRow ? this.employeeRowToApp(employeeRow) : null;
+        const token = crypto.randomUUID();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        return from(
+          this.sb.client.from('invitations').insert({
+            token,
+            email,
+            role: 'employee',
+            company_id: companyId,
+            expires_at: expiresAt,
+          })
+        ).pipe(
+          map(({ error: invError }) => {
+            if (invError) throw invError;
+            return { employee, token };
+          })
+        );
+      }),
+      switchMap(({ employee, token }) => {
+        const url = `${environment.supabaseUrl}/functions/v1/send-company-admin-invite`;
+        const tokenHeader = this.getToken();
+        const headers = new HttpHeaders({
+          'Content-Type': 'application/json',
+          ...(tokenHeader ? { Authorization: `Bearer ${tokenHeader}` } : {}),
+        });
+        return this.http
+          .post<{ success?: boolean; id?: string }>(url, {
+            email,
+            token,
+            companyName: companyName?.trim() || undefined,
+            inviteRole: 'employee',
+          }, { headers })
+          .pipe(
+            map(() => ({ employee, emailSent: true as const })),
+            catchError((emailErr) => {
+              const body = emailErr.error as
+                | { error?: string; details?: unknown; hint?: string }
+                | undefined;
+              let msg =
+                body?.error && typeof body.error === 'string'
+                  ? body.details
+                    ? `${body.error}: ${JSON.stringify(body.details)}`
+                    : body.error
+                  : emailErr.message;
+              if (body?.hint && typeof body.hint === 'string') {
+                msg = `${msg} ${body.hint}`;
+              }
+              console.warn(
+                'Employee invitation email failed (employee and invitation were created):',
+                msg
+              );
+              return of({
+                employee: employee!,
+                emailSent: false as const,
+                emailError: msg,
+              });
+            })
+          );
+      }),
+      map((result) =>
+        result.emailSent
+          ? { employee: result.employee ?? null, emailSent: true as const }
+          : {
+              employee: result.employee ?? null,
+              emailSent: false as const,
+              emailError: result.emailError,
+            }
+      )
     );
   }
 

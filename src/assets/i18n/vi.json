@@ -290,6 +290,8 @@
     "invitationSentToEmailDetail": "Đã gửi lời mời tới {{email}}. Họ có thể chấp nhận qua liên kết trong email.",
     "adminInviteEmailWarnSummary": "Đã lưu quản trị và lời mời — chưa gửi được email",
     "adminInviteEmailWarnDetailFallback": "Cấu hình Resend: xác minh miền và đặt biến RESEND_FROM trên Supabase.",
+    "employeeInviteEmailWarnSummary": "Đã lưu nhân viên và lời mời — chưa gửi được email",
+    "employeeInviteEmailWarnDetailFallback": "Cấu hình Resend hoặc SMTP cho Edge Function send-company-admin-invite (giống mời quản trị). Kiểm tra FRONTEND_URL và RESEND_FROM.",
     "inviteAdminGenericError": "Không mời được quản trị. Vui lòng thử lại.",
     "adminUpdatedDetail": "Cập nhật quản trị thành công",
     "failedUpdateAdminDetail": "Không cập nhật được quản trị. Vui lòng thử lại.",

@@ -32,18 +32,30 @@ interface InviteBody {
   email: string;
   token: string;
   companyName?: string;
+  /** When `employee`, email copy refers to employee workspace invite (same /register?token= link). */
+  inviteRole?: 'company_admin' | 'employee';
 }
 
-function getInviteHtml(registerUrl: string, companyName?: string): string {
-  const intro = companyName
-    ? `You have been invited to join <strong>${escapeHtml(companyName)}</strong> as a Company Admin.`
-    : 'You have been invited to join as a Company Admin.';
+function getInviteHtml(
+  registerUrl: string,
+  companyName?: string,
+  inviteRole: 'company_admin' | 'employee' = 'company_admin',
+): string {
+  const isEmployee = inviteRole === 'employee';
+  const intro = isEmployee
+    ? (companyName
+      ? `You have been invited to join <strong>${escapeHtml(companyName)}</strong> as an employee.`
+      : 'You have been invited to join as an employee.')
+    : (companyName
+      ? `You have been invited to join <strong>${escapeHtml(companyName)}</strong> as a Company Admin.`
+      : 'You have been invited to join as a Company Admin.');
+  const title = isEmployee ? 'Employee invitation' : 'Company Admin Invitation';
   return `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Invitation</title></head>
 <body style="font-family: sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
-  <h2 style="color: #333;">Company Admin Invitation</h2>
+  <h2 style="color: #333;">${title}</h2>
   <p style="color: #555; line-height: 1.6;">${intro}</p>
   <p style="color: #555;">Click the link below to set your password and complete registration:</p>
   <p style="margin: 24px 0;">
@@ -65,12 +77,22 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function getInviteText(registerUrl: string, companyName?: string): string {
-  const intro = companyName
-    ? `You have been invited to join ${companyName} as a Company Admin.`
-    : 'You have been invited to join as a Company Admin.';
+function getInviteText(
+  registerUrl: string,
+  companyName?: string,
+  inviteRole: 'company_admin' | 'employee' = 'company_admin',
+): string {
+  const isEmployee = inviteRole === 'employee';
+  const intro = isEmployee
+    ? (companyName
+      ? `You have been invited to join ${companyName} as an employee.`
+      : 'You have been invited to join as an employee.')
+    : (companyName
+      ? `You have been invited to join ${companyName} as a Company Admin.`
+      : 'You have been invited to join as a Company Admin.');
+  const title = isEmployee ? 'Employee invitation' : 'Company Admin Invitation';
   return [
-    'Company Admin Invitation',
+    title,
     '',
     intro,
     '',
@@ -148,7 +170,9 @@ async function handler(req: Request): Promise<Response> {
     );
   }
 
-  const { email, token, companyName } = body;
+  const { email, token, companyName, inviteRole: roleRaw } = body;
+  const inviteRole: 'company_admin' | 'employee' =
+    roleRaw === 'employee' ? 'employee' : 'company_admin';
   if (!email || !token) {
     return new Response(
       JSON.stringify({ error: 'email and token are required' }),
@@ -172,11 +196,16 @@ async function handler(req: Request): Promise<Response> {
   }
 
   const registerUrl = `${baseUrl}/register?token=${encodeURIComponent(token)}`;
-  const html = getInviteHtml(registerUrl, companyName);
-  const subject = companyName
-    ? `You're invited to join ${companyName} as Company Admin`
-    : "You're invited as Company Admin";
-  const plainText = getInviteText(registerUrl, companyName);
+  const html = getInviteHtml(registerUrl, companyName, inviteRole);
+  const subject =
+    inviteRole === 'employee'
+      ? (companyName
+        ? `You're invited to join ${companyName} as an employee`
+        : "You're invited as an employee")
+      : (companyName
+        ? `You're invited to join ${companyName} as Company Admin`
+        : "You're invited as Company Admin");
+  const plainText = getInviteText(registerUrl, companyName, inviteRole);
 
   // If Resend is not configured, send directly with SMTP.
   if (!RESEND_API_KEY) {

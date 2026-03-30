@@ -1,6 +1,6 @@
 # Send Company Admin Invite Email
 
-This Edge Function sends an invitation email to new company admins using [Resend](https://resend.com).
+This Edge Function sends an invitation email to new company admins (and, with `inviteRole: "employee"`, to **employees**) using [Resend](https://resend.com).
 If Resend blocks delivery while your domain is being verified, it can optionally fall back to sending via Gmail SMTP.
 
 ## Supabase setup
@@ -74,5 +74,9 @@ To enable SMTP fallback locally too, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, 
    - Inserts a row into `company_admins`.
    - Inserts a row into `invitations` (token, email, role, company_id, expires_at).
    - Invokes this Edge Function with `email`, `token`, and optional `companyName`.
-2. The function sends an email with a link: `FRONTEND_URL/register?token=<token>`.
-3. The invitee opens the link, completes the register form, and the existing `acceptInvitation` flow links their account to the company.
+2. When a company admin **invites an employee**, the app:
+   - Inserts a row into `employees` (pending).
+   - Inserts a row into `invitations` with `role: employee`.
+   - Invokes this function with `email`, `token`, optional `companyName`, and **`inviteRole: "employee"`** (subject/body say “employee” instead of “Company Admin”).
+3. The function sends an email with a link: `FRONTEND_URL/register?token=<token>`.
+4. The invitee opens the link, completes the register form, and `acceptInvitation` links their auth user and profile; for employees it also updates the `employees` row (`user_id`, names, `active`).

@@ -671,7 +671,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.ensureViewAllowedForRole();
         this.loadCompanies();
         this.loadCurrentViewDataOnRefresh();
-      } else if (savedRole === 'company_admin' || savedRole === 'company') {
+      } else if (savedRole === 'company_admin' || savedRole === 'company' || savedRole === 'employee') {
         this.role.set('company');
         this.ensureViewAllowedForRole();
         this.loadCurrentViewDataOnRefresh();
@@ -730,7 +730,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           // Only load companies if user is system admin
           this.loadCompanies();
           this.loadCurrentViewDataOnRefresh();
-        } else if (savedRole === 'company_admin' || savedRole === 'company') {
+        } else if (savedRole === 'company_admin' || savedRole === 'company' || savedRole === 'employee') {
           this.role.set('company');
           this.ensureViewAllowedForRole();
           // Don't load companies for company admin
@@ -747,7 +747,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           // Only load companies if user is system admin
           this.loadCompanies();
           this.loadCurrentViewDataOnRefresh();
-        } else if (savedRole === 'company_admin' || savedRole === 'company') {
+        } else if (savedRole === 'company_admin' || savedRole === 'company' || savedRole === 'employee') {
           this.role.set('company');
           this.ensureViewAllowedForRole();
           this.loadCurrentViewDataOnRefresh();
@@ -2493,18 +2493,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     emails.forEach((email, index) => {
       console.log(`[${index + 1}/${total}] Inviting employee: ${email}`);
 
-      this.employeeSer.inviteEmployee(email).subscribe({
-        next: (res: any) => {
+      this.employeeSer.inviteEmployee(email, this.currentUser().companyName).subscribe({
+        next: (res) => {
           completed++;
           console.log(`Employee ${email} invited successfully:`, res);
 
-          // Show success toast for each employee
-          this.msgService.add({
-            severity: 'success',
-            summary: this.t('common.success'),
-            detail: this.t('toast.invitedEmail', { email }),
-            life: 3000
-          });
+          if (res.emailSent) {
+            this.msgService.add({
+              severity: 'success',
+              summary: this.t('common.success'),
+              detail: this.t('toast.invitedEmail', { email }),
+              life: 3000
+            });
+          } else {
+            this.msgService.add({
+              severity: 'warn',
+              summary: this.t('toast.employeeInviteEmailWarnSummary'),
+              detail:
+                res.emailError ?? this.t('toast.employeeInviteEmailWarnDetailFallback'),
+              life: 12000
+            });
+          }
 
           if (completed + failed === total) {
             // Show summary toast when all invitations are processed

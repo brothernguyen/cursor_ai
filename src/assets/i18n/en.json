@@ -378,6 +378,8 @@
     "invitationSentToEmailDetail": "Invitation sent to {{email}}. They can accept via the link in the email.",
     "adminInviteEmailWarnSummary": "Admin and invite saved — email not delivered",
     "adminInviteEmailWarnDetailFallback": "Configure Resend: verify a domain and set Supabase secret RESEND_FROM.",
+    "employeeInviteEmailWarnSummary": "Employee and invite saved — email not delivered",
+    "employeeInviteEmailWarnDetailFallback": "Configure Resend or SMTP on the send-company-admin-invite Edge Function (same as admin invites). Check FRONTEND_URL and RESEND_FROM.",
     "inviteAdminGenericError": "Failed to invite admin. Please try again.",
     "adminUpdatedDetail": "Admin updated successfully",
     "failedUpdateAdminDetail": "Failed to update admin. Please try again.",

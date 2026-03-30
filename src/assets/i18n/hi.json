@@ -290,6 +290,8 @@
     "invitationSentToEmailDetail": "{{email}} को आमंत्रण भेजा गया। वे ईमेल में लिंक से स्वीकार कर सकते हैं।",
     "adminInviteEmailWarnSummary": "एडमिन और आमंत्रण सहेजे — ईमेल नहीं पहुँचा",
     "adminInviteEmailWarnDetailFallback": "Resend कॉन्फ़िगर करें: डोमेन सत्यापित करें और Supabase पर RESEND_FROM सेट करें।",
+    "employeeInviteEmailWarnSummary": "कर्मचारी और आमंत्रण सहेजे — ईमेल नहीं पहुँचा",
+    "employeeInviteEmailWarnDetailFallback": "send-company-admin-invite Edge Function पर Resend या SMTP कॉन्फ़िगर करें। FRONTEND_URL और RESEND_FROM जाँचें।",
     "inviteAdminGenericError": "एडमिन आमंत्रित नहीं कर सके। पुनः प्रयास करें।",
     "adminUpdatedDetail": "एडमिन सफलतापूर्वक अपडेट",
     "failedUpdateAdminDetail": "एडमिन अपडेट नहीं हो सका। पुनः प्रयास करें।",

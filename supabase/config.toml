@@ -15,3 +15,8 @@ verify_jwt = false
 # so platform-level verification is not required. This avoids 'Invalid JWT'
 # errors when calling from the browser with the access token.
 verify_jwt = false
+
+[functions.delete-company-admin]
+# We'll validate the JWT manually inside the function (like ensure-room-images)
+# so platform-level JWT verification doesn't block the request.
+verify_jwt = false
