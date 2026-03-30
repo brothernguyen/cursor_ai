@@ -2026,16 +2026,14 @@
   min-height: 0;
 }
 
-// Room Image Container – ensure image area is always visible
+// Room Image Container – fixed aspect so all cards share the same image height
 .room-image-container {
-  display: flex;
-  flex: 1 0 0;
-  flex-direction: column;
-  gap: 10px;
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 8px;
-  position: relative;
-  min-height: 160px;
   transform-style: preserve-3d;
   transition: transform 0.1s ease-out;
   transform-origin: center center;
@@ -2043,23 +2041,21 @@
 }
 
 .room-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  flex: 1 0 0;
-  min-height: 0;
   transition: transform 0.1s ease-out;
 }
 
 .room-image-placeholder {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg, #f3e8ff 0%, #dbeafe 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 1 0 0;
-  min-height: 0;
 }
 
 .room-placeholder-icon {
@@ -4825,10 +4821,6 @@ $report-control-height: 40px;
     gap: 16px;
   }
 
-  .room-image-container {
-    min-height: 140px;
-  }
-
   .room-placeholder-icon {
     width: 80px;
     height: 80px;
@@ -5177,10 +5169,6 @@ $report-control-height: 40px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: auto;
     gap: 12px;
-  }
-
-  .room-image-container {
-    min-height: 140px;
   }
 
   .room-placeholder-icon {
