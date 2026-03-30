@@ -2014,7 +2014,7 @@
 .rooms-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 425.333px);
+  grid-template-rows: auto;
   gap: 24px;
   width: 100%;
 }
@@ -2025,6 +2025,8 @@
   background: white;
   border: 1px solid #cdd5df;
   border-radius: 12px;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -2045,6 +2047,13 @@
   transition: transform 0.1s ease-out;
   transform-origin: center center;
   will-change: transform;
+}
+
+// Ultra-wide displays: cap image height so card text never gets crowded.
+@media (min-width: 1800px) {
+  .room-image-container {
+    max-height: 320px;
+  }
 }
 
 .room-image {
