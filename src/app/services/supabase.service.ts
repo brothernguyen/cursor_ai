@@ -30,7 +30,15 @@ export class SupabaseService {
       }
       this._client = createClient(
         environment.supabaseUrl,
-        environment.supabaseAnonKey
+        environment.supabaseAnonKey,
+        {
+          auth: {
+            // Avoid browser LockManager timeout noise:
+            // `NavigatorLockAcquireTimeoutError ... auth-token`.
+            // This app can safely run auth ops without cross-tab lock coordination.
+            lock: async <R>(_name: string, _acquireTimeout: number, fn: () => Promise<R>) => fn(),
+          },
+        }
       );
     }
     return this._client;

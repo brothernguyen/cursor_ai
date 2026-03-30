@@ -77,7 +77,6 @@ export class LoginComponent implements OnInit {
     ).subscribe({
       next: (res: any) => {
         const token = res.data?.accessToken;
-        console.log('==>token: ', token);
 
         this.authSer.setToken(token);
         if (res.role) this.authSer.setRole(res.role);

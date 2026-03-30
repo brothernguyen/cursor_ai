@@ -2114,7 +2114,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       finalize(() => this.loading.end())
     ).subscribe({
       next: (res: any) => {
-        console.log('==>companies: ', res);
         let companiesList: CompanyWithDetails[] = [];
         // AuthService.getAllCompanies (Supabase) returns the array directly, not { data: array }
         if (Array.isArray(res)) {

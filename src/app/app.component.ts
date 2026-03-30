@@ -21,20 +21,20 @@ export const routeAnimations = trigger('routeAnimations', [
         width: '100%',
         height: '100%'
       })
-    ]),
+    ], { optional: true }),
     query(':enter', [
       style({ opacity: 0 })
-    ]),
-    query(':leave', animateChild()),
+    ], { optional: true }),
+    query(':leave', animateChild(), { optional: true }),
     group([
       query(':leave', [
         animate('600ms ease-in-out', style({ opacity: 0 }))
-      ]),
+      ], { optional: true }),
       query(':enter', [
         animate('600ms ease-in-out', style({ opacity: 1 }))
-      ])
+      ], { optional: true })
     ]),
-    query(':enter', animateChild())
+    query(':enter', animateChild(), { optional: true })
   ]),
   transition('login => landing', [
     style({ position: 'relative' }),
@@ -46,20 +46,20 @@ export const routeAnimations = trigger('routeAnimations', [
         width: '100%',
         height: '100%'
       })
-    ]),
+    ], { optional: true }),
     query(':enter', [
       style({ opacity: 0 })
-    ]),
-    query(':leave', animateChild()),
+    ], { optional: true }),
+    query(':leave', animateChild(), { optional: true }),
     group([
       query(':leave', [
         animate('600ms ease-in-out', style({ opacity: 0 }))
-      ]),
+      ], { optional: true }),
       query(':enter', [
         animate('600ms ease-in-out', style({ opacity: 1 }))
-      ])
+      ], { optional: true })
     ]),
-    query(':enter', animateChild())
+    query(':enter', animateChild(), { optional: true })
   ]),
   transition('* <=> *', [
     style({ position: 'relative' }),
@@ -71,20 +71,20 @@ export const routeAnimations = trigger('routeAnimations', [
         width: '100%',
         height: '100%'
       })
-    ]),
+    ], { optional: true }),
     query(':enter', [
       style({ opacity: 0 })
-    ]),
-    query(':leave', animateChild()),
+    ], { optional: true }),
+    query(':leave', animateChild(), { optional: true }),
     group([
       query(':leave', [
         animate('400ms ease-in-out', style({ opacity: 0 }))
-      ]),
+      ], { optional: true }),
       query(':enter', [
         animate('400ms ease-in-out', style({ opacity: 1 }))
-      ])
+      ], { optional: true })
     ]),
-    query(':enter', animateChild())
+    query(':enter', animateChild(), { optional: true })
   ])
 ]);
 

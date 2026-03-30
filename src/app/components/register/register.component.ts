@@ -60,12 +60,10 @@ export class RegisterComponent implements OnInit {
 
     // Get token from query params
     this.token = this.activatedRoute.snapshot.queryParams['token'];
-    console.log('==>Token from URL:', this.token);
 
     // Save token to localStorage
     if (this.token) {
       this.authService.setToken(this.token);
-      console.log('==>Token saved to localStorage');
     }
   }
 

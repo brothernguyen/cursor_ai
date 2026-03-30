@@ -120,7 +120,6 @@ export class AuthService {
 
   // --- Supabase: Get all companies ---
   getAllCompanies(status?: 'active' | 'inactive' | null): Observable<unknown> {
-    console.log('==>loadCompanies');
 
     let q = this.sb.client.from('companies').select('*');
     if (status) q = q.eq('status', status);
@@ -571,15 +570,34 @@ export class AuthService {
       );
       return;
     }
-    this.sb.client.auth.getSession().then(({ data: { session } }) => {
-      if (!session) return;
-      this.sb.client.from('profiles').select('role, company_id').eq('id', session.user.id).single().then(({ data: profile }) => {
-        if (!profile) return;
-        this.setToken(session.access_token);
-        this.setRole(profile.role);
-        if (profile.company_id) this.setCompanyId(profile.company_id);
+    this.sb.client.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!session) return;
+        this.sb.client
+          .from('profiles')
+          .select('role, company_id')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (!profile) return;
+            this.setToken(session.access_token);
+            this.setRole(profile.role);
+            if (profile.company_id) this.setCompanyId(profile.company_id);
+          });
+      })
+      .catch((err: unknown) => {
+        const e = err as { name?: unknown; message?: unknown } | null;
+        const name = String(e?.name ?? '');
+        const msg = String(e?.message ?? '');
+        // Ignore transient Supabase lock-manager contention for auth token reads.
+        if (
+          name === 'NavigatorLockAcquireTimeoutError'
+          || msg.includes('auth-token')
+        ) {
+          return;
+        }
+        console.error('[Auth] restoreSession getSession failed', err);
       });
-    });
   }
 
   private companyRowToApp(row: Record<string, unknown>): Record<string, unknown> {
