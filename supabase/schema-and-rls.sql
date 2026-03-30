@@ -26,7 +26,7 @@ create table if not exists public.profiles (
   company_id uuid references public.companies(id) on delete set null,
   first_name text,
   last_name text,
-  status text default 'active' check (status in ('active', 'inactive', 'pending')),
+  status text default 'inactive' check (status in ('active', 'inactive')),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -39,7 +39,7 @@ create table if not exists public.company_admins (
   user_id uuid references auth.users(id) on delete set null,
   first_name text,
   last_name text,
-  status text default 'pending' check (status in ('active', 'inactive', 'pending')),
+  status text default 'inactive' check (status in ('active', 'inactive')),
   created_at timestamptz default now(),
   updated_at timestamptz default now(),
   unique(company_id, email)
@@ -55,6 +55,7 @@ create table if not exists public.rooms (
   available_to text not null,
   location text not null,
   timezone text default 'UTC',
+  status text default 'active' check (status in ('active', 'inactive')),
   featured_image_url text,
   created_at timestamptz default now()
 );
@@ -78,7 +79,7 @@ create table if not exists public.employees (
   last_name text,
   department text,
   role text default 'employee',
-  status text default 'pending' check (status in ('active', 'inactive', 'pending')),
+  status text default 'active' check (status in ('active', 'inactive')),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );

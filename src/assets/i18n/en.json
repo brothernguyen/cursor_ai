@@ -42,8 +42,7 @@
     "close": "Close",
     "loading": "Loading...",
     "active": "Active",
-    "inactive": "Inactive",
-    "pending": "Pending"
+    "inactive": "Inactive"
   },
   "employee": {
     "deleteTitle": "Delete Employee",

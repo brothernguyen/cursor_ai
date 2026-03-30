@@ -48,11 +48,7 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
   private destroy$ = new Subject<void>();
   private previousStatus: string = '';
   
-  readonly statusOptions: Array<'active' | 'inactive' | 'pending'> = [
-    'active',
-    'inactive',
-    'pending'
-  ];
+  readonly statusOptions: Array<'active' | 'inactive'> = ['active', 'inactive'];
   
   industryOptions = ['Technology', 'Finance', 'Healthcare'];
 
@@ -250,19 +246,6 @@ export class CompDetailComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onStatusChange(newStatus: string) {
-    // Prevent selecting 'pending' status (temporarily disabled by backend)
-    if (newStatus === 'pending') {
-      this.msgService.add({
-        severity: 'warn',
-        summary: this.translate.instant('toast.statusPendingDisabledSummary'),
-        detail: this.translate.instant('toast.statusPendingDisabledDetail'),
-        life: 3000
-      });
-      // Revert to previous status
-      this.formData.status = this.previousStatus;
-      return;
-    }
-    
     // Only trigger update if status actually changed
     if (newStatus !== this.previousStatus && this.company?.id) {
       this.statusChangeSubject.next(newStatus);

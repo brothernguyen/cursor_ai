@@ -3052,10 +3052,6 @@ select.room-modal-input {
   background: #e0ffeb;
 }
 
-.employee-status-pending {
-  background: #fef3c7;
-}
-
 .employee-status-inactive {
   background: #fef3f2;
 }
@@ -3075,10 +3071,6 @@ select.room-modal-input {
 
 .employee-status-active .employee-status-text {
   color: #13c05d;
-}
-
-.employee-status-pending .employee-status-text {
-  color: #f59e0b;
 }
 
 .employee-status-inactive .employee-status-text {
@@ -3344,10 +3336,6 @@ select.room-modal-input {
   background: #e0ffeb;
 }
 
-.admins-status-pending {
-  background: #fef3c7;
-}
-
 .admins-status-inactive {
   background: #fef3f2;
 }
@@ -3367,10 +3355,6 @@ select.room-modal-input {
 
 .admins-status-active .admins-status-text {
   color: #13c05d;
-}
-
-.admins-status-pending .admins-status-text {
-  color: #f59e0b;
 }
 
 .admins-status-inactive .admins-status-text {
@@ -4522,10 +4506,6 @@ $report-control-height: 40px;
   background: #e0ffeb;
 }
 
-.companies-status-pending {
-  background: #fef3c7;
-}
-
 .companies-status-inactive {
   background: #fef3f2;
 }
@@ -4545,10 +4525,6 @@ $report-control-height: 40px;
 
 .companies-status-active .companies-status-text {
   color: #13c05d;
-}
-
-.companies-status-pending .companies-status-text {
-  color: #f59e0b;
 }
 
 .companies-status-inactive .companies-status-text {

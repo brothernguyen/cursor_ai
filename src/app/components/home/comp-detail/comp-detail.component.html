@@ -100,7 +100,7 @@
             [class.cursor-not-allowed]="updatingStatus"
           >
             @for (opt of statusOptions; track opt) {
-            <option [value]="opt" [disabled]="opt === 'pending'">{{ ('common.' + opt) | translate }}</option>
+            <option [value]="opt">{{ ('common.' + opt) | translate }}</option>
             }
           </select>
           @if (updatingStatus) {

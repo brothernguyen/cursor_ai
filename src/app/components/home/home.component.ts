@@ -39,7 +39,7 @@ interface CompanyWithDetails extends Company {
 interface RoomDisplay extends Room {
   id?: number;
   hours?: string;
-  status?: 'active' | 'inactive' | 'pending';
+  status?: 'active' | 'inactive';
   images?: string[];
 }
 
@@ -51,7 +51,7 @@ interface EmployeeDisplay {
   email: string;
   department?: string;
   role?: string;
-  status?: 'active' | 'inactive' | 'pending';
+  status?: 'active' | 'inactive';
 }
 
 // Extended interface for admin display
@@ -60,7 +60,7 @@ interface AdminDisplay {
   firstName: string;
   lastName: string;
   email: string;
-  status?: 'active' | 'inactive' | 'pending';
+  status?: 'active' | 'inactive';
   companyName?: string;
   companyId?: string;
 }
@@ -148,11 +148,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   companyFilterStatus = signal<'active' | 'inactive' | null>(null); // For company filter: active, inactive, or null (all)
   showEditEmployeeStatusMenu = false;
   companyNameSortDirection = signal<'asc' | 'desc' | null>(null); // For company name sorting
-  readonly employeeStatusOptions: Array<'active' | 'pending' | 'inactive'> = [
-    'active',
-    'pending',
-    'inactive'
-  ];
+  readonly employeeStatusOptions: Array<'active' | 'inactive'> = ['active', 'inactive'];
 
   /**
    * Report tab (company) — v1 focuses on: "How utilized are our meeting rooms this period?"
@@ -226,7 +222,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         const bStatus = b.status || 'inactive';
         const statusValue: { [key: string]: number } = {
           'active': 2,
-          'pending': 1,
           'inactive': 0
         };
         const aValue = statusValue[aStatus] || 0;
@@ -606,7 +601,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     availableFrom: '',
     availableTo: '',
     location: '',
-    timezone: 'UTC'
+    timezone: 'UTC',
+    status: 'active'
   };
 
   // Form model for editing a room
@@ -617,13 +613,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     availableFrom: string;
     availableTo: string;
     location: string;
+    status?: 'active' | 'inactive';
   } = {
       id: undefined,
       name: '',
       capacity: 0,
       availableFrom: '',
       availableTo: '',
-      location: ''
+    location: '',
+    status: 'active'
     };
 
   // Form model for editing an employee
@@ -634,7 +632,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     email: string;
     department?: string;
     role?: string;
-    status?: 'active' | 'inactive' | 'pending';
+    status?: 'active' | 'inactive';
   } = {
       id: undefined,
       firstName: '',
@@ -648,7 +646,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Employee status change debouncing
   private employeeStatusChangeSubject = new Subject<string>();
   private employeeStatusDestroy$ = new Subject<void>();
-  private previousEmployeeStatus: 'active' | 'inactive' | 'pending' = 'active';
+  private previousEmployeeStatus: 'active' | 'inactive' = 'active';
   updatingEmployeeStatus = false;
 
   constructor(private fb: FormBuilder, private router: Router) { }
@@ -832,7 +830,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         strCompare((a.role || '').toLowerCase(), (b.role || '').toLowerCase(), role));
     }
     if (status) {
-      const weight: { [key: string]: number } = { active: 2, pending: 1, inactive: 0 };
+      const weight: { [key: string]: number } = { active: 2, inactive: 0 };
       return list.sort((a, b) => {
         const aW = weight[a.status || 'inactive'] ?? 0;
         const bW = weight[b.status || 'inactive'] ?? 0;
@@ -1203,7 +1201,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const total = this.companies.length;
     const active = this.companies.filter((c) => c.status === 'active').length;
     const inactive = this.companies.filter((c) => c.status === 'inactive').length;
-    const pending = this.companies.filter((c) => c.status === 'pending').length;
     const noAdmin = this.companies.filter((c) => (c.admins ?? 0) === 0).length;
     const activeRatio = Math.round((active / Math.max(1, total)) * 100);
 
@@ -1217,11 +1214,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         label: 'Inactive companies',
         value: `${inactive} company${inactive === 1 ? '' : 'ies'} need reactivation`,
         tone: inactive > 2 ? 'warn' : 'good'
-      },
-      {
-        label: 'Pending onboarding',
-        value: `${pending} waiting setup`,
-        tone: pending > 0 ? 'warn' : 'good'
       },
       {
         label: 'No admin assigned',
@@ -1459,10 +1451,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       filtered = [...filtered].sort((a, b) => {
         const aStatus = a.status || 'inactive';
         const bStatus = b.status || 'inactive';
-        // Active = 2, Pending = 1, Inactive = 0
+        // Active = 1, Inactive = 0
         const statusValue: { [key: string]: number } = {
-          'active': 2,
-          'pending': 1,
+          'active': 1,
           'inactive': 0
         };
         const aValue = statusValue[aStatus] || 0;
@@ -1497,7 +1488,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const total = allCompanies.length;
     const active = allCompanies.filter(c => c.status === 'active').length;
     const inactive = allCompanies.filter(c => c.status === 'inactive').length;
-    const pending = allCompanies.filter(c => c.status === 'pending').length;
     
     const activePercent = total > 0 ? Math.round((active / total) * 100) : 0;
     const inactivePercent = total > 0 ? Math.round((inactive / total) * 100) : 0;
@@ -1527,14 +1517,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         subText: null,
         isPurple: false
       },
-      pending: {
-        label: 'Pending',
-        value: pending.toString(),
-        change: 'Action needed',
-        changeType: null,
-        subText: null,
-        isPurple: false
-      }
     };
   }
 
@@ -1804,7 +1786,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         availableFrom: '',
         availableTo: '',
         location: '',
-        timezone: 'UTC'
+        timezone: 'UTC',
+        status: 'active'
       };
     }
     // Reset form when closing the edit room modal
@@ -1815,7 +1798,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         capacity: 0,
         availableFrom: '',
         availableTo: '',
-        location: ''
+        location: '',
+        status: 'active'
       };
     }
     // Reset room to delete when closing delete modal
@@ -1858,7 +1842,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     const styles: { [key: string]: string } = {
       active: 'bg-green-100 text-green-800',
       inactive: 'bg-gray-100 text-gray-800',
-      pending: 'bg-yellow-100 text-yellow-800',
     };
     return styles[status || 'inactive'] || styles['inactive'];
   }
@@ -2257,7 +2240,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onCreateRoom() {
     // Validate required fields
-    if (!this.newRoom.name || !this.newRoom.location || !this.newRoom.availableFrom || !this.newRoom.availableTo || !this.newRoom.capacity || this.newRoom.capacity <= 0) {
+    if (
+      !this.newRoom.name ||
+      !this.newRoom.location ||
+      !this.newRoom.availableFrom ||
+      !this.newRoom.availableTo ||
+      !this.newRoom.capacity ||
+      this.newRoom.capacity <= 0 ||
+      !this.newRoom.status
+    ) {
       this.msgService.add({
         severity: 'error',
         summary: this.t('common.validationError'),
@@ -2274,7 +2265,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       availableFrom: this.newRoom.availableFrom,
       availableTo: this.newRoom.availableTo,
       location: this.newRoom.location.trim(),
-      timezone: 'UTC'
+      timezone: 'UTC',
+      status: this.newRoom.status
     };
 
     this.roomSer.createRoom(roomToCreate).subscribe({
@@ -2288,7 +2280,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           availableFrom: '',
           availableTo: '',
           location: '',
-          timezone: 'UTC'
+          timezone: 'UTC',
+          status: 'active'
         };
         // Close modal
         this.setModal('');
@@ -2334,7 +2327,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       capacity: room.capacity || 0,
       availableFrom: room.availableFrom || '',
       availableTo: room.availableTo || '',
-      location: room.location || ''
+      location: room.location || '',
+      // Rooms status in UI supports only Active/Inactive; treat anything else as Active.
+      status: room.status === 'inactive' ? 'inactive' : 'active'
     };
 
     // Open edit modal
@@ -2344,7 +2339,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Save edited room
   onSaveEditRoom() {
     // Validate required fields
-    if (!this.editRoom.name || !this.editRoom.location || !this.editRoom.availableFrom || !this.editRoom.availableTo || !this.editRoom.capacity || this.editRoom.capacity <= 0) {
+    if (
+      !this.editRoom.name ||
+      !this.editRoom.location ||
+      !this.editRoom.availableFrom ||
+      !this.editRoom.availableTo ||
+      !this.editRoom.capacity ||
+      this.editRoom.capacity <= 0 ||
+      !this.editRoom.status
+    ) {
       this.msgService.add({
         severity: 'error',
         summary: this.t('common.error'),
@@ -2370,7 +2373,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       capacity: this.editRoom.capacity,
       availableFrom: this.editRoom.availableFrom,
       availableTo: this.editRoom.availableTo,
-      location: this.editRoom.location.trim()
+      location: this.editRoom.location.trim(),
+      status: this.editRoom.status
     };
 
     const roomId = this.editRoom.id.toString();
@@ -2386,7 +2390,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           capacity: 0,
           availableFrom: '',
           availableTo: '',
-          location: ''
+          location: '',
+          status: 'active'
         };
         // Close modal
         this.setModal('');
@@ -3074,8 +3079,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Populate edit form with employee data
-    const initialStatus: 'active' | 'inactive' | 'pending' = (employee.status as 'active' | 'inactive' | 'pending') || 'active';
+    // Populate edit form with employee data.
+    // If legacy rows still contain `pending`, treat it as `inactive` in the UI.
+    const rawStatus = employee.status as string | undefined;
+    const initialStatus: 'active' | 'inactive' =
+      rawStatus === 'active' ? 'active' : 'inactive';
     this.editEmployee = {
       id: employee.id,
       firstName: employee.firstName || '',
@@ -3104,17 +3112,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showEditEmployeeStatusMenu = !this.showEditEmployeeStatusMenu;
   }
 
-  setEditEmployeeStatus(newStatus: 'active' | 'pending' | 'inactive') {
+  setEditEmployeeStatus(newStatus: 'active' | 'inactive') {
     this.editEmployee.status = newStatus;
     this.showEditEmployeeStatusMenu = false;
     this.onEmployeeStatusChange(newStatus);
   }
 
   updateEmployeeStatus(status: string) {
-    // Type guard to ensure status is valid
-    const validStatus: 'active' | 'inactive' | 'pending' = (status === 'active' || status === 'inactive' || status === 'pending') 
-      ? status as 'active' | 'inactive' | 'pending'
-      : 'active';
+    // Map any old/invalid status values to Active/Inactive (treat legacy `pending` as `inactive`)
+    const validStatus: 'active' | 'inactive' = status === 'active' ? 'active' : 'inactive';
     if (!this.editEmployee.id) {
       return;
     }
@@ -3133,7 +3139,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         // Update the employee object in the list if it exists
         const employeeIndex = this.employees.findIndex(e => e.id === this.editEmployee.id);
         if (employeeIndex !== -1) {
-          this.employees[employeeIndex].status = status as 'active' | 'inactive' | 'pending';
+          this.employees[employeeIndex].status = validStatus;
         }
         this.msgService.add({
           severity: 'success',
@@ -3259,7 +3265,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               firstName: row.first_name ?? row.firstName ?? '',
               lastName: row.last_name ?? row.lastName ?? '',
               email: row.email ?? '',
-              status: row.status ?? 'pending',
+              status: row.status === 'active' ? 'active' : 'inactive',
               companyName: row.companies?.name ?? row.company?.name ?? '',
               companyId: row.company_id ?? row.companies?.id ?? row.company?.id ?? ''
             }));
@@ -3277,7 +3283,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                   firstName: user.firstName || '',
                   lastName: user.lastName || '',
                   email: user.email || '',
-                  status: user.status || 'active',
+                  status: (user.status === 'active' ? 'active' : 'inactive') as 'active' | 'inactive',
                   companyName: company.name || '',
                   companyId: company.id || company._id || ''
                 }));
@@ -3296,7 +3302,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                   firstName: user.firstName || '',
                   lastName: user.lastName || '',
                   email: user.email || '',
-                  status: user.status || 'active',
+                  status: (user.status === 'active' ? 'active' : 'inactive') as 'active' | 'inactive',
                   companyName: company.name || '',
                   companyId: company.id || company._id || ''
                 }));

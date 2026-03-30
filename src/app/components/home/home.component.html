@@ -344,7 +344,7 @@
         <!-- KPI Cards Grid -->
         <div class="system-kpi-cards-grid">
           @for (kpi of [ companyStatistics.total, companyStatistics.active,
-          companyStatistics.inactive, companyStatistics.pending ]; track
+          companyStatistics.inactive ]; track
           kpi.label) {
           <div
             (click)="selectedKpiCard.set(kpi.label)"
@@ -799,32 +799,6 @@
                     </svg>
                     <span class="companies-status-text">{{ 'common.active' | translate }}</span>
                   </div>
-                  } @else if (company.status === 'pending') {
-                  <div class="companies-status-badge companies-status-pending">
-                    <svg
-                      class="companies-status-icon"
-                      width="11"
-                      height="11"
-                      viewBox="0 0 11 11"
-                      fill="none"
-                    >
-                      <circle
-                        cx="5.5"
-                        cy="5.5"
-                        r="5"
-                        stroke="#F59E0B"
-                        stroke-width="1"
-                      />
-                      <path
-                        d="M5.5 3.5V5.5L7 7"
-                        stroke="#F59E0B"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span class="companies-status-text">{{ 'common.pending' | translate }}</span>
-                  </div>
                   } @else {
                   <div class="companies-status-badge companies-status-inactive">
                     <svg
@@ -1219,32 +1193,6 @@
                       />
                     </svg>
                     <span class="admins-status-text">{{ 'common.active' | translate }}</span>
-                  </div>
-                  } @else if (admin.status === 'pending') {
-                  <div class="admins-status-badge admins-status-pending">
-                    <svg
-                      class="admins-status-icon"
-                      width="11"
-                      height="11"
-                      viewBox="0 0 11 11"
-                      fill="none"
-                    >
-                      <circle
-                        cx="5.5"
-                        cy="5.5"
-                        r="5"
-                        stroke="#F59E0B"
-                        stroke-width="1"
-                      />
-                      <path
-                        d="M5.5 3.5V5.5L7 7"
-                        stroke="#F59E0B"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span class="admins-status-text">{{ 'common.pending' | translate }}</span>
                   </div>
                   } @else {
                   <div class="admins-status-badge admins-status-inactive">
@@ -2349,32 +2297,6 @@
                       />
                     </svg>
                     <span class="employee-status-text">{{ 'common.active' | translate }}</span>
-                  </div>
-                  } @else if (employee.status === 'pending') {
-                  <div class="employee-status-badge employee-status-pending">
-                    <svg
-                      class="employee-status-icon"
-                      width="11"
-                      height="11"
-                      viewBox="0 0 11 11"
-                      fill="none"
-                    >
-                      <circle
-                        cx="5.5"
-                        cy="5.5"
-                        r="5"
-                        stroke="#F59E0B"
-                        stroke-width="1"
-                      />
-                      <path
-                        d="M5.5 3.5V5.5L7 7"
-                        stroke="#F59E0B"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span class="employee-status-text">{{ 'common.pending' | translate }}</span>
                   </div>
                   } @else {
                   <div class="employee-status-badge employee-status-inactive">
@@ -3618,6 +3540,16 @@
               [attr.placeholder]="'modals.enterLocation' | translate"
             />
           </div>
+          <div>
+            <label class="room-modal-label">{{ 'modals.statusRequired' | translate }}</label>
+            <select
+              [(ngModel)]="newRoom.status"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="active">{{ 'common.active' | translate }}</option>
+              <option value="inactive">{{ 'common.inactive' | translate }}</option>
+            </select>
+          </div>
           <div class="room-modal-actions">
             <button
               (click)="setModal('')"
@@ -3702,6 +3634,16 @@
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               [attr.placeholder]="'modals.enterLocation' | translate"
             />
+          </div>
+          <div>
+            <label class="room-modal-label">{{ 'modals.statusRequired' | translate }}</label>
+            <select
+              [(ngModel)]="editRoom.status"
+              class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="active">{{ 'common.active' | translate }}</option>
+              <option value="inactive">{{ 'common.inactive' | translate }}</option>
+            </select>
           </div>
           <div class="room-modal-actions">
             <button

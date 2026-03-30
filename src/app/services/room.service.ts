@@ -37,6 +37,7 @@ export class RoomService {
       available_to: r['availableTo'] ?? r['available_to'],
       location: r['location'],
       timezone: r['timezone'] ?? 'UTC',
+      status: (r['status'] as string | undefined) ?? 'active',
       featured_image_url: r['featuredImageUrl'] ?? r['featured_image_url'],
     };
   }
@@ -50,6 +51,7 @@ export class RoomService {
       availableTo: row['available_to'],
       location: row['location'],
       timezone: row['timezone'],
+      status: row['status'] ?? 'active',
       featuredImageUrl: row['featured_image_url'] ?? null,
     };
   }
@@ -103,6 +105,7 @@ export class RoomService {
     availableFrom: string;
     availableTo: string;
     location: string;
+    status?: 'active' | 'inactive';
   }): Observable<unknown> {
     const companyId = this.getCompanyId();
     if (!companyId) throw new Error('Company context required');

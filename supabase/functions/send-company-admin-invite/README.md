@@ -75,7 +75,7 @@ To enable SMTP fallback locally too, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, 
    - Inserts a row into `invitations` (token, email, role, company_id, expires_at).
    - Invokes this Edge Function with `email`, `token`, and optional `companyName`.
 2. When a company admin **invites an employee**, the app:
-   - Inserts a row into `employees` (pending).
+  - Inserts a row into `employees` (inactive until the invite is accepted).
    - Inserts a row into `invitations` with `role: employee`.
    - Invokes this function with `email`, `token`, optional `companyName`, and **`inviteRole: "employee"`** (subject/body say “employee” instead of “Company Admin”).
 3. The function sends an email with a link: `FRONTEND_URL/register?token=<token>`.
