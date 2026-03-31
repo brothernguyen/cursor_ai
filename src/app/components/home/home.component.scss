@@ -5337,6 +5337,24 @@ $report-control-height: 40px;
     text-align: center;
   }
 
+  .mobile-company-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    margin-bottom: 4px;
+  }
+
+  .mobile-company-page-title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #e2e8f0;
+    text-align: center;
+  }
+
   .company-dashboard-container,
   .system-dashboard-container {
     padding: var(--home-page-section-padding-top) 12px 0 0;
@@ -5425,8 +5443,92 @@ $report-control-height: 40px;
     padding: 12px 0 8px;
   }
 
+  .companies-page-container {
+    gap: 16px;
+    padding: var(--home-page-section-padding-top) 0 0;
+  }
+
+  .companies-page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .companies-page-title {
+    font-size: clamp(38px, 11.5vw, 52px);
+    line-height: 0.95;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin: 0;
+    max-width: 230px;
+    color: #334155;
+    text-wrap: balance;
+  }
+
+  .companies-page-header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .filter-btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: space-between;
+    padding: 0 12px;
+  }
+
+  .filter-text {
+    padding-right: 8px;
+    font-size: 16px;
+  }
+
+  .create-company-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    justify-content: space-between;
+  }
+
+  .create-company-text {
+    padding: 0 10px 0 14px;
+    font-size: 17px;
+    line-height: 22px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .create-company-icon-wrapper {
+    width: 42px;
+    height: 42px;
+  }
+
+  .companies-search-container {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .companies-search-input {
+    min-height: 40px;
+    font-size: 16px;
+  }
+
+  .header-content-left {
+    display: none;
+  }
+
   .period-select-container {
-    align-self: flex-end;
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .period-select-button {
+    width: 100%;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 10px 14px;
   }
 
   .welcome-title {
@@ -5604,6 +5706,10 @@ $report-control-height: 40px;
   .companies-table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .companies-table-container {
+    max-height: calc(100vh - 290px);
   }
 
   .table-header,

@@ -514,8 +514,29 @@
         [ngClass]="{ 'companies-page-overlay': showDetail() }"
       >
         <div class="companies-page-header">
-          <h1 class="companies-page-title">{{ 'home.whosUsingPlatform' | translate }}</h1>
+          <h1 class="companies-page-title">{{ 'nav.companies' | translate }}</h1>
           <div class="companies-page-header-actions">
+            <button
+              (click)="setModal('createCompany')"
+              class="create-company-btn"
+            >
+              <span class="create-company-text">{{ 'home.createCompany' | translate }}</span>
+              <div class="create-company-icon-wrapper">
+                <svg
+                  class="create-company-icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="3"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </div>
+            </button>
             <button
               class="filter-btn"
               [ngClass]="{
@@ -578,27 +599,6 @@
                 </button>
               </div>
             </p-popover>
-            <button
-              (click)="setModal('createCompany')"
-              class="create-company-btn"
-            >
-              <span class="create-company-text">{{ 'home.createCompany' | translate }}</span>
-              <div class="create-company-icon-wrapper">
-                <svg
-                  class="create-company-icon"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="3"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </div>
-            </button>
           </div>
         </div>
 
@@ -1319,6 +1319,11 @@
       </div>
       } @if (role() === 'company' && view() === 'dashboard') {
       <div class="company-dashboard-container">
+        @if (isPhoneViewport()) {
+        <div class="mobile-company-page-header">
+          <h1 class="mobile-company-page-title">{{ 'nav.dashboard' | translate }}</h1>
+        </div>
+        }
         <!-- Header Section -->
         <div class="dashboard-header">
           <div class="header-content-left">

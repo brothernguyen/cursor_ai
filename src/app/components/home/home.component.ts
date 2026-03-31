@@ -658,6 +658,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.syncViewportMode();
+    if (this.isPhoneViewport()) {
+      // Mobile-first entry: start with content-focused layout.
+      this.sidebarOpen.set(false);
+      this.sidebarCollapsed.set(false);
+    }
     // Restore previously selected tab on refresh.
     this.view.set(this.getInitialView());
 

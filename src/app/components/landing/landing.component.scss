@@ -1,8 +1,10 @@
 .landing-page {
+  min-height: 100vh;
   height: 100vh;
   background-color: #f5f5f5;
   width: 100%;
   overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -187,6 +189,8 @@
   align-items: flex-end;
   padding-bottom: 80px;
   min-height: 0;
+  /* One hero band; clipping prevents any background tiling artifacts */
+  overflow: hidden;
 
   .hero-background {
     position: absolute;
@@ -195,7 +199,9 @@
     right: 0;
     bottom: 0;
     background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&h=800&fit=crop');
-    background-size: 110%;
+    /* Single non-tiling layer that always fills the hero (110% + repeat default tiled on tall mobile flex areas) */
+    background-repeat: no-repeat;
+    background-size: cover;
     background-position: center center;
     z-index: 1;
     opacity: 1;
@@ -510,17 +516,12 @@
 // Hero Background Animations
 /* Pan/zoom only — opacity was delayed ~3.75s (15% of 25s) and looked like a flash. */
 @keyframes heroBackgroundAnimation {
-  0% {
-    background-size: 110%;
-    background-position: center center;
+  0%,
+  100% {
+    background-position: 50% 50%;
   }
   50% {
-    background-size: 125%;
-    background-position: 55% 45%;
-  }
-  100% {
-    background-size: 110%;
-    background-position: center center;
+    background-position: 56% 44%;
   }
 }
 
