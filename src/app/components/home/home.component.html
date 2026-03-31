@@ -521,7 +521,9 @@
               (click)="setModal('createCompany')"
               class="create-company-btn"
             >
-              <span class="create-company-text">{{ 'home.createCompany' | translate }}</span>
+              <span class="create-company-text">{{
+                (isPhoneViewport() ? 'home.create' : 'home.createCompany') | translate
+              }}</span>
               <div class="create-company-icon-wrapper">
                 <svg
                   class="create-company-icon"

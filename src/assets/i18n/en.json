@@ -162,6 +162,7 @@
     "filter": "Filter",
     "all": "All",
     "createCompany": "Create Company",
+    "create": "Create",
     "searchCompanies": "Search companies...",
     "bookingsCount": "{{count}} bookings",
     "lastSavedAt": "Last saved at {{time}}.",

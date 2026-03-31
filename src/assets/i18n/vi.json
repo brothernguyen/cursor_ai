@@ -162,6 +162,7 @@
     "filter": "Lọc",
     "all": "Tất cả",
     "createCompany": "Tạo công ty",
+    "create": "Tạo",
     "searchCompanies": "Tìm công ty...",
     "bookingsCount": "{{count}} lượt đặt",
     "lastSavedAt": "Lưu lần cuối lúc {{time}}.",

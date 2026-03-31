@@ -162,6 +162,7 @@
     "filter": "फ़िल्टर",
     "all": "सभी",
     "createCompany": "कंपनी बनाएँ",
+    "create": "बनाएँ",
     "searchCompanies": "कंपनियाँ खोजें...",
     "bookingsCount": "{{count}} बुकिंग",
     "lastSavedAt": "अंतिम सहेजा {{time}} पर।",
