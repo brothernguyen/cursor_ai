@@ -355,6 +355,11 @@
     color: #e2e8f0;
   }
 
+  .companies-page-title,
+  .admins-page-title {
+    color: #e2e8f0;
+  }
+
   .system-period-select-button {
     background: var(--app-surface-alt);
     border-color: var(--app-border);
@@ -3160,10 +3165,8 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 24px 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .admins-page-header {
@@ -4061,10 +4064,8 @@ $report-control-height: 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 24px 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .system-dashboard-header {
@@ -4647,85 +4648,13 @@ $report-control-height: 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 24px 0;
+  padding: var(--home-page-section-padding-top) 24px 0 0;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
   position: relative;
   transition: background-color 0.3s ease;
   height: 100%;
   min-height: 0;
   overflow: hidden;
-}
-
-.main-shell--mobile-table-lock-scroll {
-  overflow: hidden;
-}
-
-/* Companies paginator: compact one line; keep rows dropdown at right side */
-:host ::ng-deep .companies-paginator .p-paginator {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 4px !important;
-  min-height: 44px;
-  padding: 6px 10px !important;
-  flex-wrap: nowrap !important;
-  overflow: hidden;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-first,
-:host ::ng-deep .companies-paginator .p-paginator-last {
-  display: none !important;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-current {
-  display: none !important;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-page,
-:host ::ng-deep .companies-paginator .p-paginator-prev,
-:host ::ng-deep .companies-paginator .p-paginator-next {
-  min-width: 2rem;
-  height: 2rem;
-  margin: 0 !important;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-current {
-  margin: 0;
-  font-size: 13px;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown {
-  margin-left: auto !important;
-  min-width: 56px;
-  width: 56px;
-  order: 99;
-  flex: 0 0 56px;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select {
-  min-width: 56px;
-  width: 56px;
-  height: 32px;
-  border-radius: 8px;
-  padding-inline: 0;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0;
-}
-
-:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select-dropdown {
-  width: 1.5rem;
-}
-
-:host ::ng-deep .p-select-overlay {
-  min-width: 56px;
 }
 
 .companies-page-overlay {
@@ -5084,6 +5013,11 @@ $report-control-height: 40px;
   }
 
   .system-dashboard-container {
+    padding: var(--home-page-section-padding-top) 16px 0 0;
+  }
+
+  .companies-page-container,
+  .admins-page-container {
     padding: var(--home-page-section-padding-top) 16px 0 0;
   }
 
@@ -5492,6 +5426,72 @@ $report-control-height: 40px;
     position: sticky;
     bottom: 0;
     z-index: 20;
+  }
+
+  /* Companies paginator: compact one line; keep rows dropdown at right side (phone only) */
+  :host ::ng-deep .companies-paginator .p-paginator {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    min-height: 44px;
+    padding: 6px 10px !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-first,
+  :host ::ng-deep .companies-paginator .p-paginator-last {
+    display: none !important;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-current {
+    display: none !important;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-page,
+  :host ::ng-deep .companies-paginator .p-paginator-prev,
+  :host ::ng-deep .companies-paginator .p-paginator-next {
+    min-width: 2rem;
+    height: 2rem;
+    margin: 0 !important;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-current {
+    margin: 0;
+    font-size: 13px;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown {
+    margin-left: auto !important;
+    min-width: 56px;
+    width: 56px;
+    order: 99;
+    flex: 0 0 56px;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select {
+    min-width: 56px;
+    width: 56px;
+    height: 32px;
+    border-radius: 8px;
+    padding-inline: 0;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+  }
+
+  :host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select-dropdown {
+    width: 1.5rem;
+  }
+
+  :host ::ng-deep .p-select-overlay {
+    min-width: 56px;
   }
 
   /* System admin dashboard: breathing room under top bar, readable KPI stack */
