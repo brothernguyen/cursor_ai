@@ -2822,20 +2822,22 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 24px 0;
   width: 100%;
   overflow: hidden; // Prevent container from causing page scroll
   position: relative;
   transition: background-color 0.3s ease;
+  max-width: 1400px;
+  margin: 0 auto;
 
   // Responsive padding for smaller screens
   @media (max-width: 768px) {
-    padding: var(--home-page-section-padding-top) 16px 0 0;
+    padding: var(--home-page-section-padding-top) 16px 16px 0;
     gap: 16px;
   }
 
   @media (max-width: 480px) {
-    padding: var(--home-page-section-padding-top) 8px 0 0;
+    padding: var(--home-page-section-padding-top) 8px 8px 0;
     gap: 12px;
   }
 }
@@ -3158,8 +3160,10 @@ select.room-modal-input {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 24px 0;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .admins-page-header {
@@ -4057,8 +4061,10 @@ $report-control-height: 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 24px 0;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .system-dashboard-header {
@@ -4331,6 +4337,8 @@ $report-control-height: 40px;
   overflow-y: auto;
   overflow-x: auto;
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 // Paginator wrapper to match companies table border (overflow hidden keeps rounded border visible)
@@ -4339,6 +4347,10 @@ $report-control-height: 40px;
   border-radius: 12px;
   overflow: hidden;
   background-color: #ffffff;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
 }
 
 .companies-table {
@@ -4635,10 +4647,85 @@ $report-control-height: 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: var(--home-page-section-padding-top) 24px 0 0;
+  padding: var(--home-page-section-padding-top) 24px 24px 0;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   position: relative;
   transition: background-color 0.3s ease;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.main-shell--mobile-table-lock-scroll {
+  overflow: hidden;
+}
+
+/* Companies paginator: compact one line; keep rows dropdown at right side */
+:host ::ng-deep .companies-paginator .p-paginator {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 4px !important;
+  min-height: 44px;
+  padding: 6px 10px !important;
+  flex-wrap: nowrap !important;
+  overflow: hidden;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-first,
+:host ::ng-deep .companies-paginator .p-paginator-last {
+  display: none !important;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-current {
+  display: none !important;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-page,
+:host ::ng-deep .companies-paginator .p-paginator-prev,
+:host ::ng-deep .companies-paginator .p-paginator-next {
+  min-width: 2rem;
+  height: 2rem;
+  margin: 0 !important;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-current {
+  margin: 0;
+  font-size: 13px;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown {
+  margin-left: auto !important;
+  min-width: 56px;
+  width: 56px;
+  order: 99;
+  flex: 0 0 56px;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select {
+  min-width: 56px;
+  width: 56px;
+  height: 32px;
+  border-radius: 8px;
+  padding-inline: 0;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+}
+
+:host ::ng-deep .companies-paginator .p-paginator-rpp-dropdown .p-select-dropdown {
+  width: 1.5rem;
+}
+
+:host ::ng-deep .p-select-overlay {
+  min-width: 56px;
 }
 
 .companies-page-overlay {
@@ -5355,10 +5442,56 @@ $report-control-height: 40px;
     text-align: center;
   }
 
+  .system-dashboard-container,
+  .companies-page-container,
+  .admins-page-container,
+  .company-dashboard-container,
+  .rooms-container,
+  .employees-container,
+  .report-container,
+  .settings-page-container {
+    padding: var(--home-page-section-padding-top) 12px 0;
+    max-width: none;
+    margin: 0;
+  }
+
   .company-dashboard-container,
   .system-dashboard-container {
-    padding: var(--home-page-section-padding-top) 12px 0 0;
+    padding: var(--home-page-section-padding-top) 12px 0;
     gap: 16px;
+  }
+
+  .main-shell--mobile-table-lock-scroll {
+    overflow: hidden !important;
+  }
+
+  .main-shell--mobile-table-lock-scroll .home-main-inner {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .mobile-table-page {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .mobile-table-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-table-footer {
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
   }
 
   /* System admin dashboard: breathing room under top bar, readable KPI stack */
@@ -5445,7 +5578,7 @@ $report-control-height: 40px;
 
   .companies-page-container {
     gap: 16px;
-    padding: var(--home-page-section-padding-top) 0 0;
+    padding: var(--home-page-section-padding-top) 12px 0;
   }
 
   .companies-page-header {
@@ -5454,15 +5587,21 @@ $report-control-height: 40px;
     gap: 12px;
   }
 
-  .companies-page-title {
-    font-size: clamp(38px, 11.5vw, 52px);
-    line-height: 0.95;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+  .app-page-title {
+    font-size: 22px !important;
+    line-height: 28px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    text-align: center;
+    color: #e2e8f0;
+    opacity: 1;
     margin: 0;
-    max-width: 230px;
-    color: #334155;
-    text-wrap: balance;
+    width: 100%;
+  }
+
+  .companies-page-title {
+    max-width: none;
+    text-wrap: normal;
   }
 
   .companies-page-header-actions {
@@ -5611,7 +5750,7 @@ $report-control-height: 40px;
   }
 
   .rooms-container {
-    padding: var(--home-page-section-padding-top) 12px 0 0;
+    padding: var(--home-page-section-padding-top) 12px 0;
     min-width: 0;
   }
 

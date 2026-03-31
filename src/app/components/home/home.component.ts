@@ -1906,6 +1906,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadAdminCountsForVisibleCompanies();
   }
 
+  isMobileTableFooterView(): boolean {
+    if (!this.isPhoneViewport()) return false;
+
+    return (
+      (this.role() === 'system' && (this.view() === 'companies' || this.view() === 'admins')) ||
+      (this.role() === 'company' && this.view() === 'employees')
+    );
+  }
+
   getBadgeClass(status: string | undefined): string {
     const styles: { [key: string]: string } = {
       active: 'bg-green-100 text-green-800',

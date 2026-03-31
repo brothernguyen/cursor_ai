@@ -284,7 +284,8 @@
     (scroll)="onMainShellScroll($event)"
     [ngClass]="{
       'main-shell--offset-expanded': sidebarOpen() && !sidebarCollapsed(),
-      'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed()
+      'main-shell--offset-collapsed': sidebarOpen() && sidebarCollapsed(),
+      'main-shell--mobile-table-lock-scroll': isMobileTableFooterView()
     }"
     [style.padding-left]="sidebarOpen() ? '0' : '0'"
   >
@@ -305,7 +306,7 @@
       <div class="system-dashboard-container">
         <!-- Header Section -->
         <div class="system-dashboard-header">
-          <h1 class="system-dashboard-title">{{ 'home.runningTheSystem' | translate }}</h1>
+          <h1 class="system-dashboard-title app-page-title">{{ 'home.runningTheSystem' | translate }}</h1>
           <div class="system-period-select-container" #periodDropdown>
             <button
               (click)="showPeriodDropdown.set(!showPeriodDropdown())"
@@ -510,11 +511,11 @@
       </div>
       } @if (role() === 'system' && view() === 'companies') {
       <div
-        class="companies-page-container"
+        class="companies-page-container mobile-table-page"
         [ngClass]="{ 'companies-page-overlay': showDetail() }"
       >
         <div class="companies-page-header">
-          <h1 class="companies-page-title">{{ 'nav.companies' | translate }}</h1>
+          <h1 class="companies-page-title app-page-title">{{ 'nav.companies' | translate }}</h1>
           <div class="companies-page-header-actions">
             <button
               (click)="setModal('createCompany')"
@@ -627,7 +628,7 @@
           </div>
         </div>
 
-        <div class="companies-table-container">
+        <div class="companies-table-container mobile-table-scroll">
           <table class="companies-table">
             <thead>
               <tr>
@@ -968,8 +969,9 @@
           </table>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper">
+        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper mobile-table-footer">
           <p-paginator
+            class="companies-paginator"
             [first]="first()"
             [rows]="rows()"
             [totalRecords]="totalRecords"
@@ -980,12 +982,12 @@
         </div>
       </div>
       } @if (role() === 'system' && view() === 'admins') {
-      <div class="admins-page-container">
+      <div class="admins-page-container mobile-table-page">
         <div class="admins-page-header">
-          <h1 class="admins-page-title">{{ 'home.companyAdminsTitle' | translate }}</h1>
+          <h1 class="admins-page-title app-page-title">{{ 'home.companyAdminsTitle' | translate }}</h1>
         </div>
 
-        <div class="admins-table-container">
+        <div class="admins-table-container mobile-table-scroll">
           @if (loadingAdmins) {
           <div class="admins-loading">
             <p>{{ 'home.loadingCompanyAdmins' | translate }}</p>
@@ -1306,6 +1308,10 @@
               }
             </tbody>
           </table>
+          }
+        </div>
+        @if (!loadingAdmins && allAdmins.length > 0) {
+        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper mobile-table-footer">
           <p-paginator
             [first]="firstAdmin()"
             [rows]="rowsAdmin()"
@@ -1314,8 +1320,8 @@
             (onPageChange)="onAdminPageChange($event)"
             dropdownAppendTo="body"
           ></p-paginator>
-          }
         </div>
+        }
       </div>
       } @if (role() === 'company' && view() === 'dashboard') {
       <div class="company-dashboard-container">
@@ -2137,7 +2143,7 @@
       </div>
       } @if (role() === 'company' && view() === 'employees') {
       <div
-        class="employees-container"
+        class="employees-container mobile-table-page"
         [ngClass]="{
           'employees-container-overlay':
             modal() === 'inviteEmployee' || modal() === 'editEmployee'
@@ -2171,7 +2177,7 @@
         </div>
 
         <!-- Employees Table -->
-        <div class="employees-table-container">
+        <div class="employees-table-container mobile-table-scroll">
           <table class="employees-table">
             <thead>
               <tr>
@@ -2424,7 +2430,7 @@
           </table>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper employees-paginator-wrapper">
+        <div class="bg-white dark:bg-slate-900 dark:border-slate-700 paginator-wrapper employees-paginator-wrapper mobile-table-footer">
           <p-paginator
             [first]="firstEmployee()"
             [rows]="rowsEmployee()"
