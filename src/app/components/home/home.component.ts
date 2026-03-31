@@ -115,6 +115,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('op') op!: Popover;
   @ViewChild('filterPopover') filterPopover!: Popover;
   @ViewChild('periodDropdown') periodDropdownRef!: ElementRef;
+  @ViewChild('mainShellRef') mainShellRef?: ElementRef<HTMLElement>;
   selectedCompany: Company | null = null;
   showDetail = signal<boolean>(false);
   showCreateAdmin = signal<boolean>(false);
@@ -124,6 +125,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedAdmin: User | null = null;
   sidebarOpen = signal<boolean>(true);
   sidebarCollapsed = signal<boolean>(false);
+  isPhoneViewport = signal<boolean>(false);
+  showScrollTopButton = signal<boolean>(false);
   selectedKpiCard = signal<string>('Total company');
   selectedPeriod = signal<'thisWeek' | 'thisMonth'>('thisWeek');
   showPeriodDropdown = signal<boolean>(false);
@@ -321,6 +324,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape', ['$event'])
   onEscapeKey(event: Event) {
+    if (this.isPhoneViewport()) return;
+
     // Only handle Esc if no modal is open
     if (this.modal()) {
       // Let modals handle Esc themselves
@@ -652,6 +657,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private fb: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
+    this.syncViewportMode();
     // Restore previously selected tab on refresh.
     this.view.set(this.getInitialView());
 
@@ -693,6 +699,59 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.employeeStatusDestroy$.next();
     this.employeeStatusDestroy$.complete();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.syncViewportMode();
+  }
+
+  private syncViewportMode() {
+    if (typeof window === 'undefined') return;
+    const isPhone = window.innerWidth <= 767;
+    this.isPhoneViewport.set(isPhone);
+
+    if (isPhone) {
+      this.sidebarCollapsed.set(false);
+      this.updateScrollTopVisibility();
+      return;
+    }
+
+    if (!this.sidebarOpen()) {
+      this.sidebarOpen.set(true);
+    }
+  }
+
+  onMainShellScroll(event: Event) {
+    if (!this.isPhoneViewport()) return;
+    const target = event.target as HTMLElement | null;
+    this.updateScrollTopVisibility(target?.scrollTop ?? 0);
+  }
+
+  scrollMainShellToTop() {
+    const container = this.mainShellRef?.nativeElement;
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    this.showScrollTopButton.set(false);
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    if (!this.isPhoneViewport()) return;
+    this.updateScrollTopVisibility();
+  }
+
+  private updateScrollTopVisibility(explicitScrollTop?: number) {
+    const containerScrollTop = this.mainShellRef?.nativeElement?.scrollTop ?? 0;
+    const windowScrollTop = typeof window !== 'undefined'
+      ? window.scrollY || document.documentElement.scrollTop || 0
+      : 0;
+    const top = explicitScrollTop ?? Math.max(containerScrollTop, windowScrollTop);
+    this.showScrollTopButton.set(top > 220);
   }
 
   checkCurrentRole() {
@@ -1559,6 +1618,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (this.adminsCacheDirty || cacheExpired || this.allAdmins.length === 0) {
         this.loadAndLogCompanyAdmins(true);
       }
+    }
+    if (this.isPhoneViewport()) {
+      this.sidebarOpen.set(false);
+      this.sidebarCollapsed.set(false);
     }
     // Clear invitation response when switching tabs
     this.invitationResponse = null;
@@ -2657,6 +2720,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   toggleSidebar() {
+    if (this.isPhoneViewport()) {
+      this.sidebarOpen.set(!this.sidebarOpen());
+      this.sidebarCollapsed.set(false);
+      return;
+    }
+
     // If drawer is closed, open it
     if (!this.sidebarOpen()) {
       this.sidebarOpen.set(true);
@@ -2669,6 +2738,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   private isEscKeyPressed = false;
 
   onDrawerHide(event: any) {
+    if (this.isPhoneViewport()) {
+      this.isEscKeyPressed = false;
+      return;
+    }
+
     // Prevent drawer from closing via Esc key
     // Only prevent if Esc was pressed (not if closed intentionally)
     if (this.isEscKeyPressed && !this.modal()) {

@@ -42,6 +42,10 @@
   pointer-events: auto;
 }
 
+.mobile-drawer-toggle {
+  display: none;
+}
+
 /* Screenshot-style: black track, white border, plain white knob; moon (yellow) / sun (orange) in track */
 .global-theme-toggle {
   --gt-w: 68px;
@@ -4981,8 +4985,8 @@ $report-control-height: 40px;
   }
 }
 
-// Tablet / small layout (max-width 1023px): narrow drawer, company dashboard stack, chart rail
-@media (max-width: 1023px) {
+// Tablet-only layout (768px - 1023px): narrow drawer, stack sections, keep rail semantics
+@media (min-width: 768px) and (max-width: 1023px) {
   :host {
     --drawer-expanded: 210px;
   }
@@ -4994,13 +4998,6 @@ $report-control-height: 40px;
 
   .system-dashboard-container {
     padding: var(--home-page-section-padding-top) 16px 0 0;
-  }
-
-  @media (max-width: 480px) {
-    .company-dashboard-container,
-    .system-dashboard-container {
-      padding: var(--home-page-section-padding-top) 12px 0 0;
-    }
   }
 
   .dashboard-header {
@@ -5273,11 +5270,414 @@ $report-control-height: 40px;
     }
   }
 
-  // Narrower rail at small tablet width so main column stays usable with drawer open
-  @media (max-width: 768px) {
-    :host {
-      --drawer-expanded: 176px;
+  // Keep collapsed rail narrower near the tablet lower bound.
+  :host {
+    --drawer-collapsed: 72px;
+  }
+}
+
+// Phone-only layout (<= 767px): full hide when closed, overlay drawer when open
+@media (max-width: 767px) {
+  :host {
+    --drawer-expanded: min(86vw, 320px);
+    --drawer-collapsed: var(--drawer-expanded);
+    --home-main-padding-x: 0.875rem;
+    /* Clear fixed top row (menu + theme/lang ~44px at 14px + safe-area, per .global-shell-controls) */
+    --home-page-section-padding-top: calc(
+      env(safe-area-inset-top, 0px) + 14px + 44px + 16px
+    );
+  }
+
+  .mobile-drawer-toggle {
+    position: fixed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: calc(var(--home-main-padding-x) + env(safe-area-inset-left, 0px));
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0b1220;
+    color: #e2e8f0;
+    z-index: 1310;
+    box-shadow: 0 8px 18px rgba(2, 6, 23, 0.35);
+    transition: transform 0.2s ease;
+
+    &:active {
+      transform: scale(0.96);
     }
+
+    .menu-button {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .mobile-drawer-toggle--open {
+    background: #111827;
+  }
+
+  .mobile-rooms-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    margin-bottom: 4px;
+  }
+
+  .mobile-rooms-page-title {
+    margin: 0;
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #e2e8f0;
+    text-align: center;
+  }
+
+  .company-dashboard-container,
+  .system-dashboard-container {
+    padding: var(--home-page-section-padding-top) 12px 0 0;
+    gap: 16px;
+  }
+
+  /* System admin dashboard: breathing room under top bar, readable KPI stack */
+  .system-dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .system-dashboard-title {
+    font-size: 26px;
+    line-height: 32px;
+    letter-spacing: -0.02em;
+  }
+
+  .system-period-select-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .system-period-select-button {
+    width: 100%;
+    max-width: 100%;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+
+  .system-kpi-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .system-kpi-card {
+    min-height: 0;
+    padding: 16px 14px;
+  }
+
+  .system-kpi-icon-container {
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .system-kpi-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .system-kpi-content {
+    margin-top: 0;
+    padding-right: 44px;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .system-kpi-title-purple,
+  .system-kpi-title-white {
+    font-size: 13px;
+    line-height: 18px;
+    padding-right: 0;
+  }
+
+  .system-kpi-value-row {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .system-kpi-value-purple,
+  .system-kpi-value-white {
+    font-size: clamp(28px, 8vw, 34px);
+    line-height: 1.1;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 0 8px;
+  }
+
+  .period-select-container {
+    align-self: flex-end;
+  }
+
+  .welcome-title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .company-subtitle {
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  .kpi-cards-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .company-kpi-card {
+    flex: none;
+    width: 100%;
+    padding: 12px 14px;
+    gap: 14px;
+  }
+
+  .kpi-label,
+  .kpi-last-month {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  .kpi-value {
+    font-size: 30px;
+    line-height: 36px;
+  }
+
+  .kpi-icon-wrapper {
+    width: 38px;
+    height: 38px;
+  }
+
+  .kpi-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .room-utilization-card {
+    height: auto;
+    min-height: 330px;
+    padding: 12px 14px;
+  }
+
+  .utilization-chart-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chart-bars {
+    margin-left: 108px;
+  }
+
+  .room-name-label {
+    width: 96px;
+    left: -108px;
+    font-size: 13px;
+    line-height: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chart-axis {
+    left: 108px;
+  }
+
+  .axis-labels,
+  .axis-labels span {
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .rooms-container {
+    padding: var(--home-page-section-padding-top) 12px 0 0;
+    min-width: 0;
+  }
+
+  .rooms-header {
+    padding: 12px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .rooms-header-left {
+    display: none;
+  }
+
+  .rooms-header-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .rooms-title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  .view-toggle-switch,
+  .add-room-button {
+    height: 38px;
+  }
+
+  .switch-card-view,
+  .switch-list-view {
+    width: 56px;
+    padding: 6px;
+  }
+
+  .switch-icon,
+  .check-icon,
+  .tile-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .add-room-text,
+  .location-text,
+  .meta-text,
+  .action-text {
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  .add-room-icon-wrapper {
+    width: 34px;
+    height: 34px;
+  }
+
+  .add-room-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .rooms-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    gap: 10px;
+  }
+
+  .room-placeholder-icon {
+    width: 72px;
+    height: 72px;
+  }
+
+  .room-name {
+    font-size: 17px;
+    line-height: 24px;
+  }
+
+  .location-icon,
+  .meta-icon,
+  .action-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .room-edit-button,
+  .room-delete-button {
+    height: 38px;
+  }
+
+  .rooms-table-container,
+  .employees-table-container,
+  .admins-table-container,
+  .companies-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-header,
+  .employee-table-header,
+  .admins-table-header,
+  .companies-table-header,
+  .table-cell,
+  .employee-table-cell,
+  .admins-table-cell,
+  .companies-table-cell {
+    font-size: 13px;
+    line-height: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .main-shell--offset-expanded,
+  .main-shell--offset-collapsed {
+    margin-left: 0 !important;
+  }
+
+  .mobile-scroll-top-btn {
+    position: fixed;
+    right: calc(var(--home-main-padding-x) + env(safe-area-inset-right, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index: 1320;
+    width: 46px;
+    height: 46px;
+    border: 1px solid #334155;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.92);
+    color: #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.45);
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+  }
+
+  // Do not set z-index on .p-drawer-mask here: PrimeNG sets mask to (drawer z-index - 1).
+  // Forcing mask z-index with !important can place the fullscreen mask above the drawer
+  // and block all clicks on nav items (drawer uses inline z-index from ZIndexUtils).
+  ::ng-deep {
+    .p-drawer {
+      &.p-drawer-left.drawer-figma {
+        width: var(--drawer-expanded) !important;
+
+        &.drawer-collapsed {
+          width: var(--drawer-expanded) !important;
+        }
+      }
+    }
+
+    .p-drawer-mask {
+      backdrop-filter: blur(1px);
+      background: rgba(2, 6, 23, 0.45) !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  :host {
+    --drawer-expanded: min(90vw, 300px);
   }
 }
 
