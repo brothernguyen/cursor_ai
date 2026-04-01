@@ -2397,6 +2397,18 @@
   padding: 0.375rem 0.75rem !important;
 }
 
+.room-modal-input--error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+}
+
+.room-modal-error-text {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: #ef4444;
+}
+
 select.room-modal-input {
   cursor: pointer;
 }

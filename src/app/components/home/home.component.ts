@@ -127,6 +127,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   sidebarCollapsed = signal<boolean>(false);
   isPhoneViewport = signal<boolean>(false);
   showScrollTopButton = signal<boolean>(false);
+  attemptedCreateRoomSubmit = signal<boolean>(false);
   selectedKpiCard = signal<string>('Total company');
   selectedPeriod = signal<'thisWeek' | 'thisMonth'>('thisWeek');
   showPeriodDropdown = signal<boolean>(false);
@@ -1355,12 +1356,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       finalize(() => this.loading.end())
     ).subscribe({
       next: (res: any) => {
-        // EmployeeService returns an array, but keep defensive handling for older response shapes.
-        if (Array.isArray(res)) this.employees = res;
-        else if (Array.isArray(res?.data)) this.employees = res.data;
-        else if (Array.isArray(res?.data?.employees)) this.employees = res.data.employees;
-        else if (Array.isArray(res?.data?.data)) this.employees = res.data.data;
-        else this.employees = [];
+        // EmployeeService returns multiple shapes; normalize each row for stable table rendering.
+        let rawEmployees: any[] = [];
+        if (Array.isArray(res)) rawEmployees = res;
+        else if (Array.isArray(res?.data)) rawEmployees = res.data;
+        else if (Array.isArray(res?.data?.employees)) rawEmployees = res.data.employees;
+        else if (Array.isArray(res?.data?.data)) rawEmployees = res.data.data;
+        this.employees = rawEmployees.map((employee) => this.normalizeEmployee(employee));
         const total = this.employees.length;
         if (this.firstEmployee() >= total && total > 0) {
           this.firstEmployee.set(Math.max(0, total - this.rowsEmployee()));
@@ -1373,6 +1375,33 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.firstEmployee.set(0);
       }
     });
+  }
+
+  private normalizeEmployee(employee: any): EmployeeDisplay {
+    const firstName = String(employee?.firstName ?? employee?.first_name ?? '').trim();
+    const lastName = String(employee?.lastName ?? employee?.last_name ?? '').trim();
+    const email = String(employee?.email ?? '').trim();
+    const roleRaw = String(employee?.role ?? '').trim();
+    const statusRaw = String(employee?.status ?? '').toLowerCase();
+    const status: 'active' | 'inactive' = statusRaw === 'active' ? 'active' : 'inactive';
+
+    return {
+      id: String(employee?.id ?? employee?._id ?? employee?.employeeId ?? ''),
+      firstName: firstName || '—',
+      lastName: lastName || '—',
+      email: email || '—',
+      department: String(employee?.department ?? employee?.dept ?? '').trim() || '—',
+      role: this.normalizeEmployeeRole(roleRaw) || '—',
+      status
+    };
+  }
+
+  private normalizeEmployeeRole(role: string): string {
+    const normalized = role.toLowerCase();
+    if (!normalized) return '';
+    if (normalized === 'empl' || normalized === 'emp') return 'Employee';
+    if (normalized === 'company_admin') return 'Company Admin';
+    return role;
   }
 
   // Room images: Unsplash meeting/office photos; variety so each room gets a distinct image
@@ -1848,6 +1877,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     // Reset form when closing the add room modal
     if (modal !== 'addRoom') {
+      this.attemptedCreateRoomSubmit.set(false);
       this.newRoom = {
         name: '',
         capacity: 0,
@@ -2315,6 +2345,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onCreateRoom() {
+    this.attemptedCreateRoomSubmit.set(true);
     // Validate required fields
     if (
       !this.newRoom.name ||
@@ -2359,6 +2390,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           timezone: 'UTC',
           status: 'active'
         };
+        this.attemptedCreateRoomSubmit.set(false);
         // Close modal
         this.setModal('');
         // Reload rooms data
@@ -2382,6 +2414,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  isCreateRoomFieldInvalid(field: 'name' | 'capacity' | 'availableFrom' | 'availableTo' | 'location' | 'status'): boolean {
+    if (!this.attemptedCreateRoomSubmit()) return false;
+    if (field === 'capacity') return !this.newRoom.capacity || this.newRoom.capacity <= 0;
+    const value = this.newRoom[field];
+    if (typeof value === 'string') return value.trim().length === 0;
+    return !value;
   }
 
   // Open edit room modal with room data

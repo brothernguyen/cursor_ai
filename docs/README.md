@@ -44,6 +44,12 @@ The spec documents:
 
 All operations are implemented via Supabase (Auth, PostgREST, RPC, Edge Functions). The spec uses logical paths; actual requests go to your Supabase project URL with the appropriate path prefix (`/auth/v1`, `/rest/v1`, `/functions/v1`).
 
+## Application role vs Auth `user.role`
+
+After password login, Supabase’s **`POST /auth/v1/token?grant_type=password`** response includes `user.role`: **`authenticated`**. That value is the **JWT / PostgREST role** (`authenticated` or `anon`), not your product permissions.
+
+Your real roles are **`sys_admin`**, **`company_admin`**, and **`employee`** in **`public.profiles.role`**. The Angular app loads them right after sign-in and on refresh via **`GET /rest/v1/profiles`** (see `AuthService.adminLogin` and `restoreSession`). In the browser **Network** tab, open the **`profiles?select=...`** request to see the app role—not only **`token?grant_type=password`**.
+
 ## Troubleshooting – List companies returns `[]`
 
 1. **Auth headers**  

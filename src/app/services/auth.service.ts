@@ -6,6 +6,19 @@ import { Company } from '../interfaces/auth';
 import { SupabaseService } from './supabase.service';
 import { environment } from '../../environments/environment';
 
+/**
+ * Values stored in `public.profiles.role` (DB check constraint).
+ * Supabase Auth’s JWT `user.role` is separate: `authenticated` / `anon` for RLS, not this enum.
+ */
+export type AppUserRole = 'sys_admin' | 'company_admin' | 'employee';
+
+/** Result of a successful password login: token plus application role from `profiles`. */
+export interface AdminLoginResult {
+  token: string;
+  role: AppUserRole;
+  data: { accessToken: string };
+}
+
 /** Build redirect URL for password reset (must be allowed in Supabase Auth URL config). */
 function getResetPasswordRedirectUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
@@ -83,8 +96,11 @@ export class AuthService {
     return value;
   }
 
-  // --- Supabase: Admin Login ---
-  adminLogin(loginData: { email: string; password: string }): Observable<{ token: string; role: string; data?: { accessToken: string } }> {
+  /**
+   * Password sign-in: Supabase session gives JWT `user.role` = `authenticated` only.
+   * Loads **`profiles.role`** (`AppUserRole`) and `company_id` for the UI and RLS-backed queries.
+   */
+  adminLogin(loginData: { email: string; password: string }): Observable<AdminLoginResult> {
     return from(
       this.sb.client.auth.signInWithPassword(loginData)
     ).pipe(
@@ -101,12 +117,13 @@ export class AuthService {
           map(({ data: profile, error: profileError }) => {
             if (profileError || !profile) throw profileError || new Error('Profile not found');
             const token = data.session!.access_token;
+            const role = profile.role as AppUserRole;
             this.setToken(token);
             this.setRole(profile.role);
             if (profile.company_id) this.setCompanyId(profile.company_id);
             const isSystemAdmin = profile.role === 'system_admin' || profile.role === 'sys_admin' || profile.role === 'system';
             if (isSystemAdmin) this._shouldLoadCompaniesOnNextHomeInit = true;
-            return { token, role: profile.role, data: { accessToken: token } };
+            return { token, role, data: { accessToken: token } };
           })
         );
       })
@@ -292,7 +309,16 @@ export class AuthService {
   //   return this.http.post(`${BASE_URL}/admin/company-admins`, adminData, { headers });
   // }
 
-  getCurrentUser(): Observable<unknown> {
+  /** Session user plus **`profiles.role`** (app role); omit relying on `session.user.role` (`authenticated`). */
+  getCurrentUser(): Observable<{
+    id: string;
+    email: string | undefined;
+    role: AppUserRole;
+    company_id: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    status: string | null;
+  } | null> {
     return from(this.sb.client.auth.getSession()).pipe(
       switchMap(({ data: { session }, error }) => {
         if (error) throw error;
@@ -305,7 +331,7 @@ export class AuthService {
             return profile ? {
               id: session.user.id,
               email: session.user.email,
-              role: profile.role,
+              role: profile.role as AppUserRole,
               company_id: profile.company_id,
               firstName: profile.first_name,
               lastName: profile.last_name,
@@ -562,7 +588,10 @@ export class AuthService {
     this.sb.client.auth.signOut().then(() => this.clearAll());
   }
 
-  /** Restore token/role/companyId from Supabase session (e.g. on app load after refresh). */
+  /**
+   * Restore token and **`user_role`** from Supabase session + **`profiles`**.
+   * JWT `user.role` stays `authenticated`; app role always comes from `profiles`.
+   */
   restoreSession(): void {
     if (!this.sb.isConfigured()) {
       console.warn(

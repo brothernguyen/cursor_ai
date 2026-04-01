@@ -12,6 +12,8 @@ info:
     For this endpoint, `profiles.role` must be `sys_admin` for `auth.uid()` (see `my_profile()` in RLS). If your user has no row in `public.profiles` or `role` is not `sys_admin`, you will see `[]`.
     Bootstrap: `insert into public.profiles (id, email, role) select id, email, 'sys_admin' from auth.users where email = 'your@email.com';` (run in SQL Editor once).
 
+    **JWT `user.role` vs application role:** The Auth token response includes `user.role` values such as **`authenticated`** (or **`anon`** when logged out). That is the Supabase JWT role for PostgREST/RLS, **not** your product role. Application roles **`sys_admin`**, **`company_admin`**, and **`employee`** are stored in **`public.profiles.role`**. After login, read them via **`GET /rest/v1/profiles`** (or the app’s `AuthService`), not from the raw token JSON’s `user.role`.
+
     **PostgREST query filters (Supabase `/rest/v1/...`):** Column filters must use an **operator**, not a bare value. Use **`eq.`** for equality, e.g. `company_id=eq.43becd5c-...` and `status=eq.active`. Sending `company_id=<uuid>` without `eq.` returns **400** with `PGRST100` (“failed to parse filter”).
   version: 1.0.0
   contact:
@@ -50,7 +52,10 @@ paths:
     post:
       tags: [Auth]
       summary: Admin login
-      description: Supabase Auth sign-in. Returns session; app then loads profile (role, company_id) from `profiles` table.
+      description: |
+        Supabase Auth sign-in. Returns a session with `access_token` and a `user` object whose **`user.role`** is the JWT role (**`authenticated`**), not the app role.
+
+        The Angular app then loads **`sys_admin` / `company_admin` / `employee`** from **`public.profiles`** (`role`, `company_id`). In browser DevTools, inspect the **`profiles`** request as well as **`token`**.
       operationId: adminLogin
       security:
         - apiKeyAuth: []
@@ -66,7 +71,8 @@ paths:
                 password: { type: string, format: password }
       responses:
         '200':
-          description: Success (session with access_token)
+          description: |
+            Session with `access_token`. Response `user.role` is **`authenticated`** (JWT/RLS). Use **`GET /rest/v1/profiles`** for `sys_admin` / `company_admin` / `employee`.
         '400':
           description: Invalid credentials or email_not_confirmed
 
@@ -83,10 +89,11 @@ paths:
     get:
       tags: [Auth]
       summary: Get current session / user
+      description: Returns Supabase session/user; **`user.role`** remains **`authenticated`** for logged-in users. Load **`profiles.role`** separately for the app role.
       operationId: getSession
       responses:
         '200':
-          description: Current session and user
+          description: Current session and user (JWT role in `user.role`, not `profiles.role`)
 
   # ---- Companies (Supabase PostgREST: rest/v1/companies) ----
   /rest/v1/companies:
@@ -159,7 +166,8 @@ paths:
     get:
       tags: [Auth]
       summary: Get profile by user id
-      description: Select role, company_id (and other fields) for current user. Used after login.
+      description: |
+        Select **`role`** (`sys_admin`, `company_admin`, `employee`), **`company_id`**, and other columns for the user. This is the **application role** source of truth after login—not the Auth response’s `user.role` (`authenticated`).
       operationId: getProfile
       parameters:
         - $ref: '#/components/parameters/PostgrestProfileIdEq'

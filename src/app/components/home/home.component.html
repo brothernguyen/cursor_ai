@@ -3560,8 +3560,12 @@
               type="text"
               [(ngModel)]="newRoom.name"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [ngClass]="{ 'room-modal-input--error': isCreateRoomFieldInvalid('name') }"
               [attr.placeholder]="'modals.enterRoomName' | translate"
             />
+            @if (isCreateRoomFieldInvalid('name')) {
+            <p class="room-modal-error-text">{{ 'toast.fillRequiredFields' | translate }}</p>
+            }
           </div>
           <div>
             <label class="room-modal-label">{{ 'modals.capacityRequired' | translate }}</label>
@@ -3569,9 +3573,13 @@
               type="number"
               [(ngModel)]="newRoom.capacity"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [ngClass]="{ 'room-modal-input--error': isCreateRoomFieldInvalid('capacity') }"
               [attr.placeholder]="'modals.enterCapacity' | translate"
               min="1"
             />
+            @if (isCreateRoomFieldInvalid('capacity')) {
+            <p class="room-modal-error-text">{{ 'toast.fillRequiredFields' | translate }}</p>
+            }
           </div>
           <div>
             <label class="room-modal-label">{{ 'modals.availableFromRequired' | translate }}</label>
@@ -3579,7 +3587,11 @@
               type="time"
               [(ngModel)]="newRoom.availableFrom"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [ngClass]="{ 'room-modal-input--error': isCreateRoomFieldInvalid('availableFrom') }"
             />
+            @if (isCreateRoomFieldInvalid('availableFrom')) {
+            <p class="room-modal-error-text">{{ 'toast.fillRequiredFields' | translate }}</p>
+            }
           </div>
           <div>
             <label class="room-modal-label">{{ 'modals.availableToRequired' | translate }}</label>
@@ -3587,7 +3599,11 @@
               type="time"
               [(ngModel)]="newRoom.availableTo"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [ngClass]="{ 'room-modal-input--error': isCreateRoomFieldInvalid('availableTo') }"
             />
+            @if (isCreateRoomFieldInvalid('availableTo')) {
+            <p class="room-modal-error-text">{{ 'toast.fillRequiredFields' | translate }}</p>
+            }
           </div>
           <div>
             <label class="room-modal-label">{{ 'modals.locationRequired' | translate }}</label>
@@ -3595,18 +3611,26 @@
               type="text"
               [(ngModel)]="newRoom.location"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [ngClass]="{ 'room-modal-input--error': isCreateRoomFieldInvalid('location') }"
               [attr.placeholder]="'modals.enterLocation' | translate"
             />
+            @if (isCreateRoomFieldInvalid('location')) {
+            <p class="room-modal-error-text">{{ 'toast.fillRequiredFields' | translate }}</p>
+            }
           </div>
           <div>
             <label class="room-modal-label">{{ 'modals.statusRequired' | translate }}</label>
             <select
               [(ngModel)]="newRoom.status"
               class="room-modal-input w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              [ngClass]="{ 'room-modal-input--error': isCreateRoomFieldInvalid('status') }"
             >
               <option value="active">{{ 'common.active' | translate }}</option>
               <option value="inactive">{{ 'common.inactive' | translate }}</option>
             </select>
+            @if (isCreateRoomFieldInvalid('status')) {
+            <p class="room-modal-error-text">{{ 'toast.fillRequiredFields' | translate }}</p>
+            }
           </div>
           <div class="room-modal-actions">
             <button
