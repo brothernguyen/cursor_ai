@@ -372,11 +372,12 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email]
+              required: [email, company_id]
               properties:
                 email: { type: string, format: email }
                 role: { type: string, default: employee }
-                status: { type: string, default: pending }
+                company_id: { type: string, format: uuid }
+                status: { type: string, default: inactive, enum: [active, inactive] }
       responses:
         '201':
           description: Created
@@ -401,7 +402,7 @@ paths:
                 last_name: { type: string }
                 department: { type: string }
                 role: { type: string }
-                status: { type: string, enum: [active, inactive, pending] }
+                status: { type: string, enum: [active, inactive] }
       responses:
         '200':
           description: Updated
