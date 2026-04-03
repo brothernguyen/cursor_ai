@@ -351,6 +351,42 @@ export class AuthService {
   //   return this.http.get(`${BASE_URL}/auth/me`, { headers });
   // }
 
+  /**
+   * If signUp returns no session (e.g. email confirmation enabled), confirm via Edge Function
+   * then sign in so subsequent profile / employee updates pass RLS.
+   */
+  private ensureSessionAfterInviteSignUp(
+    hasSessionFromSignUp: boolean,
+    inviteEmail: string,
+    password: string,
+    invitationToken: string,
+    userId: string
+  ): Observable<void> {
+    if (hasSessionFromSignUp) {
+      return of(undefined);
+    }
+    const url = `${environment.supabaseUrl}/functions/v1/confirm-invited-user`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      apikey: environment.supabaseAnonKey,
+    });
+    return this.http
+      .post<{ success?: boolean; error?: string }>(url, { token: invitationToken, userId }, { headers })
+      .pipe(
+        switchMap((body) => {
+          if (body && typeof body === 'object' && typeof body.error === 'string' && body.error) {
+            return throwError(() => new Error(body.error));
+          }
+          return from(this.sb.client.auth.signInWithPassword({ email: inviteEmail, password }));
+        }),
+        map(({ data, error }) => {
+          if (error) throw error;
+          if (!data.session) throw new Error('Sign-in after registration failed');
+          return undefined;
+        })
+      );
+  }
+
   acceptInvitation(registerData: {
     firstName: string;
     lastName: string;
@@ -365,17 +401,21 @@ export class AuthService {
         const inv = (Array.isArray(rows) && rows.length > 0 ? rows[0] : null) as Record<string, unknown> | null;
         if (!inv) throw new Error('Invalid or expired invitation');
         if (new Date((inv['expires_at'] as string)) < new Date()) throw new Error('Invitation expired');
+        const inviteEmail = String(inv['email'] ?? '').trim();
+        const companyId = inv['company_id'] != null ? String(inv['company_id']).trim() : '';
+        const invRole = String(inv['role'] ?? '').trim();
+
         return from(
           this.sb.client.auth.signUp({
-            email: inv['email'] as string,
+            email: inviteEmail,
             password: registerData.password,
             options: {
               data: {
                 first_name: registerData.firstName,
                 last_name: registerData.lastName,
                 phone: registerData.phone,
-                role: inv['role'] as string,
-                company_id: inv['company_id'] as string,
+                role: invRole,
+                company_id: companyId,
                 status: 'active',
               },
             },
@@ -385,42 +425,85 @@ export class AuthService {
             if (error) throw error;
             if (!data.user) throw new Error('Sign up failed');
             const userId = data.user.id;
-            // Trigger on auth.users creates the profiles row from metadata above.
-            // Sync profile and company_admins so we're robust if trigger or RLS differs.
-            return from(
-              this.sb.client.from('profiles').upsert({
-                id: userId,
-                email: inv['email'] as string,
-                role: inv['role'] as string,
-                company_id: inv['company_id'] as string,
-                first_name: registerData.firstName,
-                last_name: registerData.lastName,
-                status: 'active',
-              }, { onConflict: 'id' })
+            return this.ensureSessionAfterInviteSignUp(
+              Boolean(data.session),
+              inviteEmail,
+              registerData.password,
+              token,
+              userId
             ).pipe(
-              switchMap(({ error: upsertErr }) => {
-                if (upsertErr) console.warn('Profiles upsert warning (trigger may have created row):', upsertErr);
-                const invRole = String(inv['role'] ?? '');
-                if (invRole === 'employee') {
-                  return from(
-                    this.sb.client.from('employees').update({
-                      user_id: userId,
+              switchMap(() =>
+                from(
+                  this.sb.client.from('profiles').upsert(
+                    {
+                      id: userId,
+                      email: inviteEmail,
+                      role: invRole,
+                      company_id: companyId,
                       first_name: registerData.firstName,
                       last_name: registerData.lastName,
                       status: 'active',
-                    }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
-                  );
-                }
-                return from(
-                  this.sb.client.from('company_admins').update({
-                    user_id: userId,
-                    first_name: registerData.firstName,
-                    last_name: registerData.lastName,
-                    status: 'active',
-                  }).eq('email', inv['email'] as string).eq('company_id', inv['company_id'] as string)
-                );
-              }),
-              map(() => ({ success: true }))
+                    },
+                    { onConflict: 'id' }
+                  )
+                ).pipe(
+                  switchMap(({ error: upsertErr }) => {
+                    if (upsertErr) {
+                      console.warn('Profiles upsert warning (trigger may have created row):', upsertErr);
+                    }
+                    if (invRole === 'employee') {
+                      return from(
+                        this.sb.client
+                          .from('employees')
+                          .update({
+                            user_id: userId,
+                            first_name: registerData.firstName,
+                            last_name: registerData.lastName,
+                            status: 'active',
+                          })
+                          .eq('email', inviteEmail)
+                          .eq('company_id', companyId)
+                          .select('id')
+                          .maybeSingle()
+                      ).pipe(
+                        map(({ data: row, error: updErr }) => {
+                          if (updErr) throw updErr;
+                          if (!row) {
+                            throw new Error(
+                              'Could not activate employee (no matching employees row for this invite, or access denied).'
+                            );
+                          }
+                          return { success: true as const };
+                        })
+                      );
+                    }
+                    return from(
+                      this.sb.client
+                        .from('company_admins')
+                        .update({
+                          user_id: userId,
+                          first_name: registerData.firstName,
+                          last_name: registerData.lastName,
+                          status: 'active',
+                        })
+                        .eq('email', inviteEmail)
+                        .eq('company_id', companyId)
+                        .select('id')
+                        .maybeSingle()
+                    ).pipe(
+                      map(({ data: row, error: updErr }) => {
+                        if (updErr) throw updErr;
+                        if (!row) {
+                          throw new Error(
+                            'Could not activate company admin (no matching company_admins row for this invite, or access denied).'
+                          );
+                        }
+                        return { success: true as const };
+                      })
+                    );
+                  })
+                )
+              )
             );
           })
         );
