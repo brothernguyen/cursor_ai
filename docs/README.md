@@ -11,6 +11,8 @@ This folder contains the **OpenAPI 3.0** specification for the Meeting Room app 
 
 The UI loads **`/openapi.yaml`**, which is **`docs/openapi.yaml`** copied to the site root at build/serve time (see `angular.json` assets).
 
+**Production:** [https://cursor-ai-one.vercel.app/api-docs](https://cursor-ai-one.vercel.app/api-docs) — same UI; the spec must be redeployed with the app for new endpoints (e.g. **Meetings**) to appear there.
+
 Use the **Authorize** button once for **apikey** (anon) and **bearerAuth** (JWT). You should **not** see duplicate `apikey` / `Authorization` fields under **Parameters** for each operation.
 
 ### Option 2: Standalone (no app)
@@ -40,6 +42,7 @@ The spec documents:
 - **Invitations:** get by token, sign up (accept invitation)
 - **Rooms:** list, create, update, delete (company_admin)
 - **Employees:** list, invite, update, delete (company_admin)
+- **Meetings:** list (RLS: my meetings), create (direct or RPC `create_meeting_with_guests` with guests), get/patch (including cancel), `meeting_guests`, RPC `rsvp_meeting`
 - **Edge Functions:** send-company-admin-invite, confirm-invited-user
 
 All operations are implemented via Supabase (Auth, PostgREST, RPC, Edge Functions). The spec uses logical paths; actual requests go to your Supabase project URL with the appropriate path prefix (`/auth/v1`, `/rest/v1`, `/functions/v1`).

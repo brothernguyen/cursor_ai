@@ -1740,6 +1740,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.view() === 'admins' && this.role() === 'system') {
       // Ensure admins data is fetched on browser refresh when "Company Admins" is the saved tab.
       this.loadAndLogCompanyAdmins(true);
+      return;
+    }
+    // Company role: same loads as setView(), but ngOnInit only restores `view` from URL/storage — it
+    // does not call setView(), so employees/rooms/report stayed empty after refresh or tab restore.
+    if (this.role() === 'company') {
+      const v = this.view();
+      if (v === 'rooms') {
+        this.loadRooms();
+      }
+      if (v === 'employees') {
+        this.loadEmployees();
+      }
+      if (v === 'report') {
+        this.loadRooms();
+        this.loadEmployees();
+      }
     }
   }
 

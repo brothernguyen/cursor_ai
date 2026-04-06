@@ -15,6 +15,10 @@ info:
     **JWT `user.role` vs application role:** The Auth token response includes `user.role` values such as **`authenticated`** (or **`anon`** when logged out). That is the Supabase JWT role for PostgREST/RLS, **not** your product role. Application roles **`sys_admin`**, **`company_admin`**, and **`employee`** are stored in **`public.profiles.role`**. After login, read them via **`GET /rest/v1/profiles`** (or the app’s `AuthService`), not from the raw token JSON’s `user.role`.
 
     **PostgREST query filters (Supabase `/rest/v1/...`):** Column filters must use an **operator**, not a bare value. Use **`eq.`** for equality, e.g. `company_id=eq.43becd5c-...` and `status=eq.active`. Sending `company_id=<uuid>` without `eq.` returns **400** with `PGRST100` (“failed to parse filter”).
+
+    **Hosted Swagger UI:** The interactive reference is published at **[https://cursor-ai-one.vercel.app/api-docs](https://cursor-ai-one.vercel.app/api-docs)** (loads this spec from **`/openapi.yaml`** on the same host). **Try it out** still sends requests to the **Supabase** URLs listed under `servers` below—not to Vercel. After editing this file, redeploy the Angular app so production serves the updated YAML.
+
+    **Meetings:** Use the **Meetings** tag for `/rest/v1/meetings`, `/rest/v1/meeting_guests`, and RPCs **`create_meeting_with_guests`** / **`rsvp_meeting`** (booking overlap enforced in the database for `scheduled` rows).
   version: 1.0.0
   contact:
     name: API Support
@@ -38,6 +42,8 @@ tags:
     description: Meeting rooms (company_admin)
   - name: Employees
     description: Employees (company_admin)
+  - name: Meetings
+    description: Meeting bookings (company_admin, employee); overlap enforced for scheduled rows; cancel via PATCH status
   - name: Edge Functions
     description: Custom Supabase Edge Functions
 
@@ -419,6 +425,210 @@ paths:
         '204':
           description: Deleted
 
+  # ---- Meetings (PostgREST + RPC) ----
+  /rest/v1/meetings:
+    get:
+      tags: [Meetings]
+      summary: List meetings visible to the current user
+      description: |
+        **RLS:** Returns meetings where you are the organizer (`created_by`) or a row exists in `meeting_guests` for you.
+        `sys_admin` sees all meetings. Use **`status=eq.scheduled`** (etc.) with the `eq.` prefix. Pagination: `limit` + `offset` query params (`offset = (page-1)*limit`), or `Prefer: count=exact` + `Range` headers per PostgREST.
+      operationId: listMeetings
+      parameters:
+        - $ref: '#/components/parameters/PostgrestMeetingStatusEq'
+        - name: order
+          in: query
+          required: false
+          description: 'PostgREST ordering, e.g. `start_time.desc`'
+          schema: { type: string, example: start_time.desc }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Array of meeting rows (wrapped in PostgREST JSON array)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeetingRow'
+    post:
+      tags: [Meetings]
+      summary: Create meeting (direct insert)
+      description: |
+        Prefer **`POST /rest/v1/rpc/create_meeting_with_guests`** to add guests atomically and surface overlap errors clearly.
+        Trigger sets `company_id` from `room_id` and `created_by` from `auth.uid()`. Do not send `created_by` from the client unless you rely on the trigger overwrite.
+      operationId: createMeetingDirect
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [room_id, title, start_time, end_time]
+              properties:
+                room_id: { type: string, format: uuid }
+                title: { type: string }
+                start_time: { type: string, format: date-time }
+                end_time: { type: string, format: date-time }
+                meeting_note: { type: string, nullable: true }
+                details: { type: string, nullable: true }
+                status: { type: string, enum: [scheduled, cancelled, completed] }
+      responses:
+        '201':
+          description: Created
+        '409':
+          description: Room time overlap (exclusion constraint on scheduled meetings)
+
+  /rest/v1/meetings/{meetingId}:
+    get:
+      tags: [Meetings]
+      summary: Get one meeting
+      description: |
+        Use PostgREST filter on id, e.g. `GET /rest/v1/meetings?id=eq.{meetingId}&select=*,rooms(*),profiles!meetings_created_by_fkey(*),meeting_guests(*,profiles!meeting_guests_user_id_fkey(*))`.
+        Supabase-js: `.from('meetings').select('...').eq('id', meetingId).single()`.
+      operationId: getMeeting
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Meeting row with optional embedded relations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRow'
+    patch:
+      tags: [Meetings]
+      summary: Update meeting or cancel
+      description: |
+        Partial update (maps legacy PUT). Set **`status: cancelled`** to cancel (soft delete). Overlap checks apply when `status` remains `scheduled`.
+      operationId: patchMeeting
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                room_id: { type: string, format: uuid }
+                title: { type: string }
+                start_time: { type: string, format: date-time }
+                end_time: { type: string, format: date-time }
+                meeting_note: { type: string, nullable: true }
+                details: { type: string, nullable: true }
+                status: { type: string, enum: [scheduled, cancelled, completed] }
+      responses:
+        '200':
+          description: Updated
+        '409':
+          description: Room overlap
+
+  /rest/v1/meeting_guests:
+    get:
+      tags: [Meetings]
+      summary: List guests for a meeting
+      description: |
+        **`meeting_id`** filter required — use `meeting_id=eq.` plus UUID. RLS limits rows to meetings you can see.
+      operationId: listMeetingGuests
+      parameters:
+        - name: meeting_id
+          in: query
+          required: true
+          schema:
+            type: string
+            example: eq.550e8400-e29b-41d4-a716-446655440000
+      responses:
+        '200':
+          description: Guest rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeetingGuestRow'
+    post:
+      tags: [Meetings]
+      summary: Add a guest row
+      description: Organizer or `company_admin` for the meeting's company. Target `user_id` must be a profile in the same company as the meeting.
+      operationId: addMeetingGuest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [meeting_id, user_id]
+              properties:
+                meeting_id: { type: string, format: uuid }
+                user_id: { type: string, format: uuid }
+                status: { type: string, enum: [pending, accepted, declined], default: pending }
+      responses:
+        '201':
+          description: Created
+
+  /rest/v1/rpc/create_meeting_with_guests:
+    post:
+      tags: [Meetings]
+      summary: Create meeting and optional guests (atomic)
+      description: Surfaces **`Room overlap`** as an SQL exception message; validates guests belong to the room's company.
+      operationId: rpcCreateMeetingWithGuests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [p_room_id, p_title, p_start_time, p_end_time]
+              properties:
+                p_room_id: { type: string, format: uuid }
+                p_title: { type: string }
+                p_start_time: { type: string, format: date-time }
+                p_end_time: { type: string, format: date-time }
+                p_meeting_note: { type: string, nullable: true }
+                p_details: { type: string, nullable: true }
+                p_guest_ids: { type: array, items: { type: string, format: uuid }, default: [] }
+      responses:
+        '200':
+          description: Created meeting row
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRow'
+
+  /rest/v1/rpc/rsvp_meeting:
+    post:
+      tags: [Meetings]
+      summary: Guest accept or decline
+      description: Updates `meeting_guests.status` for **`auth.uid()`**; requires an existing guest row.
+      operationId: rpcRsvpMeeting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [p_meeting_id, p_status]
+              properties:
+                p_meeting_id: { type: string, format: uuid }
+                p_status: { type: string, enum: [accepted, declined] }
+      responses:
+        '200':
+          description: Meeting row after RSVP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRow'
+
   # ---- Edge Functions ----
   /functions/v1/send-company-admin-invite:
     post:
@@ -496,6 +706,15 @@ components:
         type: string
         enum: [eq.active, eq.inactive]
         example: eq.active
+    PostgrestMeetingStatusEq:
+      name: status
+      in: query
+      required: false
+      description: Optional. Equality filter — `eq.scheduled`, `eq.cancelled`, or `eq.completed`.
+      schema:
+        type: string
+        enum: [eq.scheduled, eq.cancelled, eq.completed]
+        example: eq.scheduled
 
   securitySchemes:
     apiKeyAuth:
@@ -534,3 +753,28 @@ components:
         available_to: { type: string }
         location: { type: string }
         timezone: { type: string, default: UTC }
+
+    MeetingRow:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        company_id: { type: string, format: uuid }
+        created_by: { type: string, format: uuid }
+        room_id: { type: string, format: uuid }
+        title: { type: string }
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+        meeting_note: { type: string, nullable: true }
+        details: { type: string, nullable: true }
+        status: { type: string, enum: [scheduled, cancelled, completed] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    MeetingGuestRow:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        status: { type: string, enum: [pending, accepted, declined] }
+        created_at: { type: string, format: date-time }
