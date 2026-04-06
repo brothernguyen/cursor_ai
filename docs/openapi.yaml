@@ -458,26 +458,27 @@ paths:
                   $ref: '#/components/schemas/MeetingRow'
     post:
       tags: [Meetings]
-      summary: Create meeting (direct insert)
+      summary: Create meeting (direct insert, no guests)
       description: |
-        Prefer **`POST /rest/v1/rpc/create_meeting_with_guests`** to add guests atomically and surface overlap errors clearly.
-        Trigger sets `company_id` from `room_id` and `created_by` from `auth.uid()`. Do not send `created_by` from the client unless you rely on the trigger overwrite.
+        Inserts only the **`meetings`** row. **Guest user IDs are not supported here** — PostgREST rejects unknown JSON keys, and guests live in **`meeting_guests`**.
+
+        To create a meeting **with `guestIds`** (legacy API shape), use **`POST /rest/v1/rpc/create_meeting_with_guests`** with **`p_guest_ids`** (array of **`profiles.id`** UUIDs).
+
+        Trigger sets `company_id` from `room_id` and `created_by` from `auth.uid()`.
       operationId: createMeetingDirect
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [room_id, title, start_time, end_time]
-              properties:
-                room_id: { type: string, format: uuid }
-                title: { type: string }
-                start_time: { type: string, format: date-time }
-                end_time: { type: string, format: date-time }
-                meeting_note: { type: string, nullable: true }
-                details: { type: string, nullable: true }
-                status: { type: string, enum: [scheduled, cancelled, completed] }
+              $ref: '#/components/schemas/MeetingCreateDirectBody'
+            example:
+              room_id: '550e8400-e29b-41d4-a716-446655440000'
+              title: Project Kickoff
+              start_time: '2025-12-25T09:00:00Z'
+              end_time: '2025-12-25T10:00:00Z'
+              meeting_note: 'Discuss project roadmap'
+              details: 'Discuss project roadmap (legacy field)'
       responses:
         '201':
           description: Created
@@ -579,24 +580,27 @@ paths:
   /rest/v1/rpc/create_meeting_with_guests:
     post:
       tags: [Meetings]
-      summary: Create meeting and optional guests (atomic)
-      description: Surfaces **`Room overlap`** as an SQL exception message; validates guests belong to the room's company.
+      summary: Create a new meeting (optional guest IDs)
+      description: |
+        Same behavior as the legacy **`POST /meetings`** body: required room + title + start/end times; optional note, details, and **`p_guest_ids`** (maps legacy **`guestIds`**) — an array of **`profiles.id`** UUIDs; each becomes a **`meeting_guests`** row with status **`pending`**.
+
+        Surfaces room **overlap** as an SQL exception message; validates guests belong to the room's company.
       operationId: rpcCreateMeetingWithGuests
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required: [p_room_id, p_title, p_start_time, p_end_time]
-              properties:
-                p_room_id: { type: string, format: uuid }
-                p_title: { type: string }
-                p_start_time: { type: string, format: date-time }
-                p_end_time: { type: string, format: date-time }
-                p_meeting_note: { type: string, nullable: true }
-                p_details: { type: string, nullable: true }
-                p_guest_ids: { type: array, items: { type: string, format: uuid }, default: [] }
+              $ref: '#/components/schemas/CreateMeetingWithGuestsRpcBody'
+            example:
+              p_room_id: '550e8400-e29b-41d4-a716-446655440000'
+              p_title: Project Kickoff
+              p_start_time: '2025-12-25T09:00:00Z'
+              p_end_time: '2025-12-25T10:00:00Z'
+              p_meeting_note: 'Discuss project roadmap'
+              p_details: 'Discuss project roadmap (legacy field)'
+              p_guest_ids:
+                - '550e8400-e29b-41d4-a716-446655440001'
       responses:
         '200':
           description: Created meeting row
@@ -778,3 +782,48 @@ components:
         user_id: { type: string, format: uuid }
         status: { type: string, enum: [pending, accepted, declined] }
         created_at: { type: string, format: date-time }
+
+    MeetingCreateDirectBody:
+      type: object
+      required: [room_id, title, start_time, end_time]
+      properties:
+        room_id: { type: string, format: uuid }
+        title: { type: string }
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+        meeting_note: { type: string, nullable: true }
+        details: { type: string, nullable: true }
+        status: { type: string, enum: [scheduled, cancelled, completed] }
+
+    CreateMeetingWithGuestsRpcBody:
+      type: object
+      required: [p_room_id, p_title, p_start_time, p_end_time]
+      properties:
+        p_room_id:
+          type: string
+          format: uuid
+          description: Legacy **`roomId`**
+        p_title:
+          type: string
+          description: Meeting title
+        p_start_time:
+          type: string
+          format: date-time
+          description: Legacy **`startTime`**
+        p_end_time:
+          type: string
+          format: date-time
+          description: Legacy **`endTime`**
+        p_meeting_note:
+          type: string
+          nullable: true
+          description: Legacy **`meetingNote`**
+        p_details:
+          type: string
+          nullable: true
+          description: Legacy **`details`**
+        p_guest_ids:
+          type: array
+          description: Legacy **`guestIds`** — profile UUIDs (`public.profiles.id`) to invite; omit or `[]` for no guests
+          items: { type: string, format: uuid }
+          default: []
