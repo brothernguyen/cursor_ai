@@ -2635,22 +2635,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           completed++;
           console.log(`Employee ${email} invited successfully:`, res);
 
-          if (res.emailSent) {
-            this.msgService.add({
-              severity: 'success',
-              summary: this.t('common.success'),
-              detail: this.t('toast.invitedEmail', { email }),
-              life: 3000
-            });
-          } else {
-            this.msgService.add({
-              severity: 'warn',
-              summary: this.t('toast.employeeInviteEmailWarnSummary'),
-              detail:
-                res.emailError ?? this.t('toast.employeeInviteEmailWarnDetailFallback'),
-              life: 12000
-            });
-          }
+          this.msgService.add({
+            severity: 'success',
+            summary: this.t('common.success'),
+            detail: this.t('toast.invitedEmail', { email }),
+            life: 3000
+          });
 
           if (completed + failed === total) {
             // Show summary toast when all invitations are processed
@@ -3050,26 +3040,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       const companyName = this.createdCompanyName() ?? undefined;
       this.authSer.createCompanyAdmin({ companyId: companyIdStr, email, companyName }).subscribe({
         next: (res) => {
-          if (res.emailSent) {
-            completed++;
-            this.msgService.add({
-              severity: 'success',
-              summary: this.t('common.success'),
-              detail: this.t('toast.invitedEmail', { email }),
-              life: 3000
-            });
-          } else {
-            failed++;
-            this.msgService.add({
-              severity: 'warn',
-              summary: this.t('toast.inviteSavedEmailFailed'),
-              detail: this.t('toast.inviteEmailFailedDetail', {
-                email,
-                error: res.emailError ?? this.t('toast.emailCouldNotSend')
-              }),
-              life: 10000
-            });
-          }
+          completed++;
+          this.msgService.add({
+            severity: 'success',
+            summary: this.t('common.success'),
+            detail: this.t('toast.invitedEmail', { email }),
+            life: 3000
+          });
 
           if (completed + failed === total) {
             // Show summary toast when all invitations are processed

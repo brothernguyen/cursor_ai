@@ -52,25 +52,14 @@ export class CompCreateAdminComponent implements OnInit {
         next: (res) => {
           console.log('==>Admin created successfully:', res);
           this.isSubmitting = false;
-          if (res.emailSent) {
-            this.msgService.add({
-              severity: 'success',
-              summary: this.translate.instant('common.success'),
-              detail: this.translate.instant('toast.invitationSentToEmailDetail', {
-                email: formValue.email
-              }),
-              life: 5000
-            });
-          } else {
-            this.msgService.add({
-              severity: 'warn',
-              summary: this.translate.instant('toast.adminInviteEmailWarnSummary'),
-              detail:
-                res.emailError ??
-                this.translate.instant('toast.adminInviteEmailWarnDetailFallback'),
-              life: 12000
-            });
-          }
+          this.msgService.add({
+            severity: 'success',
+            summary: this.translate.instant('common.success'),
+            detail: this.translate.instant('toast.invitationSentToEmailDetail', {
+              email: formValue.email
+            }),
+            life: 5000
+          });
           this.created.emit();
           this.onClose();
           this.adminForm.reset();

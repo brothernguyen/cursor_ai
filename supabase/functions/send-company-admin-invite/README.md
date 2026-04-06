@@ -17,23 +17,39 @@ In **Supabase Dashboard** → **Edge Functions** → **Secrets**, set:
 
 | Secret             | Description |
 |--------------------|-------------|
-| `RESEND_API_KEY`   | Your Resend API key (optional if using SMTP-only). |
 | `FRONTEND_URL`     | **Your Angular app URL** where users open the signup link, e.g. `https://yourapp.com` or `http://localhost:4200`. **Do not use your Supabase project URL** (e.g. `https://xxx.supabase.co`) — that causes "requested path is invalid" when the user clicks the link. |
-| `RESEND_FROM`      | Sender on a **verified** domain, e.g. `noreply@yourdomain.com`. Required for real invites; default sandbox address cannot mail arbitrary recipients. |
+| `EMAIL_PRIMARY`    | Optional. Default `resend`. Set to **`smtp`** to **send invitations only via SMTP** and skip Resend. Use this when you see Resend errors like “only send testing emails to your own email address” and you have not finished domain verification — no Resend domain required. |
+| `RESEND_API_KEY`   | Your Resend API key (not used when `EMAIL_PRIMARY=smtp`). |
+| `RESEND_FROM`      | Sender on a **verified** Resend domain. Ignored when `EMAIL_PRIMARY=smtp` (use `SMTP_FROM` instead). |
 
-#### Optional: SMTP fallback (Gmail)
+#### SMTP (fallback, or primary with `EMAIL_PRIMARY=smtp`)
 
-Enable SMTP by setting these secrets. It is used:
-- as fallback when Resend blocks sandbox recipients, or
-- as primary sender if `RESEND_API_KEY` is not set.
+Set these when using SMTP as fallback or when **`EMAIL_PRIMARY=smtp`**:
 
 | Secret       | Description |
 |--------------|-------------|
-| `SMTP_HOST`  | SMTP server hostname (Gmail: `smtp.gmail.com`) |
-| `SMTP_PORT`  | SMTP port (`465` for TLS; `587` if you configure STARTTLS separately) |
-| `SMTP_USER`  | Gmail address you are sending from (e.g. `you@gmail.com`) |
-| `SMTP_PASS`  | Gmail **app password** (not your normal Google password). |
-| `SMTP_FROM`  | Optional. If unset, it defaults to `SMTP_USER`. Use `you@gmail.com` or `Name <you@gmail.com>`. |
+| `SMTP_HOST`  | e.g. `smtp.gmail.com` |
+| `SMTP_PORT`  | `465` (TLS) for Gmail with this function |
+| `SMTP_USER`  | Full Gmail address |
+| `SMTP_PASS`  | **Gmail App Password** (Google Account → Security → 2-Step Verification → App passwords). Normal account passwords return **535** from Gmail. |
+| `SMTP_FROM`  | Optional; defaults to `SMTP_USER`. Must be an address your SMTP account may send as. |
+| `SMTP_TLS_MODE` | Optional. `starttls` (use with **port 587**) or `tls` (implicit TLS, typical **465**). If omitted: port **587** → STARTTLS; other ports → TLS. |
+
+**If Gmail returns `535 BadCredentials`**
+
+1. **App password** — [Google → App passwords](https://myaccount.google.com/apppasswords). Turn on **2-Step Verification** first. The password is **16 characters**; paste into `SMTP_PASS` (spaces are stripped automatically for `smtp.gmail.com`).
+2. **`SMTP_USER`** — Must be the **full** address (e.g. `you@gmail.com`), not only the name before `@`.
+3. Try **port 587**: `SMTP_PORT` = `587`, `SMTP_TLS_MODE` = `starttls` (or leave mode unset; the function defaults 587 to STARTTLS).
+4. **Google Workspace** (@company.com): Org admins can **disable SMTP / App passwords**. Use a **personal Gmail** for sending, **Resend with verified domain**, or **SendGrid/Mailgun SMTP** instead.
+
+**Quick path to invite any email without Resend domain verification**
+
+1. In Google Account, turn on 2FA and create an **App password** for “Mail”.
+2. In Supabase **Secrets**, add `EMAIL_PRIMARY` = `smtp` (exact value).
+3. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and optionally `SMTP_FROM`.
+4. Redeploy the function if you changed code; secrets apply without redeploy.
+
+You can remove or keep `RESEND_API_KEY`; it will not be used for sending when `EMAIL_PRIMARY=smtp`.
 
 ### 3. Deploy the function
 
