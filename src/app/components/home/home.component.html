@@ -245,7 +245,7 @@
           class="drawer-footer-item"
           [ngClass]="{ 'drawer-footer-item-active': view() === 'settings' }"
         >
-          <img src="/settings-icon.png" alt="Settings" class="logo-image" />
+          <i class="pi pi-cog drawer-footer-icon" aria-hidden="true"></i>
           @if (!sidebarCollapsed()) {
           <span>{{ 'nav.settings' | translate }}</span>
           }
@@ -253,7 +253,7 @@
 
         <!-- Log out -->
         <button (click)="onLogout()" class="drawer-footer-item">
-          <img src="/logout-icon.png" alt="TERRALOGIC" class="logo-image" />
+          <i class="pi pi-sign-out drawer-footer-icon" aria-hidden="true"></i>
           @if (!sidebarCollapsed()) {
           <span>{{ 'nav.logOut' | translate }}</span>
           }
@@ -264,7 +264,7 @@
           <!-- <div class="w-5 h-10 flex-shrink-0">
             <div class="user-icon"></div>
           </div> -->
-          <img src="/user-icon.png" alt="TERRALOGIC" class="logo-image" />
+          <i class="pi pi-user drawer-footer-icon" aria-hidden="true"></i>
           @if (!sidebarCollapsed()) {
           <span class="text-sm drawer-user-name">
             @if (currentUser().firstName || currentUser().lastName) {
