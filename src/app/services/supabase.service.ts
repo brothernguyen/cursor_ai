@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createSupabaseFunctionsFetchProxy } from '../helpers/supabase-functions-fetch-proxy';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -28,6 +29,7 @@ export class SupabaseService {
           'Supabase URL and anon key must be set in src/environments/environment.ts (see dashboard Project Settings → API).'
         );
       }
+      const functionsProxy = environment.supabaseFunctionsFetchProxyPrefix?.trim();
       this._client = createClient(
         environment.supabaseUrl,
         environment.supabaseAnonKey,
@@ -38,6 +40,16 @@ export class SupabaseService {
             // This app can safely run auth ops without cross-tab lock coordination.
             lock: async <R>(_name: string, _acquireTimeout: number, fn: () => Promise<R>) => fn(),
           },
+          ...(functionsProxy
+            ? {
+                global: {
+                  fetch: createSupabaseFunctionsFetchProxy(
+                    environment.supabaseUrl,
+                    functionsProxy
+                  ),
+                },
+              }
+            : {}),
         }
       );
     }

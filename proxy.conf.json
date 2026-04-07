@@ -1,0 +1,10 @@
+{
+  "/__sb-fn": {
+    "target": "https://lvoncirunpbomolblvuo.supabase.co",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/__sb-fn": ""
+    }
+  }
+}

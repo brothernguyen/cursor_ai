@@ -1,7 +1,11 @@
 # Send Company Admin Invite Email
 
 This Edge Function sends an invitation email to new company admins (and, with `inviteRole: "employee"`, to **employees**) using [Resend](https://resend.com).
-If Resend blocks delivery while your domain is being verified, it can optionally fall back to sending via Gmail SMTP.
+If Resend blocks delivery while your domain is being verified, it can optionally fall back to sending via Gmail SMTP **on port 465** (required on hosted Supabase).
+
+### Hosted Supabase: SMTP port limits
+
+[Edge Function limits](https://supabase.com/docs/guides/functions/limits): **outbound connections to ports 25 and 587 are not allowed.** Using **587 + STARTTLS** (common in Gmail tutorials) will fail or produce a generic **502 Bad Gateway** HTML page instead of a JSON error. Use **`SMTP_PORT=465`** with implicit TLS for `smtp.gmail.com`, or send only via **Resend** (HTTPS, no SMTP). For local `supabase functions serve` only, you can set secret **`SKIP_SMTP_PORT_CHECK=1`** if you intentionally test port 587 against a local stack.
 
 ## Supabase setup
 
@@ -29,18 +33,18 @@ Set these when using SMTP as fallback or when **`EMAIL_PRIMARY=smtp`**:
 | Secret       | Description |
 |--------------|-------------|
 | `SMTP_HOST`  | e.g. `smtp.gmail.com` |
-| `SMTP_PORT`  | `465` (TLS) for Gmail with this function |
+| `SMTP_PORT`  | **`465`** for Gmail on **hosted** Supabase (ports **587** and **25** are blocked by the platform). |
 | `SMTP_USER`  | Full Gmail address |
 | `SMTP_PASS`  | **Gmail App Password** (Google Account → Security → 2-Step Verification → App passwords). Normal account passwords return **535** from Gmail. |
 | `SMTP_FROM`  | Optional; defaults to `SMTP_USER`. Must be an address your SMTP account may send as. |
-| `SMTP_TLS_MODE` | Optional. `starttls` (use with **port 587**) or `tls` (implicit TLS, typical **465**). If omitted: port **587** → STARTTLS; other ports → TLS. |
+| `SMTP_TLS_MODE` | Optional. On hosted Supabase use **`tls`** (or omit) with **port 465**. `starttls` is for port 587, which is **blocked** on hosted Edge Functions. |
 
 **If Gmail returns `535 BadCredentials`**
 
 1. **App password** — [Google → App passwords](https://myaccount.google.com/apppasswords). Turn on **2-Step Verification** first. The password is **16 characters**; paste into `SMTP_PASS` (spaces are stripped automatically for `smtp.gmail.com`).
 2. **`SMTP_USER`** — Must be the **full** address (e.g. `you@gmail.com`), not only the name before `@`.
-3. Try **port 587**: `SMTP_PORT` = `587`, `SMTP_TLS_MODE` = `starttls` (or leave mode unset; the function defaults 587 to STARTTLS).
-4. **Google Workspace** (@company.com): Org admins can **disable SMTP / App passwords**. Use a **personal Gmail** for sending, **Resend with verified domain**, or **SendGrid/Mailgun SMTP** instead.
+3. On **Supabase hosted**, use **`SMTP_PORT` = `465`** (do not use 587 — it is blocked; you will get 502/HTML errors).
+4. **Google Workspace** (@company.com): Org admins can **disable SMTP / App passwords**. Prefer **Resend with a verified domain**, or another provider’s **HTTPS API** if SMTP is blocked.
 
 **Quick path to invite any email without Resend domain verification**
 

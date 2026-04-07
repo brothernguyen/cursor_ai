@@ -9,8 +9,9 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 // - RESEND_FROM: sender on a verified domain at Resend (not sandbox). Default onboarding@resend.dev = test-only.
 // - SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (optional from; defaults to SMTP_USER)
 //   Required when EMAIL_PRIMARY=smtp, or used as fallback when Resend blocks delivery.
-// - SMTP_TLS_MODE (optional): `tls` = implicit TLS (typical port 465). `starttls` = STARTTLS (use port 587).
-//   If unset: port 587 → STARTTLS, any other port → implicit TLS.
+// - SMTP_TLS_MODE (optional): `tls` = implicit TLS (typical port 465). `starttls` = STARTTLS (port 587 — blocked on hosted Supabase).
+//   Hosted Edge Functions block outbound ports 25 and 587 — use port 465 + implicit TLS on Gmail, or use Resend (HTTPS).
+//   Local `supabase functions serve`: set secret SKIP_SMTP_PORT_CHECK=1 to test port 587.
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'http://localhost:4200';
@@ -114,6 +115,20 @@ function smtpUseImplicitTls(port: number): boolean {
   return port !== 587;
 }
 
+/**
+ * Supabase-hosted Edge Functions block outbound TCP to ports 25 and 587 (platform limit).
+ * Using those ports causes hangs/platform 502 HTML — fail fast with a clear error.
+ * @see https://supabase.com/docs/guides/functions/limits
+ */
+function assertSmtpPortAllowedOnHostedEdge(): void {
+  if (Deno.env.get('SKIP_SMTP_PORT_CHECK') === '1') return;
+  if (SMTP_PORT === 25 || SMTP_PORT === 587) {
+    throw new Error(
+      `SMTP port ${SMTP_PORT} is blocked on Supabase-hosted Edge Functions. Use port 465 with implicit TLS (e.g. Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=465, SMTP_TLS_MODE=tls or omit mode), or send mail via Resend only (RESEND_API_KEY, no SMTP). Docs: https://supabase.com/docs/guides/functions/limits`,
+    );
+  }
+}
+
 /** Gmail App Passwords are often copied with spaces; AUTH LOGIN requires the 16 chars without spaces. */
 function normalizeSmtpPassword(hostname: string, password: string): string {
   const p = password.trim();
@@ -133,6 +148,7 @@ async function sendViaSmtp(args: {
   if (!SMTP_HOST || !Number.isFinite(SMTP_PORT) || !SMTP_USER || !passTrim || !SMTP_FROM) {
     throw new Error('SMTP is not configured');
   }
+  assertSmtpPortAllowedOnHostedEdge();
 
   const username = SMTP_USER.trim();
   const password = normalizeSmtpPassword(SMTP_HOST, passTrim);
@@ -163,6 +179,24 @@ async function sendViaSmtp(args: {
 }
 
 async function handler(req: Request): Promise<Response> {
+  try {
+    return await handleInviteRequest(req);
+  } catch (err) {
+    console.error('send-company-admin-invite unexpected error:', err);
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(
+      JSON.stringify({
+        error: 'Invite email function crashed',
+        details: message,
+        hint:
+          'Check Supabase Dashboard → Edge Functions → send-company-admin-invite → Logs. Common causes: invalid SMTP secrets, Resend API key, or network from the Edge runtime.',
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+}
+
+async function handleInviteRequest(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -182,7 +216,7 @@ async function handler(req: Request): Promise<Response> {
         JSON.stringify({
           error: 'SMTP not configured for EMAIL_PRIMARY=smtp',
           hint:
-            'Set SMTP_HOST (e.g. smtp.gmail.com), SMTP_PORT (465), SMTP_USER, SMTP_PASS (Gmail: App Password), SMTP_FROM. See https://support.google.com/accounts/answer/185833',
+            'On hosted Supabase use SMTP_PORT=465 (TLS), not 587 — ports 25 and 587 are blocked. Set SMTP_HOST (e.g. smtp.gmail.com), SMTP_USER, SMTP_PASS (Gmail App Password), SMTP_FROM. See https://support.google.com/accounts/answer/185833',
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -264,7 +298,7 @@ async function handler(req: Request): Promise<Response> {
           error: 'Failed to send invitation email via SMTP',
           smtpError: smtpErr instanceof Error ? smtpErr.message : String(smtpErr),
           hint:
-            'Gmail 535: (1) Use an App Password, not your normal password. (2) In secrets, paste the 16 characters with no spaces (or we strip spaces for smtp.gmail.com). (3) SMTP_USER must be the full Gmail address. (4) Try SMTP_PORT=587 and SMTP_TLS_MODE=starttls. (5) Workspace accounts: admin may block SMTP; use a personal Gmail or another provider.',
+            'Gmail 535: (1) App Password, not normal password. (2) SMTP_USER full address. (3) On Supabase Edge use SMTP_PORT=465 (587 is blocked by the platform). (4) Workspace may block SMTP; use Resend + verified domain instead.',
         }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

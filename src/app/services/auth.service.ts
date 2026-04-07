@@ -1,7 +1,8 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, from, map, switchMap, catchError, of, throwError } from 'rxjs';
 import { Company } from '../interfaces/auth';
+import { messageFromInviteEmailFnError } from '../helpers/invite-email-fn-error';
 // import { BASE_URL } from '../config/constants'; // kept for commented HTTP API
 import { SupabaseService } from './supabase.service';
 import { environment } from '../../environments/environment';
@@ -247,79 +248,53 @@ export class AuthService {
         );
       }),
       switchMap(({ admin, token }) => {
-        const url = `${environment.supabaseUrl}/functions/v1/send-company-admin-invite`;
         const adminId = String(admin?.['id'] ?? '');
         const companyId = adminData.companyId;
-        return from(this.sb.client.auth.getSession()).pipe(
-          switchMap(({ data: sess, error: sessErr }) => {
-            if (sessErr) throw sessErr;
-            const access =
-              sess?.session?.access_token?.trim() || this.getToken()?.trim() || '';
-            const headers = new HttpHeaders({
-              'Content-Type': 'application/json',
-              apikey: environment.supabaseAnonKey,
-              ...(access ? { Authorization: `Bearer ${access}` } : {}),
-            });
-            return this.http
-              .post<{ success?: boolean; id?: string }>(
-                url,
-                {
-                  email: adminData.email,
-                  token,
-                  companyName: adminData.companyName ?? undefined,
-                },
-                { headers }
-              )
-              .pipe(
-                map(() => ({
-                  admin,
-                  emailSent: true as const,
-                })),
-                catchError((emailErr: unknown) => {
-                  const body = (
-                    emailErr instanceof HttpErrorResponse ? emailErr.error : null
-                  ) as { error?: string; details?: unknown; hint?: string } | null;
-                  let msg: string;
-                  if (body?.error && typeof body.error === 'string') {
-                    msg = body.details
-                      ? `${body.error}: ${JSON.stringify(body.details)}`
-                      : body.error;
-                  } else if (emailErr instanceof HttpErrorResponse) {
-                    msg = emailErr.message || 'Invitation email failed';
-                  } else if (emailErr instanceof Error) {
-                    msg = emailErr.message;
-                  } else {
-                    msg = 'Invitation email failed';
-                  }
-                  if (body?.hint && typeof body.hint === 'string') {
-                    msg = `${msg} ${body.hint}`;
-                  }
-                  console.warn(
-                    'Company admin invite email failed; rolling back invitation + admin row:',
-                    msg
-                  );
-                  return from(this.sb.client.from('invitations').delete().eq('token', token)).pipe(
-                    switchMap(({ error: invDelErr }) => {
-                      if (invDelErr) {
-                        console.error('Rollback: could not delete invitation row', invDelErr);
-                      }
-                      return from(
-                        this.sb.client
-                          .from('company_admins')
-                          .delete()
-                          .eq('id', adminId)
-                          .eq('company_id', companyId)
-                      );
-                    }),
-                    switchMap(({ error: cadDelErr }) => {
-                      if (cadDelErr) {
-                        console.error('Rollback: could not delete company_admins row', cadDelErr);
-                      }
-                      return throwError(() => new Error(msg));
-                    })
-                  );
-                })
-              );
+        return from(
+          this.sb.client.functions.invoke('send-company-admin-invite', {
+            body: {
+              email: adminData.email,
+              token,
+              companyName: adminData.companyName ?? undefined,
+            },
+            timeout: 90_000,
+          })
+        ).pipe(
+          switchMap((result) => {
+            if (!result.error) {
+              return of({
+                admin,
+                emailSent: true as const,
+              });
+            }
+            return from(messageFromInviteEmailFnError(result.error)).pipe(
+              switchMap((msg) => {
+                console.warn(
+                  'Company admin invite email failed; rolling back invitation + admin row:',
+                  msg
+                );
+                return from(this.sb.client.from('invitations').delete().eq('token', token)).pipe(
+                  switchMap(({ error: invDelErr }) => {
+                    if (invDelErr) {
+                      console.error('Rollback: could not delete invitation row', invDelErr);
+                    }
+                    return from(
+                      this.sb.client
+                        .from('company_admins')
+                        .delete()
+                        .eq('id', adminId)
+                        .eq('company_id', companyId)
+                    );
+                  }),
+                  switchMap(({ error: cadDelErr }) => {
+                    if (cadDelErr) {
+                      console.error('Rollback: could not delete company_admins row', cadDelErr);
+                    }
+                    return throwError(() => new Error(msg));
+                  })
+                );
+              })
+            );
           })
         );
       }),
