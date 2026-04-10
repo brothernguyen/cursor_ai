@@ -3567,6 +3567,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Delete employee
   onDeleteEmployee(employee: EmployeeDisplay) {
     console.log('onDeleteEmployee called with employee:', employee);
     console.log('Employee ID:', employee?.id);
